@@ -15,6 +15,6 @@ RUN rm -rf /var/lib/apt/lists/*
 
 COPY *.py *.sh /root
 
-EXPOSE 5000
+EXPOSE 5010
 
 CMD ["/root/flask.sh"]  
