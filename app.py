@@ -21,7 +21,7 @@ def hello():
         cursor.execute("SELECT version();")
         # Fetch result
         record = cursor.fetchone()
-        content = content + "You are connected to - " + record + "<br>\n"
+        content = content + "You are connected to - " + str(record) + "<br>\n"
 
     except (Exception, Error) as error:
         return ("Error while connecting to PostgreSQL " + error)
