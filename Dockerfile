@@ -13,7 +13,7 @@ RUN pip3 install flask
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY *.py *.sh /root
+COPY *.py *.sh /root/
 
 EXPOSE 5010
 

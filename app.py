@@ -23,8 +23,8 @@ def hello():
         record = cursor.fetchone()
         content = content + "You are connected to - " + record + "<br>\n"
 
-        except (Exception, Error) as error:
-            return ("Error while connecting to PostgreSQL " + error)
+    except (Exception, Error) as error:
+        return ("Error while connecting to PostgreSQL " + error)
     finally:
         if (connection):
             cursor.close()
