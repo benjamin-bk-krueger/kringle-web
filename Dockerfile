@@ -13,7 +13,10 @@ RUN pip3 install flask
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
+RUN mkdir /root/templates
+
 COPY *.py *.sh /root/
+COPY templates/*.html /root/templates/
 
 EXPOSE 5010
 

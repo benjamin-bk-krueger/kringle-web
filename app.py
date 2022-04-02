@@ -23,5 +23,5 @@ def room():
     rooms = cur.fetchall()
     cur.close()
     conn.close()
-    return render_template('templates/room.html', rooms=rooms)
+    return render_template('room.html', rooms=rooms)
 
