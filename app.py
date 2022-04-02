@@ -1,35 +1,27 @@
 import psycopg2 
 from psycopg2 import Error 
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
-@app.route('/flask/hello')
-def hello():
-    content = '<h1>Hello, World!</h1><br><br>\n'
+def get_db_connection():
     try:
-        # Connect to an existing database
-        connection = psycopg2.connect(user="postgres",
+        conn = psycopg2.connect(user="postgres",
                                     password="postgres",
                                     host="kringle_database",
                                     port="5432",
                                     database="postgres")
-
-        # Create a cursor to perform database operations
-        cursor = connection.cursor()
-        # Executing a SQL query
-        cursor.execute("SELECT version();")
-        # Fetch result
-        record = cursor.fetchone()
-        content = content + "You are connected to - " + str(record) + "<br>\n"
-
+        return conn
     except (Exception, Error) as error:
-        return ("Error while connecting to PostgreSQL " + error)
-    finally:
-        if (connection):
-            cursor.close()
-            connection.close()
-            content = content + "PostgreSQL connection is closed<br>\n"
+        return None
 
-    return content
+@app.route('/flask/room')
+def room():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM room;')
+    rooms = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('room.html', rooms=rooms)
 
