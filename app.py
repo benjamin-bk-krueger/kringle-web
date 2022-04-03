@@ -96,6 +96,16 @@ def get_single_objective(num):
     conn.close()
     return render_template('objective.html', objectives=objectives)
 
+@app.route('/flask/junction', methods = ['GET'])
+def get_all_junctions():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM junction;')
+    junctions = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('junction.html', junctions=junctions)
+
 '''
     print(request.authorization["username"])
     print(request.authorization["password"])

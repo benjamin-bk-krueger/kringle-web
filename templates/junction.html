@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Junctions {% endblock %}</h1>
+    {% for junction in junctions %}
+        <div class='element'>
+            <h3>#{{ junction[0] }}</h3>
+            <p class='review'><i>Found in {{ junction[1] }}</i></p>
+            <p class='review'>{{ junction[2] }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}
