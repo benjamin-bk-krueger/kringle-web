@@ -36,6 +36,26 @@ def get_single_room(num):
     conn.close()
     return render_template('room.html', rooms=rooms)
 
+@app.route('/flask/item', methods = ['GET'])
+def get_all_items():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM item;')
+    items = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('item.html', items=items)
+
+@app.route('/flask/item/<int:num>', methods = ['GET'])
+def get_single_item(num):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(f'SELECT * FROM item where item_id = {num};')
+    items = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('item.html', items=items)
+
 '''
     print(request.authorization["username"])
     print(request.authorization["password"])

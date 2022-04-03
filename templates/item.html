@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Items {% endblock %}</h1>
+    {% for item in items %}
+        <div class='element'>
+            <h3>ID #{{ item[0] }}: {{ item[2] }}</h3>
+            <p class='review'>Found in room {{ item[1] }}</p>
+            <p class='review'>{{ item[3] }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}
