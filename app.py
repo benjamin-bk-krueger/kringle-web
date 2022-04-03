@@ -39,7 +39,7 @@ def get_single_room(num):
     conn.close()
     return render_template('room.html', rooms=rooms)
 
-
+'''
 @app.route('/', methods=['GET'])
 def query_records():
     name = request.args.get('name')
@@ -95,4 +95,4 @@ def delte_record():
     with open('/tmp/data.txt', 'w') as f:
         f.write(json.dumps(new_records, indent=2))
     return jsonify(record)
- 
+'''
