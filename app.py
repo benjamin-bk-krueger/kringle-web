@@ -1,6 +1,6 @@
 import psycopg2 
 from psycopg2 import Error 
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
@@ -17,6 +17,9 @@ def get_db_connection():
 
 @app.route('/flask/room', methods = ['GET'])
 def get_all_rooms():
+    print(request.authorization["username"])
+    print(request.authorization["password"])
+ 
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute('SELECT * FROM room;')
