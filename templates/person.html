@@ -4,7 +4,7 @@
     <h1>{% block title %} Persons {% endblock %}</h1>
     {% for person in persons %}
         <div class='element'>
-            <h3>ID #{{ person[0] }}: {{ person[2] }}</h3>
+            <a href="{{ url_for('get_single_person', num=person[0])}}"><h3>ID #{{ person[0] }}: {{ person[2] }}</h3></a>
             <p class='review'><i>Found in {{ person[1] }}</i></p>
             <p class='review'>{{ person[3] }}</p>
         </div>

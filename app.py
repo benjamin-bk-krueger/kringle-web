@@ -76,6 +76,26 @@ def get_single_person(num):
     conn.close()
     return render_template('person.html', persons=persons)
 
+@app.route('/flask/objective', methods = ['GET'])
+def get_all_objectives():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM objective;')
+    objectives = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('objective.html', objectives=objectives)
+
+@app.route('/flask/objective/<int:num>', methods = ['GET'])
+def get_single_objective(num):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(f'SELECT * FROM objective where objective_id = {num};')
+    objectives = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('objective.html', objectives=objectives)
+
 '''
     print(request.authorization["username"])
     print(request.authorization["password"])

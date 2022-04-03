@@ -4,7 +4,7 @@
     <h1>{% block title %} Items {% endblock %}</h1>
     {% for item in items %}
         <div class='element'>
-            <h3>ID #{{ item[0] }}: {{ item[2] }}</h3>
+            <a href="{{ url_for('get_single_item', num=item[0])}}"><h3>ID #{{ item[0] }}: {{ item[2] }}</h3></a>
             <p class='review'><i>Found in {{ item[1] }}</i></p>
             <p class='review'>{{ item[3] }}</p>
         </div>
