@@ -15,7 +15,7 @@ def get_db_connection():
     except (Exception, Error) as error:
         return None
 
-@app.route('/flask/room'), methods = ['GET'])
+@app.route('/flask/room', methods = ['GET'])
 def get_all_rooms():
     conn = get_db_connection()
     cur = conn.cursor()
