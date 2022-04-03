@@ -4,7 +4,7 @@
     <h1>{% block title %} Rooms {% endblock %}</h1>
     {% for room in rooms %}
         <div class='element'>
-            <h3>ID #{{ room[0] }}: {{ room[1] }}</h3>
+            <a href="{{ url_for('get_single_room',room[0]) }}"><h3>ID #{{ room[0] }}: {{ room[1] }}</h3></a>
             <p class='review'>{{ room[2] }}</p>
         </div>
     {% endfor %}

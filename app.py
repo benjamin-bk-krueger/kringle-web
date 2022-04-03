@@ -56,6 +56,26 @@ def get_single_item(num):
     conn.close()
     return render_template('item.html', items=items)
 
+@app.route('/flask/person', methods = ['GET'])
+def get_all_persons():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM person;')
+    persons = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('person.html', persons=persons)
+
+@app.route('/flask/person/<int:num>', methods = ['GET'])
+def get_single_person(num):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(f'SELECT * FROM person where person_id = {num};')
+    persons = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('person.html', persons=persons)
+
 '''
     print(request.authorization["username"])
     print(request.authorization["password"])
