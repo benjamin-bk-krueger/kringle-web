@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %} {% endblock %}- FlaskApp</title>
+    <title>{% block title %} {% endblock %}- Kringle Web</title>
     <style>
         nav a {
             color: #d64161;
@@ -11,22 +11,21 @@
             text-decoration: none;
         }
 
-        .room {
+        .element {
             padding: 20px;
             margin: 10px;
             background-color: #f7f4f4;
         }
 
         .review {
-                margin-left: 50px;
-                font-size: 20px;
+            margin-left: 50px;
+            font-size: 20px;
         }
-
     </style>
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('get_all_rooms') }}">FlaskApp</a>
+        <a href="{{ url_for('get_all_rooms') }}">Rooms</a>
         <a href="#">About</a>
     </nav>
     <hr>

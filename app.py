@@ -18,9 +18,6 @@ def get_db_connection():
 
 @app.route('/flask/room', methods = ['GET'])
 def get_all_rooms():
-    print(request.authorization["username"])
-    print(request.authorization["password"])
- 
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute('SELECT * FROM room;')
@@ -38,6 +35,11 @@ def get_single_room(num):
     cur.close()
     conn.close()
     return render_template('room.html', rooms=rooms)
+
+'''
+    print(request.authorization["username"])
+    print(request.authorization["password"])
+'''
 
 '''
 @app.route('/', methods=['GET'])

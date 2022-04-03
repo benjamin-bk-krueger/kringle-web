@@ -3,11 +3,9 @@
 {% block content %}
     <h1>{% block title %} Rooms {% endblock %}</h1>
     {% for room in rooms %}
-        <div class='room'>
-            <h3>#{{ room[0] }} - {{ room[1] }} BY {{ room[2] }}</h3>
-            <i><p>({{ room[3] }} pages)</p></i>
-            <p class='review'>{{ room[4] }}</p>
-            <i><p>Added {{ room[5] }}</p></i>
+        <div class='element'>
+            <h3>ID #{{ room[0] }}: {{ room[1] }}</h3>
+            <p class='review'>{{ room[2] }}</p>
         </div>
     {% endfor %}
 {% endblock %}
