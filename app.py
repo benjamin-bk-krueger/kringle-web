@@ -26,7 +26,7 @@ def get_all_rooms():
     return render_template('room.html', rooms=rooms)
 
 @app.route('/flask/room/<int:num>', methods = ['GET'])
-def get_single_room(self, num):
+def get_single_room(num):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(f'SELECT * FROM room where room_id = {num};')
