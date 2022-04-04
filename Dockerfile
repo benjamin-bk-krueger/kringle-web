@@ -1,9 +1,7 @@
 FROM ubuntu:20.04
 
-LABEL version="0.1"
+LABEL version="0.9"
 LABEL maintaner="Ben Krueger <sayhello@blk8.de>"
-#LABEL release-date="2020-04-05"
-#LABEL promoted="true"
 
 RUN apt-get update
 RUN apt-get install -y python3 python3-pip python3-psycopg2
@@ -13,12 +11,15 @@ RUN pip3 install flask
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
-RUN mkdir /root/templates
-RUN mkdir /root/.kringlecon
-
-COPY *.py *.sh /root/
-COPY templates/*.html /root/templates/
+RUN useradd -m -s /bin/false flask
 
 EXPOSE 5010
 
-CMD ["/root/flask.sh"]  
+USER flask
+
+RUN mkdir /home/flask/templates /home/flask/.kringlecon
+
+COPY *.py *.sh /home/flask/
+COPY templates/*.html /home/flask/templates/
+
+CMD ["/home/flask/flask.sh"]  
