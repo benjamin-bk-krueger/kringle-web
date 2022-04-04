@@ -268,7 +268,7 @@ def set_room(num):
             record = json.loads(request.data)
             conn = get_db_connection()
             cur = conn.cursor()
-            cur.execute(f'UPDATE room SET (room_name = "{record["name"]}", room_desc = "{record["description"]}") where room_id = {num};')
+            cur.execute(f'UPDATE room SET room_name = "{record["name"]}", room_desc = "{record["description"]}" where room_id = {num};')
             room = cur.fetchone()
             cur.close()
             conn.close()
