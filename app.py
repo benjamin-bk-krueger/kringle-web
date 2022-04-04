@@ -109,28 +109,30 @@ def get_all_junctions():
 
 @app.route('/api/world', methods=['POST'])
 def create_world():
-    username = request.authorization["username"]
-    password = request.authorization["password"]
-
-    if (username == "kringle" and password == "kringle"):
-        record = json.loads(request.data)
-        with open('/tmp/world.json', 'w') as f:
-            f.write(json.dumps(record, indent=4))
-        return jsonify({'success': 'world file stored'})
+    auth = request.authorization
+    if auth and auth.get('username') and auth.get('password'):
+        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
+            record = json.loads(request.data)
+            with open('/tmp/world.json', 'w') as f:
+                f.write(json.dumps(record, indent=4))
+            return jsonify({'success': 'world file stored'})
+        else:
+            return jsonify({'error': 'wrong credentials'})
     else:
-        return jsonify({'error': 'wrong credentials'})
+        return jsonify({'error': 'no credentials'})
 
 @app.route('/api/world', methods=['GET'])
 def get_world():
     # name = request.args.get('name')
     # print name
-    username = request.authorization["username"]
-    password = request.authorization["password"]
-
-    if (username == "kringle" and password == "kringle"):
-        with open('/tmp/world.json', 'r') as f:
-            data = f.read()
-            records = json.loads(data)
-            return jsonify(records)
+    auth = request.authorization
+    if auth and auth.get('username') and auth.get('password'):
+        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
+            with open('/tmp/world.json', 'r') as f:
+                data = f.read()
+                records = json.loads(data)
+                return jsonify(records)
+        else:
+            return jsonify({'error': 'wrong credentials'})
     else:
-        return jsonify({'error': 'wrong credentials'})
+        return jsonify({'error': 'no credentials'})
