@@ -107,14 +107,14 @@ def get_all_junctions():
     return render_template('junction.html', junctions=junctions)
 
 
-@app.route('/api/world', methods=['PUT'])
+@app.route('/api/world', methods=['POST'])
 def create_world():
     record = json.loads(request.data)
     with open('/tmp/world.json', 'w') as f:
         f.write(json.dumps(record, indent=4))
     return jsonify(record)
 
-    
+
 '''
     print(request.authorization["username"])
     print(request.authorization["password"])
