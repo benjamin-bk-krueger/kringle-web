@@ -269,10 +269,10 @@ def set_room(num):
             conn = get_db_connection()
             cur = conn.cursor()
             cur.execute(f'UPDATE room SET room_name = \'{record["name"]}\', room_desc = \'{record["description"]}\' where room_id = {num};')
-            room = cur.fetchone()
             cur.close()
+            conn.commit()
             conn.close()
-            return jsonify({'name': room[1],  'description': room[2]})
+            return jsonify({'success': 'room updated'})
         else:
             return jsonify({'error': 'wrong credentials'})
     else:
