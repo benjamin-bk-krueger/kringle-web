@@ -1,10 +1,14 @@
 import psycopg2 
 import json
+import os
 from psycopg2 import Error 
 from flask import Flask, request, render_template, jsonify
 
+gamedata = os.environ['HOME'] + "/.kringlecon"  # directory for game data
+
 app = Flask(__name__)
 
+# open a connection to PostgreSQL DB and return the connection
 def get_db_connection():
     try:
         conn = psycopg2.connect(user="postgres",
@@ -15,6 +19,123 @@ def get_db_connection():
         return conn
     except (Exception, Error) as error:
         return None
+
+# fetch the configuration again from the default URL - HIDDEN "urlrefresh" command assigned
+def refresh_data():
+    counter_room = 1
+    counter_item = 1
+    counter_character = 1
+    counter_objective = 1
+    counter_loaded = 0
+    f = open(gamedata + "/data.json")
+    data = json.load(f)
+
+    try:
+        # Connect to an existing database
+        connection = get_db_connection()
+
+        # Create a cursor to perform database operations
+        cursor = connection.cursor()
+        # Executing a SQL query
+        cursor.execute("SELECT version();")
+
+        # purge the whole database
+        delete_query = "DELETE FROM junction;"
+        cursor.execute(delete_query)
+        connection.commit()
+        delete_query = "DELETE FROM person;"
+        cursor.execute(delete_query)
+        connection.commit()
+        delete_query = "DELETE FROM objective;"
+        cursor.execute(delete_query)
+        connection.commit()
+        delete_query = "DELETE FROM item;"
+        cursor.execute(delete_query)
+        connection.commit()
+        delete_query = "DELETE FROM room;"
+        cursor.execute(delete_query)
+        connection.commit()
+
+        # load all rooms
+        for i in data["rooms"]:
+            room_id = counter_room
+            room_name = i["name"]
+            room_desc = i["description"]
+
+            insert_query = "INSERT INTO room (room_id, room_name, room_desc) VALUES (%s, %s, %s);"
+            cursor.execute(insert_query, (room_id, room_name, room_desc))
+            connection.commit()
+
+            counter_room = counter_room + 1
+            counter_loaded = counter_loaded + 1
+            
+            # load all items in the room
+            if "items" in i:
+                for j in i["items"]:
+                    item_id = counter_item
+                    item_name = j["name"]
+                    item_desc = j["description"]
+
+                    insert_query = "INSERT INTO item (item_id, room_name, item_name, item_desc) VALUES (%s, %s, %s, %s);"
+                    cursor.execute(insert_query, (item_id, room_name, item_name, item_desc))
+                    connection.commit()
+
+                    counter_item = counter_item + 1
+                    counter_loaded = counter_loaded + 1
+                
+            # load all characters in the room
+            if "characters" in i:
+                for j in i["characters"]:
+                    person_id = counter_character
+                    person_name = j["name"]
+                    person_desc = j["description"]
+
+                    insert_query = "INSERT INTO person (person_id, room_name, person_name, person_desc) VALUES (%s, %s, %s, %s);"
+                    cursor.execute(insert_query, (person_id, room_name, person_name, person_desc))
+                    connection.commit()
+
+                    counter_character = counter_character + 1
+                    counter_loaded = counter_loaded + 1
+
+            # load all objectives in the room
+            if "objectives" in i:
+                for j in i["objectives"]:
+                    objective_id = counter_objective
+                    objective_name = j["name"]
+                    objective_desc = j["description"]
+                    difficulty = j["difficulty"]
+                    objective_url = j["url"]
+                    supported_by = j["supportedby"]
+                    requires = j["requires"]
+
+                    insert_query = "INSERT INTO objective (objective_id, room_name, objective_name, objective_desc, difficulty, objective_url, supported_by, requires) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"
+                    cursor.execute(insert_query, (objective_id, room_name, objective_name, objective_desc, difficulty, objective_url, supported_by, requires))
+                    connection.commit()
+
+                    counter_objective = counter_objective + 1
+                    counter_loaded = counter_loaded + 1
+
+            # load all junctions in the room
+            if "junctions" in i:
+                for j in i["junctions"]:
+                    destination = j["destination"]
+                    junction_desc = j["description"]
+
+                    insert_query = "INSERT INTO junction (destination, room_name, junction_desc) VALUES (%s, %s, %s);"
+                    cursor.execute(insert_query, (destination, room_name, junction_desc))
+                    connection.commit()
+
+                    counter_loaded = counter_loaded + 1
+
+    except (Exception, Error) as error:
+        return 0
+    finally:
+        if (connection):
+            cursor.close()
+            connection.close()
+    
+    f.close()
+    return(counter_loaded)
 
 @app.route('/flask/room', methods = ['GET'])
 def get_all_rooms():
@@ -113,9 +234,10 @@ def create_world():
     if auth and auth.get('username') and auth.get('password'):
         if (auth['username'] == "kringle" and auth['password'] == "kringle"):
             record = json.loads(request.data)
-            with open('/tmp/world.json', 'w') as f:
+            with open(gamedata + "/data.json", 'w') as f:
                 f.write(json.dumps(record, indent=4))
-            return jsonify({'success': 'world file stored'})
+            i = refresh_data()
+            return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
         else:
             return jsonify({'error': 'wrong credentials'})
     else:
@@ -128,7 +250,7 @@ def get_world():
     auth = request.authorization
     if auth and auth.get('username') and auth.get('password'):
         if (auth['username'] == "kringle" and auth['password'] == "kringle"):
-            with open('/tmp/world.json', 'r') as f:
+            with open(gamedata + "/data.json", 'r') as f:
                 data = f.read()
                 records = json.loads(data)
                 return jsonify(records)
