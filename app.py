@@ -229,7 +229,7 @@ def get_all_junctions():
 
 
 @app.route('/api/world', methods=['POST'])
-def create_world():
+def set_world():
     auth = request.authorization
     if auth and auth.get('username') and auth.get('password'):
         if (auth['username'] == "kringle" and auth['password'] == "kringle"):
@@ -254,6 +254,41 @@ def get_world():
                 data = f.read()
                 records = json.loads(data)
                 return jsonify(records)
+        else:
+            return jsonify({'error': 'wrong credentials'})
+    else:
+        return jsonify({'error': 'no credentials'})
+
+
+@app.route('/api/room/<int:num>', methods=['POST'])
+def set_room():
+    auth = request.authorization
+    if auth and auth.get('username') and auth.get('password'):
+        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
+            record = json.loads(request.data)
+            with open(gamedata + "/data.json", 'w') as f:
+                f.write(json.dumps(record, indent=4))
+            i = refresh_data()
+            return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
+        else:
+            return jsonify({'error': 'wrong credentials'})
+    else:
+        return jsonify({'error': 'no credentials'})
+
+@app.route('/api/room/<int:num>', methods=['GET'])
+def get_room():
+    # name = request.args.get('name')
+    # print name
+    auth = request.authorization
+    if auth and auth.get('username') and auth.get('password'):
+        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM room where room_id = {num};')
+            room = cur.fetchone()
+            cur.close()
+            conn.close()
+            return jsonify({'name': room[1],  'description': room[2]})
         else:
             return jsonify({'error': 'wrong credentials'})
     else:
