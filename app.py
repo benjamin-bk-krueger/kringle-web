@@ -261,7 +261,7 @@ def get_world():
 
 
 @app.route('/api/room/<int:num>', methods=['POST'])
-def set_room():
+def set_room(num):
     auth = request.authorization
     if auth and auth.get('username') and auth.get('password'):
         if (auth['username'] == "kringle" and auth['password'] == "kringle"):
@@ -276,7 +276,7 @@ def set_room():
         return jsonify({'error': 'no credentials'})
 
 @app.route('/api/room/<int:num>', methods=['GET'])
-def get_room():
+def get_room(num):
     # name = request.args.get('name')
     # print name
     auth = request.authorization
