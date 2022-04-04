@@ -266,10 +266,13 @@ def set_room(num):
     if auth and auth.get('username') and auth.get('password'):
         if (auth['username'] == "kringle" and auth['password'] == "kringle"):
             record = json.loads(request.data)
-            with open(gamedata + "/data.json", 'w') as f:
-                f.write(json.dumps(record, indent=4))
-            i = refresh_data()
-            return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute(f'UPDATE room SET (room_name = "{record[0]}", room_desc = "{record[1]}") where room_id = {num};')
+            room = cur.fetchone()
+            cur.close()
+            conn.close()
+            return jsonify({'name': room[1],  'description': room[2]})
         else:
             return jsonify({'error': 'wrong credentials'})
     else:
