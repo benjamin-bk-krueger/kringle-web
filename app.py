@@ -40,6 +40,25 @@ def fetch_one_from_db(query):
     conn.close()
     return result
 
+# update one row from a query
+def update_one_in_db(query):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(query)
+    cur.close()
+    conn.commit()
+    conn.close()
+
+# check if the basic authentication is valid
+def is_authenticated(auth):
+    if auth and auth.get('username') and auth.get('password'):
+        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
+            return True
+        else:
+            return False
+    else:
+        return False
+
 # initialize a completely new world using a world template suplied as JSON
 def init_world(world):
     counter_room = 1
@@ -235,37 +254,18 @@ def get_world():
 
 @app.route('/api/room/<int:num>', methods=['POST'])
 def set_room(num):
-    auth = request.authorization
-    if auth and auth.get('username') and auth.get('password'):
-        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
-            record = json.loads(request.data)
-            conn = get_db_connection()
-            cur = conn.cursor()
-            cur.execute(f'UPDATE room SET room_name = \'{record["name"]}\', room_desc = \'{record["description"]}\' where room_id = {num};')
-            cur.close()
-            conn.commit()
-            conn.close()
-            return jsonify({'success': 'room updated'})
-        else:
-            return jsonify({'error': 'wrong credentials'})
+    if (is_authenticated(request.authorization)):
+        record = json.loads(request.data)
+        update_one_in_db(f'UPDATE room SET room_name = \'{record["name"]}\', room_desc = \'{record["description"]}\' where room_id = {num};')
+        return jsonify({'success': f'room {record["name"]} updated'})
     else:
-        return jsonify({'error': 'no credentials'})
+        return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/room/<int:num>', methods=['GET'])
 def get_room(num):
     # name = request.args.get('name')
-    # print name
-    auth = request.authorization
-    if auth and auth.get('username') and auth.get('password'):
-        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
-            conn = get_db_connection()
-            cur = conn.cursor()
-            cur.execute(f'SELECT * FROM room where room_id = {num};')
-            room = cur.fetchone()
-            cur.close()
-            conn.close()
-            return jsonify({'name': room[1],  'description': room[2]})
-        else:
-            return jsonify({'error': 'wrong credentials'})
+    if (is_authenticated(request.authorization)):
+        room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
+        return jsonify({'name': room[1],  'description': room[2]})
     else:
-        return jsonify({'error': 'no credentials'})
+        return jsonify({'error': 'wrong credentials'})
