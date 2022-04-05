@@ -263,7 +263,7 @@ def get_room(num):
 def set_item(num):
     if (is_authenticated(request.authorization)):
         item = json.loads(request.data)
-        update_one_in_db(f'UPDATE item SET item_name = \'{item["name"]}\', room_desc = \'{item["description"]}\' where item_id = {num};')
+        update_one_in_db(f'UPDATE item SET item_name = \'{item["name"]}\', item_desc = \'{item["description"]}\' where item_id = {num};')
         return jsonify({'success': f'item {item["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
@@ -272,6 +272,6 @@ def set_item(num):
 def get_item(num):
     if (is_authenticated(request.authorization)):
         item = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
-        return jsonify({'name': item[1],  'description': item[2]})
+        return jsonify({'name': item[2],  'description': item[3]})
     else:
         return jsonify({'error': 'wrong credentials'})
