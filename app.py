@@ -222,35 +222,25 @@ def get_all_junctions():
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
 def set_world():
-    auth = request.authorization
-    if auth and auth.get('username') and auth.get('password'):
-        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
-            record = json.loads(request.data)
-            with open(gamedata + "/data.json", 'w') as f:
-                f.write(json.dumps(record, indent=4))
-            i = init_world(gamedata + "/data.json")
-            return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
-        else:
-            return jsonify({'error': 'wrong credentials'})
+    if (is_authenticated(request.authorization)):
+        record = json.loads(request.data)
+        with open(gamedata + "/data.json", 'w') as f:
+            f.write(json.dumps(record, indent=4))
+        i = init_world(gamedata + "/data.json")
+        return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
     else:
-        return jsonify({'error': 'no credentials'})
+        return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/world', methods=['GET'])
 def get_world():
     # name = request.args.get('name')
-    # print name
-    auth = request.authorization
-    if auth and auth.get('username') and auth.get('password'):
-        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
-            with open(gamedata + "/data.json", 'r') as f:
-                data = f.read()
-                records = json.loads(data)
-                return jsonify(records)
-        else:
-            return jsonify({'error': 'wrong credentials'})
+    if (is_authenticated(request.authorization)):
+        with open(gamedata + "/data.json", 'r') as f:
+            data = f.read()
+            records = json.loads(data)
+            return jsonify(records)
     else:
-        return jsonify({'error': 'no credentials'})
-
+        return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/room/<int:num>', methods=['POST'])
 def set_room(num):
@@ -263,7 +253,6 @@ def set_room(num):
 
 @app.route('/api/room/<int:num>', methods=['GET'])
 def get_room(num):
-    # name = request.args.get('name')
     if (is_authenticated(request.authorization)):
         room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
         return jsonify({'name': room[1],  'description': room[2]})
