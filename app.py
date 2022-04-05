@@ -20,24 +20,41 @@ def get_db_connection():
     except (Exception, Error) as error:
         return None
 
-# fetch the configuration again from the default URL - HIDDEN "urlrefresh" command assigned
-def refresh_data():
+# fetch all rows from a query
+def fetch_all_from_db(query):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(query)
+    results = cur.fetchall()
+    cur.close()
+    conn.close()
+    return results
+
+# fetch only a single row from a query
+def fetch_one_from_db(query):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(query)
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+    return result
+
+# initialize a completely new world using a world template suplied as JSON
+def init_world(world):
     counter_room = 1
     counter_item = 1
     counter_character = 1
     counter_objective = 1
     counter_loaded = 0
-    f = open(gamedata + "/data.json")
+
+    f = open(world)
     data = json.load(f)
 
     try:
-        # Connect to an existing database
+        # Connect to an existing database and ceate a cursor to perform database operations
         connection = get_db_connection()
-
-        # Create a cursor to perform database operations
         cursor = connection.cursor()
-        # Executing a SQL query
-        cursor.execute("SELECT version();")
 
         # purge the whole database
         delete_query = "DELETE FROM junction;"
@@ -137,97 +154,53 @@ def refresh_data():
     f.close()
     return(counter_loaded)
 
+# enable a HTML view to read the database contents
 @app.route('/flask/room', methods = ['GET'])
 def get_all_rooms():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM room;')
-    rooms = cur.fetchall()
-    cur.close()
-    conn.close()
+    rooms = fetch_all_from_db('SELECT * FROM room;')
     return render_template('room.html', rooms=rooms)
 
 @app.route('/flask/room/<int:num>', methods = ['GET'])
 def get_single_room(num):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM room where room_id = {num};')
-    rooms = cur.fetchall()
-    cur.close()
-    conn.close()
+    rooms = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
     return render_template('room.html', rooms=rooms)
 
 @app.route('/flask/item', methods = ['GET'])
 def get_all_items():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM item;')
-    items = cur.fetchall()
-    cur.close()
-    conn.close()
+    items = fetch_all_from_db('SELECT * FROM item;')
     return render_template('item.html', items=items)
 
 @app.route('/flask/item/<int:num>', methods = ['GET'])
 def get_single_item(num):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM item where item_id = {num};')
-    items = cur.fetchall()
-    cur.close()
-    conn.close()
+    items = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
     return render_template('item.html', items=items)
 
 @app.route('/flask/person', methods = ['GET'])
 def get_all_persons():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM person;')
-    persons = cur.fetchall()
-    cur.close()
-    conn.close()
+    persons = fetch_all_from_db('SELECT * FROM person;')
     return render_template('person.html', persons=persons)
 
 @app.route('/flask/person/<int:num>', methods = ['GET'])
 def get_single_person(num):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM person where person_id = {num};')
-    persons = cur.fetchall()
-    cur.close()
-    conn.close()
+    persons = fetch_one_from_db(f'SELECT * FROM person where person_id = {num};')
     return render_template('person.html', persons=persons)
 
 @app.route('/flask/objective', methods = ['GET'])
 def get_all_objectives():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM objective;')
-    objectives = cur.fetchall()
-    cur.close()
-    conn.close()
+    objectives = fetch_all_from_db('SELECT * FROM objective;')
     return render_template('objective.html', objectives=objectives)
 
 @app.route('/flask/objective/<int:num>', methods = ['GET'])
 def get_single_objective(num):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM objective where objective_id = {num};')
-    objectives = cur.fetchall()
-    cur.close()
-    conn.close()
+    objectives = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     return render_template('objective.html', objectives=objectives)
 
 @app.route('/flask/junction', methods = ['GET'])
 def get_all_junctions():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM junction;')
-    junctions = cur.fetchall()
-    cur.close()
-    conn.close()
+    junctions = fetch_all_from_db('SELECT * FROM junction;')
     return render_template('junction.html', junctions=junctions)
 
-
+# enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
 def set_world():
     auth = request.authorization
@@ -236,7 +209,7 @@ def set_world():
             record = json.loads(request.data)
             with open(gamedata + "/data.json", 'w') as f:
                 f.write(json.dumps(record, indent=4))
-            i = refresh_data()
+            i = init_world(gamedata + "/data.json")
             return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
         else:
             return jsonify({'error': 'wrong credentials'})
