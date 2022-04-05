@@ -245,9 +245,9 @@ def get_world():
 @app.route('/api/room/<int:num>', methods=['POST'])
 def set_room(num):
     if (is_authenticated(request.authorization)):
-        record = json.loads(request.data)
-        update_one_in_db(f'UPDATE room SET room_name = \'{record["name"]}\', room_desc = \'{record["description"]}\' where room_id = {num};')
-        return jsonify({'success': f'room {record["name"]} updated'})
+        room = json.loads(request.data)
+        update_one_in_db(f'UPDATE room SET room_name = \'{room["name"]}\', room_desc = \'{room["description"]}\' where room_id = {num};')
+        return jsonify({'success': f'room {room["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -256,5 +256,22 @@ def get_room(num):
     if (is_authenticated(request.authorization)):
         room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
         return jsonify({'name': room[1],  'description': room[2]})
+    else:
+        return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/item/<int:num>', methods=['POST'])
+def set_item(num):
+    if (is_authenticated(request.authorization)):
+        item = json.loads(request.data)
+        update_one_in_db(f'UPDATE item SET item_name = \'{item["name"]}\', room_desc = \'{item["description"]}\' where item_id = {num};')
+        return jsonify({'success': f'item {item["name"]} updated'})
+    else:
+        return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/item/<int:num>', methods=['GET'])
+def get_item(num):
+    if (is_authenticated(request.authorization)):
+        item = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
+        return jsonify({'name': item[1],  'description': item[2]})
     else:
         return jsonify({'error': 'wrong credentials'})
