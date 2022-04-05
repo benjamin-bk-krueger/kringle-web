@@ -162,7 +162,7 @@ def get_all_rooms():
 
 @app.route('/flask/room/<int:num>', methods = ['GET'])
 def get_single_room(num):
-    rooms = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
+    rooms = fetch_all_from_db(f'SELECT * FROM room where room_id = {num};')
     return render_template('room.html', rooms=rooms)
 
 @app.route('/flask/item', methods = ['GET'])
@@ -172,7 +172,7 @@ def get_all_items():
 
 @app.route('/flask/item/<int:num>', methods = ['GET'])
 def get_single_item(num):
-    items = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
+    items = fetch_all_from_db(f'SELECT * FROM item where item_id = {num};')
     return render_template('item.html', items=items)
 
 @app.route('/flask/person', methods = ['GET'])
@@ -182,7 +182,7 @@ def get_all_persons():
 
 @app.route('/flask/person/<int:num>', methods = ['GET'])
 def get_single_person(num):
-    persons = fetch_one_from_db(f'SELECT * FROM person where person_id = {num};')
+    persons = fetch_all_from_db(f'SELECT * FROM person where person_id = {num};')
     return render_template('person.html', persons=persons)
 
 @app.route('/flask/objective', methods = ['GET'])
@@ -192,7 +192,7 @@ def get_all_objectives():
 
 @app.route('/flask/objective/<int:num>', methods = ['GET'])
 def get_single_objective(num):
-    objectives = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    objectives = fetch_all_from_db(f'SELECT * FROM objective where objective_id = {num};')
     return render_template('objective.html', objectives=objectives)
 
 @app.route('/flask/junction', methods = ['GET'])
