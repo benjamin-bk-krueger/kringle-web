@@ -4,13 +4,13 @@
     <h1>{% block title %} Objectives {% endblock %}</h1>
     {% for objective in objectives %}
         <div class='element'>
-            <a href="{{ url_for('get_single_objective', num=objective[0])}}"><h3>ID #{{ objective[0] }}: {{ objective[2] }}</h3></a>
-            <p class='review'><i>Found in {{ objective[1] }}</i></p>
-            <p class='review'>{{ objective[3] }}</p>
-            <p class='review'>Difficulty: {{ objective[4] }}</p>
-            <p class='review'>URL: {{ objective[5] }}</p>
-            <p class='review'>Supported by: {{ objective[6] }}</p>
-            <p class='review'>Requires: {{ objective[7] }}</p>
+            <a href="{{ url_for('get_single_objective', num=objective[0])}}"><h3>ID #{{ objective[0] }}: {{ objective[3] }}</h3></a>
+            <p class='review'><i>Found in <a href="{{ url_for('get_single_room', num=objective[1])}}">Room ID #{{ objective[1] }}</a></i></p>
+            <p class='review'>{{ objective[4] }}</p>
+            <p class='review'>Difficulty: {{ objective[5] }}</p>
+            <p class='review'>URL: {{ objective[6] }}</p>
+            <p class='review'>Supported by: {{ objective[7] }}</p>
+            <p class='review'>Requires: {{ objective[8] }}</p>
         </div>
     {% endfor %}
 {% endblock %}

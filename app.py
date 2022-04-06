@@ -59,23 +59,20 @@ def is_authenticated(auth):
     else:
         return False
 
-# initialize a completely new world using a world template suplied as JSON
-def init_world(world):
-    counter_room = 1
-    counter_item = 1
-    counter_character = 1
-    counter_objective = 1
-    counter_loaded = 0
-
-    f = open(world)
-    data = json.load(f)
-
+# remove everything in the DB
+def purge_db():
     try:
         # Connect to an existing database and ceate a cursor to perform database operations
         connection = get_db_connection()
         cursor = connection.cursor()
 
         # purge the whole database
+        delete_query = "DELETE FROM solution;"
+        cursor.execute(delete_query)
+        connection.commit()
+        delete_query = "DELETE FROM quest;"
+        cursor.execute(delete_query)
+        connection.commit()
         delete_query = "DELETE FROM junction;"
         cursor.execute(delete_query)
         connection.commit()
@@ -91,52 +88,95 @@ def init_world(world):
         delete_query = "DELETE FROM room;"
         cursor.execute(delete_query)
         connection.commit()
+        delete_query = "DELETE FROM world;"
+        cursor.execute(delete_query)
+        connection.commit()
+        delete_query = "DELETE FROM creator;"
+        cursor.execute(delete_query)
+        connection.commit()
 
-        # load all rooms
+    except (Exception, Error) as error:
+        return 0
+    finally:
+        if (connection):
+            cursor.close()
+            connection.close()
+
+# initialize a completely new world using a world template suplied as JSON
+def init_world(worldfile):
+    creator_name = 'Ben Krueger'
+
+    world_name = 'KringleCon2021'
+    world_desc = 'A shiny new world'
+    world_url = 'None URL yet'
+
+    counter_loaded = 0
+
+    f = open(worldfile)
+    data = json.load(f)
+
+    try:
+        # Connect to an existing database and ceate a cursor to perform database operations
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        insert_query = "INSERT INTO creator (creator_name) VALUES (%s);"
+        cursor.execute(insert_query, (creator_name,))
+        connection.commit()
+        counter_loaded = counter_loaded + 1
+
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+
+        insert_query = "INSERT INTO world (creator_id, world_name, world_desc, world_url) VALUES (%s, %s, %s, %s);"
+        cursor.execute(insert_query, (creator_id, world_name, world_desc, world_url))
+        connection.commit()
+        counter_loaded = counter_loaded + 1
+
+        world = fetch_one_from_db(f'SELECT * FROM world where world_name = \'{world_name}\';')
+        world_id = world[0]
+
+        # load all rooms before to enable foreign key relationship
         for i in data["rooms"]:
-            room_id = counter_room
             room_name = i["name"]
             room_desc = i["description"]
 
-            insert_query = "INSERT INTO room (room_id, room_name, room_desc) VALUES (%s, %s, %s);"
-            cursor.execute(insert_query, (room_id, room_name, room_desc))
+            insert_query = "INSERT INTO room (world_id, room_name, room_desc) VALUES (%s, %s, %s);"
+            cursor.execute(insert_query, (world_id, room_name, room_desc))
             connection.commit()
-
-            counter_room = counter_room + 1
             counter_loaded = counter_loaded + 1
-            
+
+        # load all other elements and check foreign key relationship
+        for i in data["rooms"]:
+            room_name = i["name"]
+            room = fetch_one_from_db(f'SELECT * FROM room where room_name = \'{room_name}\' and world_id = {world_id};')
+            room_id = room[0]
+
             # load all items in the room
             if "items" in i:
                 for j in i["items"]:
-                    item_id = counter_item
                     item_name = j["name"]
                     item_desc = j["description"]
 
-                    insert_query = "INSERT INTO item (item_id, room_name, item_name, item_desc) VALUES (%s, %s, %s, %s);"
-                    cursor.execute(insert_query, (item_id, room_name, item_name, item_desc))
+                    insert_query = "INSERT INTO item (room_id, world_id, item_name, item_desc) VALUES (%s, %s, %s, %s);"
+                    cursor.execute(insert_query, (room_id, world_id, item_name, item_desc))
                     connection.commit()
-
-                    counter_item = counter_item + 1
                     counter_loaded = counter_loaded + 1
-                
+            
             # load all characters in the room
             if "characters" in i:
                 for j in i["characters"]:
-                    person_id = counter_character
                     person_name = j["name"]
                     person_desc = j["description"]
 
-                    insert_query = "INSERT INTO person (person_id, room_name, person_name, person_desc) VALUES (%s, %s, %s, %s);"
-                    cursor.execute(insert_query, (person_id, room_name, person_name, person_desc))
+                    insert_query = "INSERT INTO person (room_id, world_id, person_name, person_desc) VALUES (%s, %s, %s, %s);"
+                    cursor.execute(insert_query, (room_id, world_id, person_name, person_desc))
                     connection.commit()
-
-                    counter_character = counter_character + 1
                     counter_loaded = counter_loaded + 1
-
+            
             # load all objectives in the room
             if "objectives" in i:
                 for j in i["objectives"]:
-                    objective_id = counter_objective
                     objective_name = j["name"]
                     objective_desc = j["description"]
                     difficulty = j["difficulty"]
@@ -144,25 +184,25 @@ def init_world(world):
                     supported_by = j["supportedby"]
                     requires = j["requires"]
 
-                    insert_query = "INSERT INTO objective (objective_id, room_name, objective_name, objective_desc, difficulty, objective_url, supported_by, requires) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"
-                    cursor.execute(insert_query, (objective_id, room_name, objective_name, objective_desc, difficulty, objective_url, supported_by, requires))
+                    insert_query = "INSERT INTO objective (room_id, world_id, objective_name, objective_desc, difficulty, objective_url, supported_by, requires) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"
+                    cursor.execute(insert_query, (room_id, world_id, objective_name, objective_desc, difficulty, objective_url, supported_by, requires))
                     connection.commit()
-
-                    counter_objective = counter_objective + 1
                     counter_loaded = counter_loaded + 1
-
+            
             # load all junctions in the room
             if "junctions" in i:
                 for j in i["junctions"]:
                     destination = j["destination"]
                     junction_desc = j["description"]
 
-                    insert_query = "INSERT INTO junction (destination, room_name, junction_desc) VALUES (%s, %s, %s);"
-                    cursor.execute(insert_query, (destination, room_name, junction_desc))
+                    dest = fetch_one_from_db(f'SELECT * FROM room where room_name = \'{destination}\' and world_id = {world_id};')
+                    dest_id = dest[0]
+
+                    insert_query = "INSERT INTO junction (room_id, world_id, dest_id, junction_desc) VALUES (%s, %s, %s, %s);"
+                    cursor.execute(insert_query, (room_id, world_id, dest_id, junction_desc))
                     connection.commit()
-
                     counter_loaded = counter_loaded + 1
-
+        
     except (Exception, Error) as error:
         return 0
     finally:
@@ -219,6 +259,11 @@ def get_all_junctions():
     junctions = fetch_all_from_db('SELECT * FROM junction;')
     return render_template('junction.html', junctions=junctions)
 
+@app.route('/flask/junction/<int:num>', methods = ['GET'])
+def get_single_junction(num):
+    junctions = fetch_all_from_db(f'SELECT * FROM junction where junction_id = {num};')
+    return render_template('junction.html', junctions=junctions)
+
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
 def set_world():
@@ -226,6 +271,7 @@ def set_world():
         record = json.loads(request.data)
         with open(gamedata + "/data.json", 'w') as f:
             f.write(json.dumps(record, indent=4))
+        purge_db()
         i = init_world(gamedata + "/data.json")
         return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
     else:
@@ -255,7 +301,7 @@ def set_room(num):
 def get_room(num):
     if (is_authenticated(request.authorization)):
         room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
-        return jsonify({'name': room[1],  'description': room[2]})
+        return jsonify({'name': room[2],  'description': room[3]})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -272,6 +318,6 @@ def set_item(num):
 def get_item(num):
     if (is_authenticated(request.authorization)):
         item = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
-        return jsonify({'name': item[2],  'description': item[3]})
+        return jsonify({'name': item[3],  'description': item[4]})
     else:
         return jsonify({'error': 'wrong credentials'})

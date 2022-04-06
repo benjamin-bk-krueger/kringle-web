@@ -4,9 +4,10 @@
     <h1>{% block title %} Junctions {% endblock %}</h1>
     {% for junction in junctions %}
         <div class='element'>
-            <h3>#{{ junction[0] }}</h3>
-            <p class='review'><i>Found in {{ junction[1] }}</i></p>
-            <p class='review'>{{ junction[2] }}</p>
+            <a href="{{ url_for('get_single_junction', num=junction[0])}}"><h3>ID #{{ junction[0] }}</h3></a>
+            <p class='review'><i>Found in <a href="{{ url_for('get_single_room', num=junction[1])}}">Room ID #{{ junction[1] }}</a></i></p>
+            <p class='review'><i>Targeting <a href="{{ url_for('get_single_room', num=junction[3])}}">Room ID #{{ junction[3] }}</a></i></p>
+            <p class='review'>{{ junction[4] }}</p>
         </div>
     {% endfor %}
 {% endblock %}
