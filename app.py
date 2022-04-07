@@ -321,3 +321,54 @@ def get_item(num):
         return jsonify({'name': item[3],  'description': item[4]})
     else:
         return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/person/<int:num>', methods=['POST'])
+def set_person(num):
+    if (is_authenticated(request.authorization)):
+        person = json.loads(request.data)
+        update_one_in_db(f'UPDATE person SET person_name = \'{person["name"]}\', person_desc = \'{person["description"]}\' where person_id = {num};')
+        return jsonify({'success': f'person {person["name"]} updated'})
+    else:
+        return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/person/<int:num>', methods=['GET'])
+def get_person(num):
+    if (is_authenticated(request.authorization)):
+        person = fetch_one_from_db(f'SELECT * FROM person where person_id = {num};')
+        return jsonify({'name': person[3],  'description': person[4]})
+    else:
+        return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/objective/<int:num>', methods=['POST'])
+def set_objective(num):
+    if (is_authenticated(request.authorization)):
+        objective = json.loads(request.data)
+        update_one_in_db(f'UPDATE objective SET objective_name = \'{objective["name"]}\', objective_desc = \'{objective["description"]}\', difficulty = \'{objective["difficulty"]}\', objective_url = \'{objective["url"]}\', supported_by = \'{objective["supportedby"]}\', requires = \'{objective["requires"]}\' where objective_id = {num};')
+        return jsonify({'success': f'objective {objective["name"]} updated'})
+    else:
+        return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/objective/<int:num>', methods=['GET'])
+def get_objective(num):
+    if (is_authenticated(request.authorization)):
+        objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+        return jsonify({'name': objective[3],  'description': objective[4],  'difficulty': objective[5],  'url': objective[6],  'supportedby': objective[7],  'requires': objective[8]})
+    else:
+        return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/junction/<int:num>', methods=['POST'])
+def set_junction(num):
+    if (is_authenticated(request.authorization)):
+        junction = json.loads(request.data)
+        update_one_in_db(f'UPDATE junction SET dest_id = \'{junction["destination"]}\', junction_desc = \'{junction["description"]}\' where junction_id = {num};')
+        return jsonify({'success': f'junction {junction["destination"]} updated'})
+    else:
+        return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/junction/<int:num>', methods=['GET'])
+def get_junction(num):
+    if (is_authenticated(request.authorization)):
+        junction = fetch_one_from_db(f'SELECT * FROM junction where junction_id = {num};')
+        return jsonify({'destination': junction[3],  'description': junction[4]})
+    else:
+        return jsonify({'error': 'wrong credentials'})

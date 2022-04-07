@@ -1,0 +1,348 @@
+{
+	"info": {
+		"_postman_id": "4443b5fd-6445-4ac4-bce5-a1ac273c2ece",
+		"name": "Kringle",
+		"description": "Kringle Web API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "World",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/world",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"world"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "World",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseurl}}/api/world",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"world"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Room",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/room/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"room",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Room",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseurl}}/api/room/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"room",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Item",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/item/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"item",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Item",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseurl}}/api/item/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"item",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Person",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/person/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"person",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Person",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseurl}}/api/person/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"person",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Objective",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/objective/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"objective",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Objective",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseurl}}/api/objective/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"objective",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Junction",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/api/junction/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"junction",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Junction",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseurl}}/api/junction/{{num}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"junction",
+						"{{num}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{password}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{username}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "num",
+			"value": "1"
+		}
+	]
+}
