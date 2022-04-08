@@ -1,10 +1,17 @@
 import psycopg2 
 import json
+import base64
 import os
 from psycopg2 import Error 
 from flask import Flask, request, render_template, jsonify
 
 gamedata = os.environ['HOME'] + "/.kringlecon"  # directory for game data
+
+creator_name = 'Ben Krueger'
+
+world_name = 'KringleCon2021'
+world_desc = 'A shiny new world'
+world_url = 'None URL yet'
 
 app = Flask(__name__)
 
@@ -104,12 +111,6 @@ def purge_db():
 
 # initialize a completely new world using a world template suplied as JSON
 def init_world(worldfile):
-    creator_name = 'Ben Krueger'
-
-    world_name = 'KringleCon2021'
-    world_desc = 'A shiny new world'
-    world_url = 'None URL yet'
-
     counter_loaded = 0
 
     f = open(worldfile)
@@ -372,3 +373,55 @@ def get_junction(num):
         return jsonify({'destination': junction[3],  'description': junction[4]})
     else:
         return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/quest/<int:num>', methods=['POST'])
+def set_quest(num):
+    if (is_authenticated(request.authorization)):
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+        
+        update_one_in_db(f'DELETE FROM quest WHERE objective_id = {num} and creator_id = {creator_id};')
+        update_one_in_db(f'INSERT INTO quest (objective_id, creator_id, quest_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.data)});')
+        return "ok"
+    else:
+        return "wrong credentials"
+
+@app.route('/api/quest/<int:num>', methods=['GET'])
+def get_quest(num):
+    if (is_authenticated(request.authorization)):
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+
+        quest = fetch_one_from_db(f'SELECT * FROM quest where objective_id = {num} and creator_id = {creator_id};')
+        if (quest!= None):
+            return str(bytes(quest[3]), 'utf-8')
+        else:
+            return ""
+    else:
+        return "wrong credentials"
+
+@app.route('/api/solution/<int:num>', methods=['POST'])
+def set_solution(num):
+    if (is_authenticated(request.authorization)):
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+        
+        update_one_in_db(f'DELETE FROM solution WHERE objective_id = {num} and creator_id = {creator_id};')
+        update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.data)});')
+        return "ok"
+    else:
+        return "wrong credentials"
+
+@app.route('/api/solution/<int:num>', methods=['GET'])
+def get_solution(num):
+    if (is_authenticated(request.authorization)):
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+
+        solution = fetch_one_from_db(f'SELECT * FROM solution where objective_id = {num} and creator_id = {creator_id};')
+        if (solution != None):
+            return str(bytes(solution[3]), 'utf-8')
+        else:
+            return ""
+    else:
+        return "wrong credentials"
