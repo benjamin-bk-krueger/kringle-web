@@ -265,6 +265,60 @@ def get_single_junction(num):
     junctions = fetch_all_from_db(f'SELECT * FROM junction where junction_id = {num};')
     return render_template('junction.html', junctions=junctions)
 
+@app.route('/flask/quest/<int:num>', methods=['POST'])
+def set_single_quest(num):
+    if (is_authenticated(request.authorization) or True):
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+        id = "quest"
+        
+        update_one_in_db(f'DELETE FROM quest WHERE objective_id = {num} and creator_id = {creator_id};')
+        update_one_in_db(f'INSERT INTO quest (objective_id, creator_id, quest_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')
+        return "ok"
+    else:
+        return "wrong credentials"
+
+@app.route('/flask/quest/<int:num>', methods=['GET'])
+def get_single_quest(num):
+    if (is_authenticated(request.authorization) or True):
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+
+        quest = fetch_one_from_db(f'SELECT * FROM quest where objective_id = {num} and creator_id = {creator_id};')
+        if (quest != None):
+            return render_template('quest.html', quest=str(bytes(quest[3]), 'utf-8'), number=num)
+        else:
+            return render_template('quest.html', quest="", number=num)
+    else:
+        return "wrong credentials"
+
+@app.route('/flask/solution/<int:num>', methods=['POST'])
+def set_single_solution(num):
+    if (is_authenticated(request.authorization) or True):
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+        id = "solution"
+        
+        update_one_in_db(f'DELETE FROM solution WHERE objective_id = {num} and creator_id = {creator_id};')
+        update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')
+        return "ok"
+    else:
+        return "wrong credentials"
+
+@app.route('/flask/solution/<int:num>', methods=['GET'])
+def get_single_solution(num):
+    if (is_authenticated(request.authorization) or True):
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+
+        solution = fetch_one_from_db(f'SELECT * FROM solution where objective_id = {num} and creator_id = {creator_id};')
+        if (solution != None):
+            return render_template('solution.html', solution=str(bytes(solution[3]), 'utf-8'), number=num)
+        else:
+            return render_template('solution.html', solution="", number=num)
+    else:
+        return "wrong credentials"
+
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
 def set_world():
@@ -373,55 +427,3 @@ def get_junction(num):
         return jsonify({'destination': junction[3],  'description': junction[4]})
     else:
         return jsonify({'error': 'wrong credentials'})
-
-@app.route('/api/quest/<int:num>', methods=['POST'])
-def set_quest(num):
-    if (is_authenticated(request.authorization)):
-        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
-        creator_id = creator[0]
-        
-        update_one_in_db(f'DELETE FROM quest WHERE objective_id = {num} and creator_id = {creator_id};')
-        update_one_in_db(f'INSERT INTO quest (objective_id, creator_id, quest_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.data)});')
-        return "ok"
-    else:
-        return "wrong credentials"
-
-@app.route('/api/quest/<int:num>', methods=['GET'])
-def get_quest(num):
-    if (is_authenticated(request.authorization)):
-        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
-        creator_id = creator[0]
-
-        quest = fetch_one_from_db(f'SELECT * FROM quest where objective_id = {num} and creator_id = {creator_id};')
-        if (quest!= None):
-            return str(bytes(quest[3]), 'utf-8')
-        else:
-            return ""
-    else:
-        return "wrong credentials"
-
-@app.route('/api/solution/<int:num>', methods=['POST'])
-def set_solution(num):
-    if (is_authenticated(request.authorization)):
-        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
-        creator_id = creator[0]
-        
-        update_one_in_db(f'DELETE FROM solution WHERE objective_id = {num} and creator_id = {creator_id};')
-        update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.data)});')
-        return "ok"
-    else:
-        return "wrong credentials"
-
-@app.route('/api/solution/<int:num>', methods=['GET'])
-def get_solution(num):
-    if (is_authenticated(request.authorization)):
-        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
-        creator_id = creator[0]
-
-        solution = fetch_one_from_db(f'SELECT * FROM solution where objective_id = {num} and creator_id = {creator_id};')
-        if (solution != None):
-            return str(bytes(solution[3]), 'utf-8')
-        else:
-            return ""
-    else:
-        return "wrong credentials"
