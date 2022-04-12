@@ -15,5 +15,6 @@
         <p>URL: {{ objective[6] }}</p>
         <p>Supported by: {{ objective[7] }}</p>
         <p>Requires: {{ objective[8] }}</p>
+        <p><a href="{{ url_for('get_single_quest', num=objective[0])}}">Edit Quest</a><a href="{{ url_for('get_single_solution', num=objective[0])}}">Edit Solution</a></p>
     {% endfor %}
 {% endblock %}
