@@ -9,6 +9,8 @@
     <h1>{% block title %} Persons {% endblock %}</h1>
     {% for person in persons %}
         <p><a href="{{ url_for('get_single_person', num=person[0])}}"><h3>ID #{{ person[0] }}: {{ person[3] }}</h3></a></p>
+        <p><i>Found in <a href="{{ url_for('get_single_room', num=person[1])}}">Room ID #{{ person[1] }}</a></i></p>
+        <p>{{ person[4] }}</p>
     {% endfor %}
-    <a href="{{ url_for('get_my_index') }}">Index</a>
+    <p><a href="{{ url_for('get_all_persons') }}">All Persons</a></p>
 {% endblock %}

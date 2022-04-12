@@ -240,7 +240,7 @@ def get_all_items():
 @app.route('/flask/item/<int:num>', methods = ['GET'])
 def get_single_item(num):
     items = fetch_all_from_db(f'SELECT * FROM item where item_id = {num};')
-    return render_template('item.html', items=items)
+    return render_template('item_detail.html', items=items)
 
 @app.route('/flask/person', methods = ['GET'])
 def get_all_persons():
@@ -250,7 +250,7 @@ def get_all_persons():
 @app.route('/flask/person/<int:num>', methods = ['GET'])
 def get_single_person(num):
     persons = fetch_all_from_db(f'SELECT * FROM person where person_id = {num};')
-    return render_template('person.html', persons=persons)
+    return render_template('person_detail.html', persons=persons)
 
 @app.route('/flask/objective', methods = ['GET'])
 def get_all_objectives():
@@ -260,7 +260,7 @@ def get_all_objectives():
 @app.route('/flask/objective/<int:num>', methods = ['GET'])
 def get_single_objective(num):
     objectives = fetch_all_from_db(f'SELECT * FROM objective where objective_id = {num};')
-    return render_template('objective.html', objectives=objectives)
+    return render_template('objective_detail.html', objectives=objectives)
 
 @app.route('/flask/junction', methods = ['GET'])
 def get_all_junctions():
@@ -270,7 +270,7 @@ def get_all_junctions():
 @app.route('/flask/junction/<int:num>', methods = ['GET'])
 def get_single_junction(num):
     junctions = fetch_all_from_db(f'SELECT * FROM junction where junction_id = {num};')
-    return render_template('junction.html', junctions=junctions)
+    return render_template('junction_detail.html', junctions=junctions)
 
 @app.route('/flask/quest/<int:num>', methods=['POST'])
 def set_single_quest(num):
