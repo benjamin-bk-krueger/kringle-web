@@ -2,38 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %} {% endblock %}- Kringle Web</title>
-    <style>
-        nav a {
-            color: #d64161;
-            font-size: 3em;
-            margin-left: 50px;
-            text-decoration: none;
-        }
-
-        .element {
-            padding: 20px;
-            margin: 10px;
-            background-color: #f7f4f4;
-        }
-
-        .review {
-            margin-left: 50px;
-            font-size: 20px;
-        }
-    </style>
+    <title>Kringle Web</title>
+    {% block script %} {% endblock %}
 </head>
 <body>
-    <nav>
-        <a href="{{ url_for('get_all_rooms') }}">Rooms</a>
-        <a href="{{ url_for('get_all_items') }}">Items</a>
-        <a href="{{ url_for('get_all_persons') }}">Persons</a>
-        <a href="{{ url_for('get_all_objectives') }}">Objectives</a>
-        <a href="{{ url_for('get_all_junctions') }}">Junctions</a>
-    </nav>
-    <hr>
-    <div class="content">
-        {% block content %} {% endblock %}
-    </div>
+  <header>
+    <h1>Kringle Web</h1>
+    <p>{% block title %} {% endblock %}</p>
+  </header>
+
+  <div id="pagestart"></div>
+
+  <nav>
+    <a href="{{ url_for('get_all_rooms') }}">Rooms</a>
+    <a href="{{ url_for('get_all_items') }}">Items</a>
+    <a href="{{ url_for('get_all_persons') }}">Persons</a>
+    <a href="{{ url_for('get_all_objectives') }}">Objectives</a>
+    <a href="{{ url_for('get_all_junctions') }}">Junctions</a>
+  </nav>
+
+  <main>
+    {% block content %} {% endblock %}
+  </main>
+
+  <footer>
+    <p><a href="#pagestart">Go to top of page</a></p>
+  </footer>
 </body>
 </html>

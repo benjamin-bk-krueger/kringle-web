@@ -1,16 +1,19 @@
 {% extends 'base.html' %}
 
+{% block script %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/simple.css">
+{% endblock %}
+
 {% block content %}
     <h1>{% block title %} Objectives {% endblock %}</h1>
     {% for objective in objectives %}
-        <div class='element'>
-            <a href="{{ url_for('get_single_objective', num=objective[0])}}"><h3>ID #{{ objective[0] }}: {{ objective[3] }}</h3></a>
-            <p class='review'><i>Found in <a href="{{ url_for('get_single_room', num=objective[1])}}">Room ID #{{ objective[1] }}</a></i></p>
-            <p class='review'>{{ objective[4] }}</p>
-            <p class='review'>Difficulty: {{ objective[5] }}</p>
-            <p class='review'>URL: {{ objective[6] }}</p>
-            <p class='review'>Supported by: {{ objective[7] }}</p>
-            <p class='review'>Requires: {{ objective[8] }}</p>
-        </div>
+        <p><a href="{{ url_for('get_single_objective', num=objective[0])}}"><h3>ID #{{ objective[0] }}: {{ objective[3] }}</h3></a></p>
+        <p><i>Found in <a href="{{ url_for('get_single_room', num=objective[1])}}">Room ID #{{ objective[1] }}</a></i></p>
+        <p>{{ objective[4] }}</p>
+        <p>Difficulty: {{ objective[5] }}</p>
+        <p>URL: {{ objective[6] }}</p>
+        <p>Supported by: {{ objective[7] }}</p>
+        <p>Requires: {{ objective[8] }}</p>
     {% endfor %}
 {% endblock %}

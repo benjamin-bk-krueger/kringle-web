@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block script %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/simple.css">
+{% endblock %}
+
+{% block content %}
+    <h1>{% block title %} Index {% endblock %}</h1>
+    <h3>Welcome</h3>
+    <a href="/wetty/ssh/game?pass=game">Start game</a>
+{% endblock %}

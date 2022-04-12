@@ -1,12 +1,15 @@
 {% extends 'base.html' %}
 
+{% block script %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/simple.css">
+{% endblock %}
+
 {% block content %}
     <h1>{% block title %} Items {% endblock %}</h1>
     {% for item in items %}
-        <div class='element'>
-            <a href="{{ url_for('get_single_item', num=item[0])}}"><h3>ID #{{ item[0] }}: {{ item[3] }}</h3></a>
-            <p class='review'><i>Found in <a href="{{ url_for('get_single_room', num=item[1])}}">Room ID #{{ item[1] }}</a></i></p>
-            <p class='review'>{{ item[4] }}</p>
-        </div>
+        <p><a href="{{ url_for('get_single_item', num=item[0])}}"><h3>ID #{{ item[0] }}: {{ item[3] }}</h3></a></p>
+        <p><i>Found in <a href="{{ url_for('get_single_room', num=item[1])}}">Room ID #{{ item[1] }}</a></i></p>
+        <p>{{ item[4] }}</p>
     {% endfor %}
 {% endblock %}

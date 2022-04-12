@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
 
+{% block script %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/simple.css">
+{% endblock %}
+
 {% block content %}
     <h1>{% block title %} Rooms {% endblock %}</h1>
     {% for room in rooms %}
-        <div class='element'>
-            <a href="{{ url_for('get_single_room', num=room[0])}}"><h3>ID #{{ room[0] }}: {{ room[2] }}</h3></a>
-            <p class='review'>{{ room[3] }}</p>
-        </div>
+        <p><a href="{{ url_for('get_single_room', num=room[0])}}"><h3>ID #{{ room[0] }}: {{ room[2] }}</h3></a></p>
+        <p class='review'>{{ room[3] }}</p>
     {% endfor %}
 {% endblock %}

@@ -1,9 +1,19 @@
 {% extends 'base.html' %}
 
+{% block script %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/simple-red.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+{% endblock %}
+
 {% block content %}
     <h1>{% block title %} Solution {% endblock %}</h1>
     <form action="{{ url_for('set_single_solution', num=number)}}" method="POST">
         <textarea name="solution" cols="50" rows="10">{{ solution }}</textarea>
+        <script>
+            const easyMDE = new EasyMDE();
+        </script>
         <input type="submit">
     </form>
 {% endblock %}

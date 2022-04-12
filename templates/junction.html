@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 
+{% block script %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/simple.css">
+{% endblock %}
+
 {% block content %}
     <h1>{% block title %} Junctions {% endblock %}</h1>
     {% for junction in junctions %}
-        <div class='element'>
-            <a href="{{ url_for('get_single_junction', num=junction[0])}}"><h3>ID #{{ junction[0] }}</h3></a>
-            <p class='review'><i>Found in <a href="{{ url_for('get_single_room', num=junction[1])}}">Room ID #{{ junction[1] }}</a></i></p>
-            <p class='review'><i>Targeting <a href="{{ url_for('get_single_room', num=junction[3])}}">Room ID #{{ junction[3] }}</a></i></p>
-            <p class='review'>{{ junction[4] }}</p>
-        </div>
+        <p><a href="{{ url_for('get_single_junction', num=junction[0])}}"><h3>ID #{{ junction[0] }}</h3></a></p>
+        <p><i>Found in <a href="{{ url_for('get_single_room', num=junction[1])}}">Room ID #{{ junction[1] }}</a></i></p>
+        <p><i>Targeting <a href="{{ url_for('get_single_room', num=junction[3])}}">Room ID #{{ junction[3] }}</a></i></p>
+        <p>{{ junction[4] }}</p>
     {% endfor %}
 {% endblock %}

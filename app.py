@@ -13,7 +13,10 @@ world_name = 'KringleCon2021'
 world_desc = 'A shiny new world'
 world_url = 'None URL yet'
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='', 
+            static_folder='static',
+            template_folder='templates')
 
 # open a connection to PostgreSQL DB and return the connection
 def get_db_connection():
@@ -213,6 +216,10 @@ def init_world(worldfile):
     
     f.close()
     return(counter_loaded)
+
+@app.route('/flask/index', methods = ['GET'])
+def get_my_index():
+    return render_template('index.html')
 
 # enable a HTML view to read the database contents
 @app.route('/flask/room', methods = ['GET'])
