@@ -230,7 +230,7 @@ def get_all_rooms():
 @app.route('/flask/room/<int:num>', methods = ['GET'])
 def get_single_room(num):
     rooms = fetch_all_from_db(f'SELECT * FROM room where room_id = {num};')
-    return render_template('room.html', rooms=rooms)
+    return render_template('room_detail.html', rooms=rooms)
 
 @app.route('/flask/item', methods = ['GET'])
 def get_all_items():
