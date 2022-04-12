@@ -281,7 +281,9 @@ def set_single_quest(num):
         
         update_one_in_db(f'DELETE FROM quest WHERE objective_id = {num} and creator_id = {creator_id};')
         update_one_in_db(f'INSERT INTO quest (objective_id, creator_id, quest_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')
-        return "ok"
+        
+        objectives = fetch_all_from_db('SELECT * FROM objective;')
+        return render_template('objective.html', objectives=objectives)
     else:
         return "wrong credentials"
 
@@ -308,7 +310,9 @@ def set_single_solution(num):
         
         update_one_in_db(f'DELETE FROM solution WHERE objective_id = {num} and creator_id = {creator_id};')
         update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')
-        return "ok"
+        
+        objectives = fetch_all_from_db('SELECT * FROM objective;')
+        return render_template('objective.html', objectives=objectives)
     else:
         return "wrong credentials"
 
