@@ -14,7 +14,7 @@ world_desc = 'A shiny new world'
 world_url = 'None URL yet'
 
 app = Flask(__name__,
-            static_url_path='static', 
+            static_url_path='/static', 
             static_folder='static',
             template_folder='templates')
 
