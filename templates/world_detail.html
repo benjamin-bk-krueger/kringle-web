@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Worlds {% endblock %}</h1>
+    {% for world in worlds %}
+        <p><a href="{{ url_for('get_single_world', num=world[0])}}"><h3>ID #{{ world[0] }}: {{ world[2] }}</h3></a></p>
+        <p>Descrription: {{ world[3] }}</p>
+        <p>URL: {{ world[4] }}</p>
+    {% endfor %}
+    <p><a href="{{ url_for('get_all_worlds') }}">All Worlds</a></p>
+{% endblock %}

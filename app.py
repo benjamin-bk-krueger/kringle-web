@@ -4,8 +4,14 @@ import base64
 import os
 from psycopg2 import Error 
 from flask import Flask, request, render_template, jsonify
+from flask_httpauth import HTTPDigestAuth # https://flask-httpauth.readthedocs.io/en/latest/
 
 gamedata = os.environ['HOME'] + "/.kringlecon"  # directory for game data
+
+users = {
+    "Ben Krueger": "pass",
+    "susan": "bye"
+}
 
 creator_name = 'Ben Krueger'
 
@@ -17,6 +23,14 @@ app = Flask(__name__,
             static_url_path='/static', 
             static_folder='static',
             template_folder='templates')
+app.config['SECRET_KEY'] = 'secret key here'
+auth = HTTPDigestAuth()
+
+@auth.get_password
+def get_pw(username):
+    if username in users:
+        return users.get(username)
+    return None
 
 # open a connection to PostgreSQL DB and return the connection
 def get_db_connection():
@@ -222,6 +236,26 @@ def get_my_index():
     return render_template('index.html')
 
 # enable a HTML view to read the database contents
+@app.route('/flask/creator', methods = ['GET'])
+def get_all_creators():
+    creators = fetch_all_from_db('SELECT * FROM creator;')
+    return render_template('creator.html', creators=creators)
+
+@app.route('/flask/creator/<int:num>', methods = ['GET'])
+def get_single_creator(num):
+    creators = fetch_all_from_db(f'SELECT * FROM creator where creator_id = {num};')
+    return render_template('creator_detail.html', creators=creators)
+
+@app.route('/flask/world', methods = ['GET'])
+def get_all_worlds():
+    worlds = fetch_all_from_db('SELECT * FROM world;')
+    return render_template('world.html', worlds=worlds)
+
+@app.route('/flask/world/<int:num>', methods = ['GET'])
+def get_single_world(num):
+    worlds = fetch_all_from_db(f'SELECT * FROM world where world_id = {num};')
+    return render_template('world_detail.html', worlds=worlds)
+
 @app.route('/flask/room', methods = ['GET'])
 def get_all_rooms():
     rooms = fetch_all_from_db('SELECT * FROM room;')
@@ -233,11 +267,13 @@ def get_single_room(num):
     return render_template('room_detail.html', rooms=rooms)
 
 @app.route('/flask/item', methods = ['GET'])
+@auth.login_required
 def get_all_items():
     items = fetch_all_from_db('SELECT * FROM item;')
     return render_template('item.html', items=items)
 
 @app.route('/flask/item/<int:num>', methods = ['GET'])
+@auth.login_required
 def get_single_item(num):
     items = fetch_all_from_db(f'SELECT * FROM item where item_id = {num};')
     return render_template('item_detail.html', items=items)
