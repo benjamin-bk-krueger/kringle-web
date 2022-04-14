@@ -4,14 +4,10 @@ import base64
 import os
 from psycopg2 import Error 
 from flask import Flask, request, render_template, jsonify
-from flask_httpauth import HTTPDigestAuth # https://flask-httpauth.readthedocs.io/en/latest/
+from flask_httpauth import HTTPBasicAuth # https://flask-httpauth.readthedocs.io/en/latest/
+from werkzeug.security import generate_password_hash, check_password_hash
 
 gamedata = os.environ['HOME'] + "/.kringlecon"  # directory for game data
-
-users = {
-    "Ben Krueger": "pass",
-    "susan": "bye"
-}
 
 creator_name = 'Ben Krueger'
 
@@ -23,14 +19,18 @@ app = Flask(__name__,
             static_url_path='/static', 
             static_folder='static',
             template_folder='templates')
-app.config['SECRET_KEY'] = 'secret key here'
-auth = HTTPDigestAuth()
+auth = HTTPBasicAuth()
 
-@auth.get_password
-def get_pw(username):
-    if username in users:
-        return users.get(username)
-    return None
+@auth.verify_password
+def verify_password(username, password):
+    users = dict()
+    creator = fetch_all_from_db(f'SELECT creator_name, creator_hash FROM creator;')
+    for i in creator:
+        users[i[0]] = i[1]
+
+    if username in users and \
+            check_password_hash(users.get(username), password):
+        return username
 
 # open a connection to PostgreSQL DB and return the connection
 def get_db_connection():
@@ -75,14 +75,20 @@ def update_one_in_db(query):
 
 # check if the basic authentication is valid
 def is_authenticated(auth):
-    if auth and auth.get('username') and auth.get('password'):
-        if (auth['username'] == "kringle" and auth['password'] == "kringle"):
+    users = dict()
+    creator = fetch_all_from_db(f'SELECT creator_name, creator_hash FROM creator;')
+    for i in creator:
+        users[i[0]] = i[1]
+
+    if auth:
+        if auth['username'] in users and \
+                check_password_hash(users.get(auth['username']), auth['password']):
             return True
         else:
             return False
     else:
         return False
-
+    
 # remove everything in the DB
 def purge_db():
     try:
@@ -231,6 +237,11 @@ def init_world(worldfile):
     f.close()
     return(counter_loaded)
 
+@app.route('/flask/login', methods = ['GET'])
+@auth.login_required
+def get_my_login():
+    return render_template('index.html')
+
 @app.route('/flask/index', methods = ['GET'])
 def get_my_index():
     return render_template('index.html')
@@ -245,6 +256,17 @@ def get_all_creators():
 def get_single_creator(num):
     creators = fetch_all_from_db(f'SELECT * FROM creator where creator_id = {num};')
     return render_template('creator_detail.html', creators=creators)
+
+@app.route('/flask/creator', methods=['POST'])
+def get_new_creator():
+    if (is_authenticated(request.authorization) or True):
+        creator_name = request.form["creator"]
+        creator_pass = request.form["password"]
+        creator_hash = generate_password_hash(creator_pass, method='pbkdf2:sha256', salt_length=16)
+        update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_hash) VALUES (\'{creator_name}\', \'{creator_hash}\', \'{creator_hash}\');')
+        return request.form["creator"]
+    else:
+        return "wrong credentials"
 
 @app.route('/flask/world', methods = ['GET'])
 def get_all_worlds():
@@ -310,7 +332,7 @@ def get_single_junction(num):
 
 @app.route('/flask/quest/<int:num>', methods=['POST'])
 def set_single_quest(num):
-    if (is_authenticated(request.authorization) or True):
+    if (is_authenticated(request.authorization)):
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
         id = "quest"
@@ -325,7 +347,7 @@ def set_single_quest(num):
 
 @app.route('/flask/quest/<int:num>', methods=['GET'])
 def get_single_quest(num):
-    if (is_authenticated(request.authorization) or True):
+    if (is_authenticated(request.authorization)):
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
 
@@ -339,7 +361,7 @@ def get_single_quest(num):
 
 @app.route('/flask/solution/<int:num>', methods=['POST'])
 def set_single_solution(num):
-    if (is_authenticated(request.authorization) or True):
+    if (is_authenticated(request.authorization)):
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
         id = "solution"
@@ -354,7 +376,7 @@ def set_single_solution(num):
 
 @app.route('/flask/solution/<int:num>', methods=['GET'])
 def get_single_solution(num):
-    if (is_authenticated(request.authorization) or True):
+    if (is_authenticated(request.authorization)):
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
 
