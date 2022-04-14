@@ -9,12 +9,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 gamedata = os.environ['HOME'] + "/.kringlecon"  # directory for game data
 
-creator_name = 'Ben Krueger'
-
-world_name = 'KringleCon2021'
-world_desc = 'A shiny new world'
-world_url = 'None URL yet'
-
 app = Flask(__name__,
             static_url_path='/static', 
             static_folder='static',
@@ -81,13 +75,9 @@ def is_authenticated(auth):
         users[i[0]] = i[1]
 
     if auth:
-        if auth['username'] in users and \
-                check_password_hash(users.get(auth['username']), auth['password']):
+        if auth['username'] in users and check_password_hash(users.get(auth['username']), auth['password']):
             return True
-        else:
-            return False
-    else:
-        return False
+    return False
     
 # remove everything in the DB
 def purge_db():
@@ -133,7 +123,7 @@ def purge_db():
             connection.close()
 
 # initialize a completely new world using a world template suplied as JSON
-def init_world(worldfile):
+def init_world(worldfile, creator_name, world_name, world_desc, world_url):
     counter_loaded = 0
 
     f = open(worldfile)
@@ -143,11 +133,6 @@ def init_world(worldfile):
         # Connect to an existing database and ceate a cursor to perform database operations
         connection = get_db_connection()
         cursor = connection.cursor()
-
-        insert_query = "INSERT INTO creator (creator_name) VALUES (%s);"
-        cursor.execute(insert_query, (creator_name,))
-        connection.commit()
-        counter_loaded = counter_loaded + 1
 
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
@@ -237,6 +222,7 @@ def init_world(worldfile):
     f.close()
     return(counter_loaded)
 
+# entry pages
 @app.route('/flask/login', methods = ['GET'])
 @auth.login_required
 def get_my_login():
@@ -259,14 +245,13 @@ def get_single_creator(num):
 
 @app.route('/flask/creator', methods=['POST'])
 def get_new_creator():
-    if (is_authenticated(request.authorization) or True):
-        creator_name = request.form["creator"]
-        creator_pass = request.form["password"]
-        creator_hash = generate_password_hash(creator_pass, method='pbkdf2:sha256', salt_length=16)
-        update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_hash) VALUES (\'{creator_name}\', \'{creator_hash}\', \'{creator_hash}\');')
-        return request.form["creator"]
-    else:
-        return "wrong credentials"
+    creator_name = request.form["creator"]
+    creator_pass = request.form["password"]
+    creator_hash = generate_password_hash(creator_pass, method='pbkdf2:sha256', salt_length=16)
+    update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_hash) VALUES (\'{creator_name}\', \'{creator_hash}\', \'{creator_hash}\');')
+    
+    creators = fetch_all_from_db('SELECT * FROM creator;')
+    return render_template('creator.html', creators=creators)
 
 @app.route('/flask/world', methods = ['GET'])
 def get_all_worlds():
@@ -289,13 +274,11 @@ def get_single_room(num):
     return render_template('room_detail.html', rooms=rooms)
 
 @app.route('/flask/item', methods = ['GET'])
-@auth.login_required
 def get_all_items():
     items = fetch_all_from_db('SELECT * FROM item;')
     return render_template('item.html', items=items)
 
 @app.route('/flask/item/<int:num>', methods = ['GET'])
-@auth.login_required
 def get_single_item(num):
     items = fetch_all_from_db(f'SELECT * FROM item where item_id = {num};')
     return render_template('item_detail.html', items=items)
@@ -333,6 +316,7 @@ def get_single_junction(num):
 @app.route('/flask/quest/<int:num>', methods=['POST'])
 def set_single_quest(num):
     if (is_authenticated(request.authorization)):
+        creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
         id = "quest"
@@ -340,14 +324,13 @@ def set_single_quest(num):
         update_one_in_db(f'DELETE FROM quest WHERE objective_id = {num} and creator_id = {creator_id};')
         update_one_in_db(f'INSERT INTO quest (objective_id, creator_id, quest_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')
         
-        objectives = fetch_all_from_db('SELECT * FROM objective;')
-        return render_template('objective.html', objectives=objectives)
-    else:
-        return "wrong credentials"
+    objectives = fetch_all_from_db('SELECT * FROM objective;')
+    return render_template('objective.html', objectives=objectives)
 
 @app.route('/flask/quest/<int:num>', methods=['GET'])
 def get_single_quest(num):
     if (is_authenticated(request.authorization)):
+        creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
 
@@ -357,26 +340,26 @@ def get_single_quest(num):
         else:
             return render_template('quest.html', quest="", number=num)
     else:
-        return "wrong credentials"
+        objectives = fetch_all_from_db('SELECT * FROM objective;')
+        return render_template('objective.html', objectives=objectives)
 
 @app.route('/flask/solution/<int:num>', methods=['POST'])
 def set_single_solution(num):
     if (is_authenticated(request.authorization)):
+        creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
         id = "solution"
         
         update_one_in_db(f'DELETE FROM solution WHERE objective_id = {num} and creator_id = {creator_id};')
-        update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')
-        
-        objectives = fetch_all_from_db('SELECT * FROM objective;')
-        return render_template('objective.html', objectives=objectives)
-    else:
-        return "wrong credentials"
+        update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')        
+    objectives = fetch_all_from_db('SELECT * FROM objective;')
+    return render_template('objective.html', objectives=objectives)
 
 @app.route('/flask/solution/<int:num>', methods=['GET'])
 def get_single_solution(num):
     if (is_authenticated(request.authorization)):
+        creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
 
@@ -386,17 +369,22 @@ def get_single_solution(num):
         else:
             return render_template('solution.html', solution="", number=num)
     else:
-        return "wrong credentials"
+        objectives = fetch_all_from_db('SELECT * FROM objective;')
+        return render_template('objective.html', objectives=objectives)
 
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
 def set_world():
     if (is_authenticated(request.authorization)):
+        world_name = request.args.get('worldname') 
+        world_desc = request.args.get('worlddesc') 
+        world_url = request.args.get('worldurl') 
+
         record = json.loads(request.data)
         with open(gamedata + "/data.json", 'w') as f:
             f.write(json.dumps(record, indent=4))
-        purge_db()
-        i = init_world(gamedata + "/data.json")
+        # purge_db()
+        i = init_world(gamedata + "/data.json", request.authorization['username'], world_name, world_desc, world_url)
         return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
     else:
         return jsonify({'error': 'wrong credentials'})
