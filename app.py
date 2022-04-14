@@ -68,9 +68,12 @@ def update_one_in_db(query):
     conn.close()
 
 # check if the basic authentication is valid
-def is_authenticated(auth):
+def is_authenticated(auth, admin):
     users = dict()
-    creator = fetch_all_from_db(f'SELECT creator_name, creator_hash FROM creator;')
+    if (admin):
+        creator = fetch_all_from_db(f'SELECT creator_name, creator_hash FROM creator WHERE creator_role = \'admin\';')
+    else:
+        creator = fetch_all_from_db(f'SELECT creator_name, creator_hash FROM creator;')
     for i in creator:
         users[i[0]] = i[1]
 
@@ -248,7 +251,7 @@ def get_new_creator():
     creator_name = request.form["creator"]
     creator_pass = request.form["password"]
     creator_hash = generate_password_hash(creator_pass, method='pbkdf2:sha256', salt_length=16)
-    update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_hash) VALUES (\'{creator_name}\', \'{creator_hash}\', \'{creator_hash}\');')
+    update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_hash, creator_role) VALUES (\'{creator_name}\', \'{creator_hash}\', \'{creator_hash}\', \'user\');')
     
     creators = fetch_all_from_db('SELECT * FROM creator;')
     return render_template('creator.html', creators=creators)
@@ -315,7 +318,7 @@ def get_single_junction(num):
 
 @app.route('/flask/quest/<int:num>', methods=['POST'])
 def set_single_quest(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
@@ -329,7 +332,7 @@ def set_single_quest(num):
 
 @app.route('/flask/quest/<int:num>', methods=['GET'])
 def get_single_quest(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
@@ -345,7 +348,7 @@ def get_single_quest(num):
 
 @app.route('/flask/solution/<int:num>', methods=['POST'])
 def set_single_solution(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
@@ -358,7 +361,7 @@ def set_single_solution(num):
 
 @app.route('/flask/solution/<int:num>', methods=['GET'])
 def get_single_solution(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
@@ -375,7 +378,7 @@ def get_single_solution(num):
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
 def set_world():
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, True)):
         world_name = request.args.get('worldname') 
         world_desc = request.args.get('worlddesc') 
         world_url = request.args.get('worldurl') 
@@ -391,8 +394,7 @@ def set_world():
 
 @app.route('/api/world', methods=['GET'])
 def get_world():
-    # name = request.args.get('name')
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         with open(gamedata + "/data.json", 'r') as f:
             data = f.read()
             records = json.loads(data)
@@ -402,7 +404,7 @@ def get_world():
 
 @app.route('/api/room/<int:num>', methods=['POST'])
 def set_room(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, True)):
         room = json.loads(request.data)
         update_one_in_db(f'UPDATE room SET room_name = \'{room["name"]}\', room_desc = \'{room["description"]}\' where room_id = {num};')
         return jsonify({'success': f'room {room["name"]} updated'})
@@ -411,7 +413,7 @@ def set_room(num):
 
 @app.route('/api/room/<int:num>', methods=['GET'])
 def get_room(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
         return jsonify({'name': room[2],  'description': room[3]})
     else:
@@ -419,7 +421,7 @@ def get_room(num):
 
 @app.route('/api/item/<int:num>', methods=['POST'])
 def set_item(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, True)):
         item = json.loads(request.data)
         update_one_in_db(f'UPDATE item SET item_name = \'{item["name"]}\', item_desc = \'{item["description"]}\' where item_id = {num};')
         return jsonify({'success': f'item {item["name"]} updated'})
@@ -428,7 +430,7 @@ def set_item(num):
 
 @app.route('/api/item/<int:num>', methods=['GET'])
 def get_item(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         item = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
         return jsonify({'name': item[3],  'description': item[4]})
     else:
@@ -436,7 +438,7 @@ def get_item(num):
 
 @app.route('/api/person/<int:num>', methods=['POST'])
 def set_person(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, True)):
         person = json.loads(request.data)
         update_one_in_db(f'UPDATE person SET person_name = \'{person["name"]}\', person_desc = \'{person["description"]}\' where person_id = {num};')
         return jsonify({'success': f'person {person["name"]} updated'})
@@ -445,7 +447,7 @@ def set_person(num):
 
 @app.route('/api/person/<int:num>', methods=['GET'])
 def get_person(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         person = fetch_one_from_db(f'SELECT * FROM person where person_id = {num};')
         return jsonify({'name': person[3],  'description': person[4]})
     else:
@@ -453,7 +455,7 @@ def get_person(num):
 
 @app.route('/api/objective/<int:num>', methods=['POST'])
 def set_objective(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, True)):
         objective = json.loads(request.data)
         update_one_in_db(f'UPDATE objective SET objective_name = \'{objective["name"]}\', objective_desc = \'{objective["description"]}\', difficulty = \'{objective["difficulty"]}\', objective_url = \'{objective["url"]}\', supported_by = \'{objective["supportedby"]}\', requires = \'{objective["requires"]}\' where objective_id = {num};')
         return jsonify({'success': f'objective {objective["name"]} updated'})
@@ -462,7 +464,7 @@ def set_objective(num):
 
 @app.route('/api/objective/<int:num>', methods=['GET'])
 def get_objective(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
         return jsonify({'name': objective[3],  'description': objective[4],  'difficulty': objective[5],  'url': objective[6],  'supportedby': objective[7],  'requires': objective[8]})
     else:
@@ -470,7 +472,7 @@ def get_objective(num):
 
 @app.route('/api/junction/<int:num>', methods=['POST'])
 def set_junction(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, True)):
         junction = json.loads(request.data)
         update_one_in_db(f'UPDATE junction SET dest_id = \'{junction["destination"]}\', junction_desc = \'{junction["description"]}\' where junction_id = {num};')
         return jsonify({'success': f'junction {junction["destination"]} updated'})
@@ -479,7 +481,7 @@ def set_junction(num):
 
 @app.route('/api/junction/<int:num>', methods=['GET'])
 def get_junction(num):
-    if (is_authenticated(request.authorization)):
+    if (is_authenticated(request.authorization, False)):
         junction = fetch_one_from_db(f'SELECT * FROM junction where junction_id = {num};')
         return jsonify({'destination': junction[3],  'description': junction[4]})
     else:
