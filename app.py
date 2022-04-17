@@ -236,15 +236,15 @@ def get_my_index():
     return render_template('index.html')
 
 # enable a HTML view to read the database contents
-@app.route('/flask/creator', methods = ['GET'])
+@app.route('/flask/creators', methods = ['GET'])
 def get_all_creators():
     creators = fetch_all_from_db('SELECT * FROM creator;')
     return render_template('creator.html', creators=creators)
 
 @app.route('/flask/creator/<int:num>', methods = ['GET'])
 def get_single_creator(num):
-    creators = fetch_all_from_db(f'SELECT * FROM creator where creator_id = {num};')
-    return render_template('creator_detail.html', creators=creators)
+    creator = fetch_one_from_db(f'SELECT * FROM creator where creator_id = {num};')
+    return render_template('creator_detail.html', creator=creator)
 
 @app.route('/flask/newcreator', methods=['GET'])
 def get_new_creator():
@@ -260,15 +260,15 @@ def post_new_creator():
     creators = fetch_all_from_db('SELECT * FROM creator;')
     return render_template('creator.html', creators=creators)
 
-@app.route('/flask/world', methods = ['GET'])
+@app.route('/flask/worlds', methods = ['GET'])
 def get_all_worlds():
     worlds = fetch_all_from_db('SELECT * FROM world;')
     return render_template('world.html', worlds=worlds)
 
 @app.route('/flask/world/<int:num>', methods = ['GET'])
 def get_single_world(num):
-    worlds = fetch_all_from_db(f'SELECT * FROM world where world_id = {num};')
-    return render_template('world_detail.html', worlds=worlds)
+    world = fetch_one_from_db(f'SELECT * FROM world where world_id = {num};')
+    return render_template('world_detail.html', world=world)
 
 @app.route('/flask/room', methods = ['GET'])
 def get_all_rooms():
