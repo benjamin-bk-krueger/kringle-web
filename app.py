@@ -246,8 +246,12 @@ def get_single_creator(num):
     creators = fetch_all_from_db(f'SELECT * FROM creator where creator_id = {num};')
     return render_template('creator_detail.html', creators=creators)
 
-@app.route('/flask/creator', methods=['POST'])
+@app.route('/flask/newcreator', methods=['GET'])
 def get_new_creator():
+    return render_template('creator_new.html')
+
+@app.route('/flask/newcreator', methods=['POST'])
+def post_new_creator():
     creator_name = request.form["creator"]
     creator_pass = request.form["password"]
     creator_hash = generate_password_hash(creator_pass, method='pbkdf2:sha256', salt_length=16)
