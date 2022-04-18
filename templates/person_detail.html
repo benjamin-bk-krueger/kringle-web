@@ -15,7 +15,7 @@
     <p><i>Found in <a href="{{ url_for('get_single_room', num=person[1])}}">Room ID #{{ person[1] }}</a></i></p>
     <p>Description: {{ person[4] }}</p>
 
-    <img src="{{ person[5] }}" alt="Person Image" width="33%" height="33%">
+    <img src="{{ person[5] if (person[5]!='') else '/static/notfound.png' }}" alt="Person Image" width="33%" height="33%">
 
     <p><a href="{{ url_for('get_all_persons', num=person[2]) }}">All Persons</a></p>
 {% endblock %}

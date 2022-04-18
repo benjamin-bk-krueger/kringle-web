@@ -4,9 +4,9 @@
     <h1>{% block title %} Single Creator {% endblock %}</h1>
 
     <p><a href="{{ url_for('get_single_creator', num=creator[0])}}"><h3>ID #{{ creator[0] }}: {{ creator[1] }}</h3></a></p>
-    <p>Role: {{ creator[4] }}</p>
+    <p>Role: {{ creator[3] }}</p>
 
-    <img src="{{ creator[4] }}" alt="Creator Image" width="33%" height="33%">
+    <img src="{{ creator[4] if (creator[4]!='') else '/static/notfound.png' }}" alt="Creator Image" width="33%" height="33%">
 
     <p><a href="{{ url_for('get_all_creators') }}">All Creators</a></p>
 {% endblock %}

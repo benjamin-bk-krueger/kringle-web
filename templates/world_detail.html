@@ -8,7 +8,7 @@
     <p>Description: {{ world[3] }}</p>
     <p>URL: {{ world[4] }}</p>
 
-    <img src="{{ world[5] }}" alt="World Image" width="33%" height="33%">
+    <img src="{{ world[5] if (world[5]!='') else '/static/notfound.png' }}" alt="World Image" width="33%" height="33%">
 
     <form action="{{ url_for('get_all_rooms', num=world[0]) }}" method="GET">
         <input type="submit" value="Select">

@@ -19,7 +19,7 @@
     <p>Supported by: {{ objective[7] }}</p>
     <p>Requires: {{ objective[8] }}</p>
 
-    <img src="{{ objective[9] }}" alt="Objective Image" width="33%" height="33%">
+    <img src="{{ objective[9] if (objective[9]!='') else '/static/notfound.png' }}" alt="Objective Image" width="33%" height="33%">
 
     <p>
         <form action="{{ url_for('get_single_quest', num=objective[0])}}">

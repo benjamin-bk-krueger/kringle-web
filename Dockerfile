@@ -21,6 +21,6 @@ RUN mkdir /home/flask/templates /home/flask/static /home/flask/.kringlecon
 
 COPY *.py *.sh /home/flask/
 COPY templates/*.html /home/flask/templates/
-COPY static/*.css /home/flask/static/
+COPY static/*.css static/*.png /home/flask/static/
 
 CMD ["/home/flask/flask.sh"]  
