@@ -18,7 +18,7 @@ auth = HTTPBasicAuth()
 @auth.verify_password
 def verify_password(username, password):
     users = dict()
-    creator = fetch_all_from_db(f'SELECT creator_name, creator_hash FROM creator;')
+    creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator;')
     for i in creator:
         users[i[0]] = i[1]
 
@@ -71,9 +71,9 @@ def update_one_in_db(query):
 def is_authenticated(auth, admin):
     users = dict()
     if (admin):
-        creator = fetch_all_from_db(f'SELECT creator_name, creator_hash FROM creator WHERE creator_role = \'admin\';')
+        creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator WHERE creator_role = \'admin\';')
     else:
-        creator = fetch_all_from_db(f'SELECT creator_name, creator_hash FROM creator;')
+        creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator;')
     for i in creator:
         users[i[0]] = i[1]
 
@@ -126,7 +126,7 @@ def purge_db():
             connection.close()
 
 # initialize a completely new world using a world template suplied as JSON
-def init_world(worldfile, creator_name, world_name, world_desc, world_url):
+def init_world(worldfile, creator_name, world_name, world_desc, world_url, world_img):
     counter_loaded = 0
 
     f = open(worldfile)
@@ -140,8 +140,8 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url):
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
         creator_id = creator[0]
 
-        insert_query = "INSERT INTO world (creator_id, world_name, world_desc, world_url) VALUES (%s, %s, %s, %s);"
-        cursor.execute(insert_query, (creator_id, world_name, world_desc, world_url))
+        insert_query = "INSERT INTO world (creator_id, world_name, world_desc, world_url, world_img) VALUES (%s, %s, %s, %s, %s);"
+        cursor.execute(insert_query, (creator_id, world_name, world_desc, world_url, world_img))
         connection.commit()
         counter_loaded = counter_loaded + 1
 
@@ -152,9 +152,10 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url):
         for i in data["rooms"]:
             room_name = i["name"]
             room_desc = i["description"]
+            room_img = i["image"]
 
-            insert_query = "INSERT INTO room (world_id, room_name, room_desc) VALUES (%s, %s, %s);"
-            cursor.execute(insert_query, (world_id, room_name, room_desc))
+            insert_query = "INSERT INTO room (world_id, room_name, room_desc, room_img) VALUES (%s, %s, %s, %s);"
+            cursor.execute(insert_query, (world_id, room_name, room_desc, room_img))
             connection.commit()
             counter_loaded = counter_loaded + 1
 
@@ -169,9 +170,10 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url):
                 for j in i["items"]:
                     item_name = j["name"]
                     item_desc = j["description"]
+                    item_img = j["image"]
 
-                    insert_query = "INSERT INTO item (room_id, world_id, item_name, item_desc) VALUES (%s, %s, %s, %s);"
-                    cursor.execute(insert_query, (room_id, world_id, item_name, item_desc))
+                    insert_query = "INSERT INTO item (room_id, world_id, item_name, item_desc, item_img) VALUES (%s, %s, %s, %s, %s);"
+                    cursor.execute(insert_query, (room_id, world_id, item_name, item_desc, item_img))
                     connection.commit()
                     counter_loaded = counter_loaded + 1
             
@@ -180,9 +182,10 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url):
                 for j in i["characters"]:
                     person_name = j["name"]
                     person_desc = j["description"]
+                    person_img = j["image"]
 
-                    insert_query = "INSERT INTO person (room_id, world_id, person_name, person_desc) VALUES (%s, %s, %s, %s);"
-                    cursor.execute(insert_query, (room_id, world_id, person_name, person_desc))
+                    insert_query = "INSERT INTO person (room_id, world_id, person_name, person_desc, person_img) VALUES (%s, %s, %s, %s, %s);"
+                    cursor.execute(insert_query, (room_id, world_id, person_name, person_desc, person_img))
                     connection.commit()
                     counter_loaded = counter_loaded + 1
             
@@ -195,9 +198,10 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url):
                     objective_url = j["url"]
                     supported_by = j["supportedby"]
                     requires = j["requires"]
+                    objective_img = j["image"]
 
-                    insert_query = "INSERT INTO objective (room_id, world_id, objective_name, objective_desc, difficulty, objective_url, supported_by, requires) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"
-                    cursor.execute(insert_query, (room_id, world_id, objective_name, objective_desc, difficulty, objective_url, supported_by, requires))
+                    insert_query = "INSERT INTO objective (room_id, world_id, objective_name, objective_desc, difficulty, objective_url, supported_by, requires, objective_img) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                    cursor.execute(insert_query, (room_id, world_id, objective_name, objective_desc, difficulty, objective_url, supported_by, requires, objective_img))
                     connection.commit()
                     counter_loaded = counter_loaded + 1
             
@@ -255,7 +259,7 @@ def post_new_creator():
     creator_name = request.form["creator"]
     creator_pass = request.form["password"]
     creator_hash = generate_password_hash(creator_pass, method='pbkdf2:sha256', salt_length=16)
-    update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_hash, creator_role) VALUES (\'{creator_name}\', \'{creator_hash}\', \'{creator_hash}\', \'user\');')
+    update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_role) VALUES (\'{creator_name}\', \'{creator_hash}\', \'user\');')
     
     creators = fetch_all_from_db('SELECT * FROM creator;')
     return render_template('creator.html', creators=creators)
@@ -390,12 +394,13 @@ def set_world():
         world_name = request.args.get('worldname') 
         world_desc = request.args.get('worlddesc') 
         world_url = request.args.get('worldurl') 
+        world_img = request.args.get('worldimg')
 
         record = json.loads(request.data)
         with open(gamedata + "/data.json", 'w') as f:
             f.write(json.dumps(record, indent=4))
         # purge_db()
-        i = init_world(gamedata + "/data.json", request.authorization['username'], world_name, world_desc, world_url)
+        i = init_world(gamedata + "/data.json", request.authorization['username'], world_name, world_desc, world_url, world_img)
         return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
     else:
         return jsonify({'error': 'wrong credentials'})
@@ -414,7 +419,7 @@ def get_world():
 def set_room(num):
     if (is_authenticated(request.authorization, True)):
         room = json.loads(request.data)
-        update_one_in_db(f'UPDATE room SET room_name = \'{room["name"]}\', room_desc = \'{room["description"]}\' where room_id = {num};')
+        update_one_in_db(f'UPDATE room SET room_name = \'{room["name"]}\', room_desc = \'{room["description"]}\', room_img = \'{room["image"]}\' where room_id = {num};')
         return jsonify({'success': f'room {room["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
@@ -423,7 +428,7 @@ def set_room(num):
 def get_room(num):
     if (is_authenticated(request.authorization, False)):
         room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
-        return jsonify({'name': room[2],  'description': room[3]})
+        return jsonify({'name': room[2],  'description': room[3],  'image': room[4]})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -431,7 +436,7 @@ def get_room(num):
 def set_item(num):
     if (is_authenticated(request.authorization, True)):
         item = json.loads(request.data)
-        update_one_in_db(f'UPDATE item SET item_name = \'{item["name"]}\', item_desc = \'{item["description"]}\' where item_id = {num};')
+        update_one_in_db(f'UPDATE item SET item_name = \'{item["name"]}\', item_desc = \'{item["description"]}\', item_img = \'{item["image"]}\' where item_id = {num};')
         return jsonify({'success': f'item {item["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
@@ -440,7 +445,7 @@ def set_item(num):
 def get_item(num):
     if (is_authenticated(request.authorization, False)):
         item = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
-        return jsonify({'name': item[3],  'description': item[4]})
+        return jsonify({'name': item[3],  'description': item[4],  'image': item[5]})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -448,7 +453,7 @@ def get_item(num):
 def set_person(num):
     if (is_authenticated(request.authorization, True)):
         person = json.loads(request.data)
-        update_one_in_db(f'UPDATE person SET person_name = \'{person["name"]}\', person_desc = \'{person["description"]}\' where person_id = {num};')
+        update_one_in_db(f'UPDATE person SET person_name = \'{person["name"]}\', person_desc = \'{person["description"]}\', person_img = \'{person["image"]}\' where person_id = {num};')
         return jsonify({'success': f'person {person["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
@@ -457,7 +462,7 @@ def set_person(num):
 def get_person(num):
     if (is_authenticated(request.authorization, False)):
         person = fetch_one_from_db(f'SELECT * FROM person where person_id = {num};')
-        return jsonify({'name': person[3],  'description': person[4]})
+        return jsonify({'name': person[3],  'description': person[4],  'image': person[5]})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -465,7 +470,7 @@ def get_person(num):
 def set_objective(num):
     if (is_authenticated(request.authorization, True)):
         objective = json.loads(request.data)
-        update_one_in_db(f'UPDATE objective SET objective_name = \'{objective["name"]}\', objective_desc = \'{objective["description"]}\', difficulty = \'{objective["difficulty"]}\', objective_url = \'{objective["url"]}\', supported_by = \'{objective["supportedby"]}\', requires = \'{objective["requires"]}\' where objective_id = {num};')
+        update_one_in_db(f'UPDATE objective SET objective_name = \'{objective["name"]}\', objective_desc = \'{objective["description"]}\', difficulty = \'{objective["difficulty"]}\', objective_url = \'{objective["url"]}\', supported_by = \'{objective["supportedby"]}\', requires = \'{objective["requires"]}\', objective_img = \'{objective["image"]}\'  where objective_id = {num};')
         return jsonify({'success': f'objective {objective["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
@@ -474,7 +479,7 @@ def set_objective(num):
 def get_objective(num):
     if (is_authenticated(request.authorization, False)):
         objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
-        return jsonify({'name': objective[3],  'description': objective[4],  'difficulty': objective[5],  'url': objective[6],  'supportedby': objective[7],  'requires': objective[8]})
+        return jsonify({'name': objective[3],  'description': objective[4],  'difficulty': objective[5],  'url': objective[6],  'supportedby': objective[7],  'requires': objective[8],  'image': objective[9]})
     else:
         return jsonify({'error': 'wrong credentials'})
 
