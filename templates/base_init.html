@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Kringle Web</title>
+    <title>Kringle Web - {% block title %} {% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/simple.css">
 </head>
 <body>
   <header>
     <h1>Kringle Web</h1>
-    <p>{% block title %} {% endblock %}</p>
+    <p>Creators and Worlds</p>
   </header>
 
   <div id="pagestart"></div>
 
   <nav>
+    <a href="{{ url_for('get_my_index') }}">Index</a>
     <a href="{{ url_for('get_all_creators') }}">Creators</a>
     <a href="{{ url_for('get_new_creator') }}">New Creator</a>
     <a href="{{ url_for('get_all_worlds') }}">Worlds</a>
