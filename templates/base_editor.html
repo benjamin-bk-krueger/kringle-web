@@ -18,11 +18,7 @@
 
   <nav>
     <a href="{{ url_for('get_my_index') }}"><i>Back</i></a>
-    <a href="{{ url_for('get_all_rooms') }}">Rooms</a>
-    <a href="{{ url_for('get_all_items') }}">Items</a>
-    <a href="{{ url_for('get_all_persons') }}">Persons</a>
-    <a href="{{ url_for('get_all_objectives') }}">Objectives</a>
-    <a href="{{ url_for('get_all_junctions') }}">Junctions</a>
+    {% block links %} {% endblock %}
 
     <a href="/wetty/ssh/game?pass=game"><b>Start game</b></a>
   </nav>

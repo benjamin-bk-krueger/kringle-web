@@ -7,7 +7,7 @@
     <p>Description: {{ world[3] }}</p>
     <p>URL: {{ world[4] }}</p>
 
-    <form action="{{ url_for('get_all_rooms') }}" method="GET">
+    <form action="{{ url_for('get_all_rooms', num=world[0]) }}" method="GET">
         <input type="submit">
     </form>
 

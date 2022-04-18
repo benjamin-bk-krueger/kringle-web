@@ -1,11 +1,19 @@
 {% extends 'base.html' %}
 
+{% block links %}
+    <a href="{{ url_for('get_all_rooms', num=item[2]) }}">Rooms</a>
+    <a href="{{ url_for('get_all_items', num=item[2]) }}">Items</a>
+    <a href="{{ url_for('get_all_persons', num=item[2]) }}">Persons</a>
+    <a href="{{ url_for('get_all_objectives', num=item[2] ) }}">Objectives</a>
+    <a href="{{ url_for('get_all_junctions', num=item[2]) }}">Junctions</a>
+{% endblock %}
+
 {% block content %}
-    <h1>{% block title %} Items {% endblock %}</h1>
-    {% for item in items %}
-        <p><a href="{{ url_for('get_single_item', num=item[0])}}"><h3>ID #{{ item[0] }}: {{ item[3] }}</h3></a></p>
-        <p><i>Found in <a href="{{ url_for('get_single_room', num=item[1])}}">Room ID #{{ item[1] }}</a></i></p>
-        <p>Description: {{ item[4] }}</p>
-    {% endfor %}
-    <p><a href="{{ url_for('get_all_items') }}">All Items</a></p>
+    <h1>{% block title %} Single Item {% endblock %}</h1>
+
+    <p><a href="{{ url_for('get_single_item', num=item[0])}}"><h3>ID #{{ item[0] }}: {{ item[3] }}</h3></a></p>
+    <p><i>Found in <a href="{{ url_for('get_single_room', num=item[1])}}">Room ID #{{ item[1] }}</a></i></p>
+    <p>Description: {{ item[4] }}</p>
+
+    <p><a href="{{ url_for('get_all_items', num=item[2]) }}">All Items</a></p>
 {% endblock %}

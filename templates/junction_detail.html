@@ -1,12 +1,20 @@
 {% extends 'base.html' %}
 
+{% block links %}
+    <a href="{{ url_for('get_all_rooms', num=junction[2]) }}">Rooms</a>
+    <a href="{{ url_for('get_all_items', num=junction[2]) }}">Items</a>
+    <a href="{{ url_for('get_all_persons', num=junction[2]) }}">Persons</a>
+    <a href="{{ url_for('get_all_objectives', num=junction[2] ) }}">Objectives</a>
+    <a href="{{ url_for('get_all_junctions', num=junction[2]) }}">Junctions</a>
+{% endblock %}
+
 {% block content %}
-    <h1>{% block title %} Junctions {% endblock %}</h1>
-    {% for junction in junctions %}
-        <p><a href="{{ url_for('get_single_junction', num=junction[0])}}"><h3>ID #{{ junction[0] }}</h3></a></p>
-        <p><i>Found in <a href="{{ url_for('get_single_room', num=junction[1])}}">Room ID #{{ junction[1] }}</a></i></p>
-        <p><i>Targeting <a href="{{ url_for('get_single_room', num=junction[3])}}">Room ID #{{ junction[3] }}</a></i></p>
-        <p>Description: {{ junction[4] }}</p>
-    {% endfor %}
-    <p><a href="{{ url_for('get_all_junctions') }}">All Junctions</a></p>
+    <h1>{% block title %} Single Junction {% endblock %}</h1>
+    
+    <p><a href="{{ url_for('get_single_junction', num=junction[0])}}"><h3>ID #{{ junction[0] }}</h3></a></p>
+    <p><i>Found in <a href="{{ url_for('get_single_room', num=junction[1])}}">Room ID #{{ junction[1] }}</a></i></p>
+    <p><i>Targeting <a href="{{ url_for('get_single_room', num=junction[3])}}">Room ID #{{ junction[3] }}</a></i></p>
+    <p>Description: {{ junction[4] }}</p>
+
+    <p><a href="{{ url_for('get_all_junctions', num=junction[2]) }}">All Junctions</a></p>
 {% endblock %}

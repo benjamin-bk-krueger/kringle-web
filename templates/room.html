@@ -1,9 +1,19 @@
 {% extends 'base.html' %}
 
+{% block links %}
+    <a href="{{ url_for('get_all_rooms', num=world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_all_items', num=world_id) }}">Items</a>
+    <a href="{{ url_for('get_all_persons', num=world_id) }}">Persons</a>
+    <a href="{{ url_for('get_all_objectives', num=world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_all_junctions', num=world_id) }}">Junctions</a>
+{% endblock %}
+
 {% block content %}
-    <h1>{% block title %} Rooms {% endblock %}</h1>
+    <h1>{% block title %} All Rooms {% endblock %}</h1>
+
     {% for room in rooms %}
         <p><a href="{{ url_for('get_single_room', num=room[0])}}"><h3>ID #{{ room[0] }}: {{ room[2] }}</h3></a></p>
     {% endfor %}
+    
     <a href="{{ url_for('get_my_index') }}">Index</a>
 {% endblock %}

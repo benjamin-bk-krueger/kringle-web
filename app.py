@@ -270,58 +270,59 @@ def get_single_world(num):
     world = fetch_one_from_db(f'SELECT * FROM world where world_id = {num};')
     return render_template('world_detail.html', world=world)
 
-@app.route('/flask/room', methods = ['GET'])
-def get_all_rooms():
-    rooms = fetch_all_from_db('SELECT * FROM room;')
-    return render_template('room.html', rooms=rooms)
+@app.route('/flask/rooms/<int:num>', methods = ['GET'])
+def get_all_rooms(num):
+    rooms = fetch_all_from_db(f'SELECT * FROM room where world_id = {num};')
+    return render_template('room.html', rooms=rooms, world_id=num)
 
 @app.route('/flask/room/<int:num>', methods = ['GET'])
 def get_single_room(num):
-    rooms = fetch_all_from_db(f'SELECT * FROM room where room_id = {num};')
-    return render_template('room_detail.html', rooms=rooms)
+    room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
+    return render_template('room_detail.html', room=room)
 
-@app.route('/flask/item', methods = ['GET'])
-def get_all_items():
-    items = fetch_all_from_db('SELECT * FROM item;')
-    return render_template('item.html', items=items)
+@app.route('/flask/items/<int:num>', methods = ['GET'])
+def get_all_items(num):
+    items = fetch_all_from_db(f'SELECT * FROM item where world_id = {num};')
+    return render_template('item.html', items=items, world_id=num)
 
 @app.route('/flask/item/<int:num>', methods = ['GET'])
 def get_single_item(num):
-    items = fetch_all_from_db(f'SELECT * FROM item where item_id = {num};')
-    return render_template('item_detail.html', items=items)
+    item = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
+    return render_template('item_detail.html', item=item)
 
-@app.route('/flask/person', methods = ['GET'])
-def get_all_persons():
-    persons = fetch_all_from_db('SELECT * FROM person;')
-    return render_template('person.html', persons=persons)
+@app.route('/flask/persons/<int:num>', methods = ['GET'])
+def get_all_persons(num):
+    persons = fetch_all_from_db(f'SELECT * FROM person where world_id = {num};')
+    return render_template('person.html', persons=persons, world_id=num)
 
 @app.route('/flask/person/<int:num>', methods = ['GET'])
 def get_single_person(num):
-    persons = fetch_all_from_db(f'SELECT * FROM person where person_id = {num};')
-    return render_template('person_detail.html', persons=persons)
+    person = fetch_one_from_db(f'SELECT * FROM person where person_id = {num};')
+    return render_template('person_detail.html', person=person)
 
-@app.route('/flask/objective', methods = ['GET'])
-def get_all_objectives():
-    objectives = fetch_all_from_db('SELECT * FROM objective;')
-    return render_template('objective.html', objectives=objectives)
+@app.route('/flask/objectives/<int:num>', methods = ['GET'])
+def get_all_objectives(num):
+    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {num};')
+    return render_template('objective.html', objectives=objectives, world_id=num)
 
 @app.route('/flask/objective/<int:num>', methods = ['GET'])
 def get_single_objective(num):
-    objectives = fetch_all_from_db(f'SELECT * FROM objective where objective_id = {num};')
-    return render_template('objective_detail.html', objectives=objectives)
+    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    return render_template('objective_detail.html', objective=objective)
 
-@app.route('/flask/junction', methods = ['GET'])
-def get_all_junctions():
-    junctions = fetch_all_from_db('SELECT * FROM junction;')
-    return render_template('junction.html', junctions=junctions)
+@app.route('/flask/junctions/<int:num>', methods = ['GET'])
+def get_all_junctions(num):
+    junctions = fetch_all_from_db(f'SELECT * FROM junction where world_id = {num};')
+    return render_template('junction.html', junctions=junctions, world_id=num)
 
 @app.route('/flask/junction/<int:num>', methods = ['GET'])
 def get_single_junction(num):
-    junctions = fetch_all_from_db(f'SELECT * FROM junction where junction_id = {num};')
-    return render_template('junction_detail.html', junctions=junctions)
+    junction = fetch_one_from_db(f'SELECT * FROM junction where junction_id = {num};')
+    return render_template('junction_detail.html', junction=junction)
 
 @app.route('/flask/quest/<int:num>', methods=['POST'])
 def set_single_quest(num):
+    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
@@ -331,11 +332,12 @@ def set_single_quest(num):
         update_one_in_db(f'DELETE FROM quest WHERE objective_id = {num} and creator_id = {creator_id};')
         update_one_in_db(f'INSERT INTO quest (objective_id, creator_id, quest_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')
         
-    objectives = fetch_all_from_db('SELECT * FROM objective;')
-    return render_template('objective.html', objectives=objectives)
+    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+    return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 @app.route('/flask/quest/<int:num>', methods=['GET'])
 def get_single_quest(num):
+    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
@@ -343,15 +345,16 @@ def get_single_quest(num):
 
         quest = fetch_one_from_db(f'SELECT * FROM quest where objective_id = {num} and creator_id = {creator_id};')
         if (quest != None):
-            return render_template('quest.html', quest=str(bytes(quest[3]), 'utf-8'), number=num)
+            return render_template('quest_detail.html', quest=str(bytes(quest[3]), 'utf-8'), number=num, world_id=objective[2])
         else:
-            return render_template('quest.html', quest="", number=num)
+            return render_template('quest_detail.html', quest="", number=num, world_id=objective[2])
     else:
-        objectives = fetch_all_from_db('SELECT * FROM objective;')
-        return render_template('objective.html', objectives=objectives)
+        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+        return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 @app.route('/flask/solution/<int:num>', methods=['POST'])
 def set_single_solution(num):
+    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
@@ -360,11 +363,12 @@ def set_single_solution(num):
         
         update_one_in_db(f'DELETE FROM solution WHERE objective_id = {num} and creator_id = {creator_id};')
         update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')        
-    objectives = fetch_all_from_db('SELECT * FROM objective;')
-    return render_template('objective.html', objectives=objectives)
+    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+    return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 @app.route('/flask/solution/<int:num>', methods=['GET'])
 def get_single_solution(num):
+    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
@@ -372,12 +376,12 @@ def get_single_solution(num):
 
         solution = fetch_one_from_db(f'SELECT * FROM solution where objective_id = {num} and creator_id = {creator_id};')
         if (solution != None):
-            return render_template('solution.html', solution=str(bytes(solution[3]), 'utf-8'), number=num)
+            return render_template('solution_detail.html', solution=str(bytes(solution[3]), 'utf-8'), number=num, world_id=objective[2])
         else:
-            return render_template('solution.html', solution="", number=num)
+            return render_template('solution_detail.html', solution="", number=num, world_id=objective[2])
     else:
-        objectives = fetch_all_from_db('SELECT * FROM objective;')
-        return render_template('objective.html', objectives=objectives)
+        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+        return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
