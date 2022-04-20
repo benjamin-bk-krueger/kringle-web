@@ -338,7 +338,7 @@ def set_single_quest(num):
         id = "quest"
 
         update_one_in_db(f'UPDATE objective set quest={psycopg2.Binary(request.form[id].encode())} WHERE objective_id = {num};')
-    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
     return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 @app.route('/flask/quest/<int:num>', methods=['GET'])
@@ -350,7 +350,7 @@ def get_single_quest(num):
         else:
             return render_template('quest_detail.html', quest="", number=num, world_id=objective[2])
     else:
-        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
         return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 @app.route('/flask/solution/<int:num>', methods=['POST'])
@@ -360,7 +360,7 @@ def set_single_solution(num):
         id = "solution"
 
         update_one_in_db(f'UPDATE objective set solution={psycopg2.Binary(request.form[id].encode())} WHERE objective_id = {num};')
-    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
     return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 @app.route('/flask/solution/<int:num>', methods=['GET'])
@@ -372,7 +372,7 @@ def get_single_solution(num):
         else:
             return render_template('solution_detail.html', solution="", number=num, world_id=objective[2])
     else:
-        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
         return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 @app.route('/flask/solution/my/<int:num>', methods=['POST'])
@@ -386,7 +386,7 @@ def set_my_solution(num):
         
         update_one_in_db(f'DELETE FROM solution WHERE objective_id = {num} and creator_id = {creator_id};')
         update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')        
-    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
     return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 @app.route('/flask/solution/my/<int:num>', methods=['GET'])
@@ -403,7 +403,7 @@ def get_my_solution(num):
         else:
             return render_template('solution_my_detail.html', solution="", number=num, world_id=objective[2])
     else:
-        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
         return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
 # enable a REST API to modify the database contents
