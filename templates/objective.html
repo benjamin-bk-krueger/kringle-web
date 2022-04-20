@@ -9,11 +9,15 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{% block title %} All Objectives {% endblock %}</h1>
+    <h2>{% block title %} All Objectives {% endblock %}</h2>
 
-    {% for objective in objectives %}
-        <p><a href="{{ url_for('get_single_objective', num=objective[0])}}"><h3>ID #{{ objective[0] }}: {{ objective[3] }}</h3></a></p>
-    {% endfor %}
+    <p>
+        <ul>
+            {% for objective in objectives %}
+            <li><a href="{{ url_for('get_single_objective', num=objective[0])}}">{{ objective[3] }} (#{{ objective[0] }})</a></li>
+            {% endfor %}
+        </ul>
+    </p>
 
     <a href="{{ url_for('get_my_index') }}">Index</a>
 {% endblock %}

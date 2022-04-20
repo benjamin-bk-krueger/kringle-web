@@ -9,26 +9,43 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{% block title %} Single Objective {% endblock %}</h1>
-
-    <p><a href="{{ url_for('get_single_objective', num=objective[0])}}"><h3>ID #{{ objective[0] }}: {{ objective[3] }}</h3></a></p>
-    <p><i>Found in <a href="{{ url_for('get_single_room', num=objective[1])}}">Room ID #{{ objective[1] }}</a></i></p>
-    <p>Description: {{ objective[4] }}</p>
-    <p>Difficulty: {{ objective[5] }}</p>
-    <p>URL: {{ objective[6] }}</p>
-    <p>Supported by: {{ objective[7] }}</p>
-    <p>Requires: {{ objective[8] }}</p>
-
-    <img src="{{ objective[9] if (objective[9]!='') else '/static/notfound.png' }}" alt="Objective Image" width="33%" height="33%">
+    <h2>{% block title %} {{ objective[3] }} (#{{ objective[0] }}) {% endblock %}</h2>
 
     <p>
+        <i>Found in <a href="{{ url_for('get_single_room', num=objective[1])}}">Room ID #{{ objective[1] }}</a></i></br>
+        Description: {{ objective[4] }}</br>
+        Difficulty: {{ objective[5] }}</br>
+        URL: {{ objective[6] }}</br>
+        Supported by: {{ objective[7] }}</br>
+        Requires: {{ objective[8] }}
+    </p>
+
+    <img src="{{ objective[9] if (objective[9]!='') else '/static/not_found.jpg' }}" alt="Objective Image" width="33%" height="33%">
+
+    <h4>Master Quest</h4>
+    <p>
+        {{ mdquest|safe }}
+    </p>
+
+    <h4>Master Solution</h4>
+    <p>
+        {{ mdsolution|safe }}
+    </p>
+
+    <h4>Edit Data</h4>
+    <p>
         <form action="{{ url_for('get_single_quest', num=objective[0])}}">
-            <input type="submit" value="Edit Quest" />
+            <input type="submit" value="Edit Master Quest" />
         </form>
     </p>
     <p>
         <form action="{{ url_for('get_single_solution', num=objective[0])}}">
-            <input type="submit" value="Edit Solution" />
+            <input type="submit" value="Edit Master Solution" />
+        </form>
+    </p>
+    <p>
+        <form action="{{ url_for('get_my_solution', num=objective[0])}}">
+            <input type="submit" value="Edit My Solution" />
         </form>
     </p>
 

@@ -9,13 +9,14 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{% block title %} Single Room {% endblock %}</h1>
+    <h2>{% block title %} {{ room[2] }} (#{{ room[0] }}) {% endblock %}</h2>
         
-    <p><a href="{{ url_for('get_single_room', num=room[0])}}"><h3>ID #{{ room[0] }}: {{ room[2] }}</h3></a></p>
-    <p><i>Found in <a href="{{ url_for('get_single_world', num=room[1])}}">World ID #{{ room[1] }}</a></i></p>
-    <p>Description: {{ room[3] }}</p>
+    <p>
+        <i>Found in <a href="{{ url_for('get_single_world', num=room[1])}}">World #{{ room[1] }}</a></i></br>
+        Description: {{ room[3] }}
+    </p>
 
-    <img src="{{ room[4] if (room[4]!='') else '/static/notfound.png' }}" alt="Room Image" width="33%" height="33%">
+    <img src="{{ room[4] if (room[4]!='') else '/static/not_found.jpg' }}" alt="Room Image" width="33%" height="33%">
 
     <p><a href="{{ url_for('get_all_rooms', num=room[1]) }}">All Rooms</a></p>
 {% endblock %}

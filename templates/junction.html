@@ -9,11 +9,15 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{% block title %} All Junctions {% endblock %}</h1>
+    <h2>{% block title %} All Junctions {% endblock %}</h2>
 
-    {% for junction in junctions %}
-        <p><a href="{{ url_for('get_single_junction', num=junction[0])}}"><h3>ID #{{ junction[0] }}</h3></a></p>
-    {% endfor %}
+    <p>
+        <ul>
+            {% for junction in junctions %}
+            <li><a href="{{ url_for('get_single_junction', num=junction[0])}}">#{{ junction[0] }}</a></li>
+            {% endfor %}
+        </ul>
+    </p>
 
     <a href="{{ url_for('get_my_index') }}">Index</a>
 {% endblock %}

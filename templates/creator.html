@@ -1,11 +1,15 @@
 {% extends 'base_init.html' %}
 
 {% block content %}
-    <h1>{% block title %} All Creators {% endblock %}</h1>
+    <h2>{% block title %} All Creators {% endblock %}</h2>
 
-    {% for creator in creators %}
-        <p><a href="{{ url_for('get_single_creator', num=creator[0])}}"><h3>ID #{{ creator[0] }}: {{ creator[1] }}</h3></a></p>
-    {% endfor %}
+    <p>
+        <ul>
+            {% for creator in creators %}
+            <li><a href="{{ url_for('get_single_creator', num=creator[0])}}">{{ creator[1] }} (#{{ creator[0] }})</a></li>
+            {% endfor %}
+        </ul>
+    </p>
     
     <a href="{{ url_for('get_my_index') }}">Index</a>
 {% endblock %}

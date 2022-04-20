@@ -1,0 +1,22 @@
+{% extends 'base_editor.html' %}
+
+{% block links %}
+    <a href="{{ url_for('get_all_rooms', num=world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_all_items', num=world_id) }}">Items</a>
+    <a href="{{ url_for('get_all_persons', num=world_id) }}">Persons</a>
+    <a href="{{ url_for('get_all_objectives', num=world_id) }}">Objectives</a>
+    <a href="{{ url_for('get_all_junctions', num=world_id) }}">Junctions</a>
+{% endblock %}
+
+{% block content %}
+    <h1>{% block title %} Single Solution {% endblock %}</h1>
+
+    <form action="{{ url_for('set_my_solution', num=number)}}" method="POST">
+        <textarea name="solution" cols="50" rows="10">{{ solution }}</textarea>
+        <script>
+            const easyMDE = new EasyMDE();
+        </script>
+        <input type="submit" value="Submit">
+    </form>
+
+{% endblock %}

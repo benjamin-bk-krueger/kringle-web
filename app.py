@@ -2,6 +2,7 @@ import psycopg2
 import json
 import base64
 import os
+import markdown2
 from psycopg2 import Error 
 from flask import Flask, request, render_template, jsonify
 from flask_httpauth import HTTPBasicAuth # https://flask-httpauth.readthedocs.io/en/latest/
@@ -309,7 +310,16 @@ def get_all_objectives(num):
 @app.route('/flask/objective/<int:num>', methods = ['GET'])
 def get_single_objective(num):
     objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
-    return render_template('objective_detail.html', objective=objective)
+    if (objective[10] != None):
+        mdquest = markdown2.markdown(str(bytes(objective[10]), 'utf-8'), extras=['fenced-code-blocks'])
+    else:
+        mdquest = ""
+    if (objective[11] != None):
+        mdsolution = markdown2.markdown(str(bytes(objective[11]), 'utf-8'), extras=['fenced-code-blocks'])
+    else:
+        mdsolution = ""
+
+    return render_template('objective_detail.html', objective=objective, mdquest=mdquest, mdsolution=mdsolution)
 
 @app.route('/flask/junctions/<int:num>', methods = ['GET'])
 def get_all_junctions(num):
@@ -346,6 +356,28 @@ def get_single_quest(num):
 @app.route('/flask/solution/<int:num>', methods=['POST'])
 def set_single_solution(num):
     objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    if (is_authenticated(request.authorization, True)):
+        id = "solution"
+
+        update_one_in_db(f'UPDATE objective set solution={psycopg2.Binary(request.form[id].encode())} WHERE objective_id = {num};')
+    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+    return render_template('objective.html', objectives=objectives, world_id=objective[2])
+
+@app.route('/flask/solution/<int:num>', methods=['GET'])
+def get_single_solution(num):
+    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    if (is_authenticated(request.authorization, True)):
+        if (objective[11] != None):
+            return render_template('solution_detail.html', solution=str(bytes(objective[11]), 'utf-8'), number=num, world_id=objective[2])
+        else:
+            return render_template('solution_detail.html', solution="", number=num, world_id=objective[2])
+    else:
+        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
+        return render_template('objective.html', objectives=objectives, world_id=objective[2])
+
+@app.route('/flask/solution/my/<int:num>', methods=['POST'])
+def set_my_solution(num):
+    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
         creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
@@ -357,8 +389,8 @@ def set_single_solution(num):
     objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
     return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
-@app.route('/flask/solution/<int:num>', methods=['GET'])
-def get_single_solution(num):
+@app.route('/flask/solution/my/<int:num>', methods=['GET'])
+def get_my_solution(num):
     objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     if (is_authenticated(request.authorization, False)):
         creator_name = request.authorization['username']
@@ -367,9 +399,9 @@ def get_single_solution(num):
 
         solution = fetch_one_from_db(f'SELECT * FROM solution where objective_id = {num} and creator_id = {creator_id};')
         if (solution != None):
-            return render_template('solution_detail.html', solution=str(bytes(solution[3]), 'utf-8'), number=num, world_id=objective[2])
+            return render_template('solution_my_detail.html', solution=str(bytes(solution[3]), 'utf-8'), number=num, world_id=objective[2])
         else:
-            return render_template('solution_detail.html', solution="", number=num, world_id=objective[2])
+            return render_template('solution_my_detail.html', solution="", number=num, world_id=objective[2])
     else:
         objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]};')
         return render_template('objective.html', objectives=objectives, world_id=objective[2])

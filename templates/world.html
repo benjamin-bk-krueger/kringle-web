@@ -1,11 +1,15 @@
 {% extends 'base_init.html' %}
 
 {% block content %}
-    <h1>{% block title %} All Worlds {% endblock %}</h1>
+    <h2>{% block title %} All Worlds {% endblock %}</h2>
 
-    {% for world in worlds %}
-        <p><a href="{{ url_for('get_single_world', num=world[0])}}"><h3>ID #{{ world[0] }}: {{ world[2] }}</h3></a></p>
-    {% endfor %}
+    <p>
+        <ul>
+            {% for world in worlds %}
+            <li><a href="{{ url_for('get_single_world', num=world[0])}}">{{ world[2] }} (#{{ world[0] }})</a></li>
+            {% endfor %}
+        </ul>
+    </p>
     
     <a href="{{ url_for('get_my_index') }}">Index</a>
 {% endblock %}

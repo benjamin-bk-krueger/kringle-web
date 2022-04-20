@@ -9,11 +9,15 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{% block title %} All Rooms {% endblock %}</h1>
+    <h2>{% block title %} All Rooms {% endblock %}</h2>
 
-    {% for room in rooms %}
-        <p><a href="{{ url_for('get_single_room', num=room[0])}}"><h3>ID #{{ room[0] }}: {{ room[2] }}</h3></a></p>
-    {% endfor %}
-    
+    <p>
+        <ul>
+            {% for room in rooms %}
+            <li><a href="{{ url_for('get_single_room', num=room[0])}}">{{ room[2] }} (#{{ room[0] }})</a></li>
+            {% endfor %}
+        </ul>
+    </p>
+
     <a href="{{ url_for('get_my_index') }}">Index</a>
 {% endblock %}
