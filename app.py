@@ -4,7 +4,7 @@ import base64
 import os
 import markdown2
 from psycopg2 import Error 
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, send_file
 from flask_httpauth import HTTPBasicAuth # https://flask-httpauth.readthedocs.io/en/latest/
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -402,6 +402,23 @@ def get_my_solution(num):
             return render_template('solution_my_detail.html', solution=str(bytes(solution[3]), 'utf-8'), number=num, world_id=objective[2])
         else:
             return render_template('solution_my_detail.html', solution="", number=num, world_id=objective[2])
+    else:
+        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
+        return render_template('objective.html', objectives=objectives, world_id=objective[2])
+
+@app.route('/flask/mywalkthrough/<int:num>', methods=['GET'])
+def get_my_walkthrough(num):
+    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    if (is_authenticated(request.authorization, False)):
+        creator_name = request.authorization['username']
+        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
+        creator_id = creator[0]
+
+        with open(gamedata + "/walkthrough.md", 'w') as f:
+            f.write("Markdown")
+
+        # return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
+        return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md')
     else:
         objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
         return render_template('objective.html', objectives=objectives, world_id=objective[2])

@@ -15,5 +15,9 @@
         <input type="submit" value="Select">
     </form>
 
+    <form action="{{ url_for('get_my_walkthrough', num=world[0]) }}" method="GET">
+        <input type="submit" value="Walkthrough">
+    </form>
+
     <p><a href="{{ url_for('get_all_worlds') }}">All Worlds</a></p>
 {% endblock %}
