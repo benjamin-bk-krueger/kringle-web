@@ -16,17 +16,6 @@ app = Flask(__name__,
             template_folder='templates')
 auth = HTTPBasicAuth()
 
-@auth.verify_password
-def verify_password(username, password):
-    users = dict()
-    creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator;')
-    for i in creator:
-        users[i[0]] = i[1]
-
-    if username in users and \
-            check_password_hash(users.get(username), password):
-        return username
-
 # open a connection to PostgreSQL DB and return the connection
 def get_db_connection():
     try:
@@ -67,21 +56,6 @@ def update_one_in_db(query):
     cur.close()
     conn.commit()
     conn.close()
-
-# check if the basic authentication is valid
-def is_authenticated(auth, admin):
-    users = dict()
-    if (admin):
-        creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator WHERE creator_role = \'admin\';')
-    else:
-        creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator;')
-    for i in creator:
-        users[i[0]] = i[1]
-
-    if auth:
-        if auth['username'] in users and check_password_hash(users.get(auth['username']), auth['password']):
-            return True
-    return False
     
 # remove everything in the DB
 def purge_db():
@@ -227,6 +201,32 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url, world
     f.close()
     return(counter_loaded)
 
+# check if the basic authentication is valid
+def is_authenticated(auth, admin):
+    users = dict()
+    if (admin):
+        creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator WHERE creator_role = \'admin\';')
+    else:
+        creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator;')
+    for i in creator:
+        users[i[0]] = i[1]
+
+    if auth:
+        if auth['username'] in users and check_password_hash(users.get(auth['username']), auth['password']):
+            return True
+    return False
+
+@auth.verify_password
+def verify_password(username, password):
+    users = dict()
+    creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator;')
+    for i in creator:
+        users[i[0]] = i[1]
+
+    if username in users and \
+            check_password_hash(users.get(username), password):
+        return username
+
 # entry pages
 @app.route('/flask/login', methods = ['GET'])
 @auth.login_required
@@ -259,7 +259,7 @@ def post_new_creator():
     creator_hash = generate_password_hash(creator_pass, method='pbkdf2:sha256', salt_length=16)
     update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_role) VALUES (\'{creator_name}\', \'{creator_hash}\', \'user\');')
     
-    creators = fetch_all_from_db('SELECT * FROM creator;')
+    creators = fetch_all_from_db('SELECT * FROM creator ORDER BY creator_id ASC;')
     return render_template('creator.html', creators=creators)
 
 @app.route('/flask/worlds', methods = ['GET'])
@@ -375,7 +375,7 @@ def get_single_solution(num):
         objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
         return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
-@app.route('/flask/solution/my/<int:num>', methods=['POST'])
+@app.route('/flask/mysolution/<int:num>', methods=['POST'])
 def set_my_solution(num):
     objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     if (is_authenticated(request.authorization, False)):
@@ -389,7 +389,7 @@ def set_my_solution(num):
     objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
     return render_template('objective.html', objectives=objectives, world_id=objective[2])
 
-@app.route('/flask/solution/my/<int:num>', methods=['GET'])
+@app.route('/flask/mysolution/<int:num>', methods=['GET'])
 def get_my_solution(num):
     objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
     if (is_authenticated(request.authorization, False)):
