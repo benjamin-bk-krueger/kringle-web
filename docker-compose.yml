@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  web:
+    image : benjaminkrueger/kringle-web
+    command: /home/flask/flask.sh
+    user: flask
+    ports:
+      - 5010:5010
+    container_name: kringle_web
+
+  database:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    container_name: kringle_database
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+volumes:
+  db:
+    driver: local
