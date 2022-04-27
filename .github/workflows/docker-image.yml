@@ -26,4 +26,4 @@ jobs:
         with:
           push: true
           # tags: ${{ github.repository }}:${{ steps.vars.outputs.tag }}
-          tags: benjaminkrueger/kringle-web:latest
+          tags: ${{ secrets.DOCKER_HUB_REPOSITORY }}:${{ steps.vars.outputs.tag }}
