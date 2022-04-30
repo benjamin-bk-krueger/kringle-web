@@ -14,7 +14,7 @@
     <p>
         <ul>
             {% for item in items %}
-            <li><a href="{{ url_for('get_single_item', num=item[0])}}">{{ item[3] }} (#{{ item[0] }})</a></li>
+            <li><a href="{{ url_for('get_single_item', num=item.item_id)}}">{{ item.item_name }} (#{{ item.item_id }})</a></li>
             {% endfor %}
         </ul>
     </p>

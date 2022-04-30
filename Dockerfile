@@ -6,7 +6,7 @@ LABEL maintaner="Ben Krueger <sayhello@blk8.de>"
 RUN apt-get update
 RUN apt-get install -y python3 python3-pip python3-psycopg2
 
-RUN pip3 install flask flask_httpauth markdown2
+RUN pip3 install flask flask_httpauth flask-sqlalchemy markdown2
 
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*

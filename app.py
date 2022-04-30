@@ -6,9 +6,18 @@ import markdown2
 from psycopg2 import Error 
 from flask import Flask, request, render_template, jsonify, send_file
 from flask_httpauth import HTTPBasicAuth # https://flask-httpauth.readthedocs.io/en/latest/
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
 gamedata = os.environ['HOME'] + "/.kringlecon"  # directory for game data
+#POSTGRES_URL = get_env_variable("POSTGRES_URL")
+#POSTGRES_USER = get_env_variable("POSTGRES_USER")
+#POSTGRES_PW = get_env_variable("POSTGRES_PW")
+#POSTGRES_DB = get_env_variable("POSTGRES_DB")
+POSTGRES_URL = "kringle_database:5432"
+POSTGRES_USER = "postgres"
+POSTGRES_PW = "postgres"
+POSTGRES_DB = "postgres"
 
 app = Flask(__name__,
             static_url_path='/static', 
@@ -16,86 +25,85 @@ app = Flask(__name__,
             template_folder='templates')
 auth = HTTPBasicAuth()
 
-# open a connection to PostgreSQL DB and return the connection
-def get_db_connection():
-    try:
-        conn = psycopg2.connect(user="postgres",
-                                    password="postgres",
-                                    host="kringle_database",
-                                    port="5432",
-                                    database="postgres")
-        return conn
-    except (Exception, Error) as error:
-        return None
+# DB configuration
+DB_URL = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=POSTGRES_USER,pw=POSTGRES_PW,url=POSTGRES_URL,db=POSTGRES_DB)
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # silence the deprecation warning
+db = SQLAlchemy(app)
 
-# fetch all rows from a query
-def fetch_all_from_db(query):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(query)
-    results = cur.fetchall()
-    cur.close()
-    conn.close()
-    return results
+# ORM model classes
+class Creator(db.Model):
+    __tablename__ = "creator"
+    creator_id = db.Column (db.INTEGER, primary_key=True)
+    creator_name = db.Column (db.VARCHAR(100), unique=True)
+    creator_pass = db.Column (db.VARCHAR(256))
+    creator_role = db.Column (db.VARCHAR(10))
+    creator_img = db.Column (db.VARCHAR(384))
 
-# fetch only a single row from a query
-def fetch_one_from_db(query):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(query)
-    result = cur.fetchone()
-    cur.close()
-    conn.close()
-    return result
+class World(db.Model):
+    __tablename__ = "world"
+    world_id = db.Column (db.INTEGER, primary_key=True)
+    creator_id = db.Column (db.INTEGER, db.ForeignKey("creator.creator_id"))
+    world_name = db.Column (db.VARCHAR(100), unique=True)
+    world_desc = db.Column (db.VARCHAR(1024))
+    world_url = db.Column (db.VARCHAR(256))
+    world_img = db.Column (db.VARCHAR(384))
 
-# update one row from a query
-def update_one_in_db(query):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(query)
-    cur.close()
-    conn.commit()
-    conn.close()
-    
-# remove everything in the DB
-def purge_db():
-    try:
-        # Connect to an existing database and ceate a cursor to perform database operations
-        connection = get_db_connection()
-        cursor = connection.cursor()
+class Room(db.Model):
+    __tablename__ = "room"
+    room_id = db.Column (db.INTEGER, primary_key=True)
+    world_id = db.Column (db.INTEGER, db.ForeignKey("world.world_id"))
+    room_name = db.Column (db.VARCHAR(100))
+    room_desc = db.Column (db.VARCHAR(1024))
+    room_img = db.Column (db.VARCHAR(384))
 
-        # purge the whole database
-        delete_query = "DELETE FROM solution;"
-        cursor.execute(delete_query)
-        connection.commit()
-        delete_query = "DELETE FROM junction;"
-        cursor.execute(delete_query)
-        connection.commit()
-        delete_query = "DELETE FROM person;"
-        cursor.execute(delete_query)
-        connection.commit()
-        delete_query = "DELETE FROM objective;"
-        cursor.execute(delete_query)
-        connection.commit()
-        delete_query = "DELETE FROM item;"
-        cursor.execute(delete_query)
-        connection.commit()
-        delete_query = "DELETE FROM room;"
-        cursor.execute(delete_query)
-        connection.commit()
-        delete_query = "DELETE FROM world;"
-        cursor.execute(delete_query)
-        connection.commit()
-        delete_query = "DELETE FROM creator;"
-        cursor.execute(delete_query)
-        connection.commit()
+class Item(db.Model):
+    __tablename__ = "item"
+    item_id = db.Column (db.INTEGER, primary_key=True)
+    room_id = db.Column (db.INTEGER, db.ForeignKey("room.room_id"))
+    world_id = db.Column (db.INTEGER, db.ForeignKey("world.world_id"))
+    item_name = db.Column (db.VARCHAR(100))
+    item_desc = db.Column (db.VARCHAR(1024))
+    item_img = db.Column (db.VARCHAR(384))
 
-    except (Exception, Error) as error:
-        return 0
-    finally:
-        if (connection):
-            cursor.close()
-            connection.close()
+class Objective(db.Model):
+    __tablename__ = "objective"
+    objective_id = db.Column (db.INTEGER, primary_key=True)
+    room_id = db.Column (db.INTEGER, db.ForeignKey("room.room_id"))
+    world_id = db.Column (db.INTEGER, db.ForeignKey("world.world_id"))
+    objective_name = db.Column (db.VARCHAR(100))
+    objective_desc = db.Column (db.VARCHAR(1024))
+    difficulty = db.Column (db.INTEGER)
+    objective_url = db.Column (db.VARCHAR(256))
+    supported_by = db.Column (db.VARCHAR(100))
+    requires = db.Column (db.VARCHAR(100))
+    objective_img = db.Column (db.VARCHAR(384))
+    quest = db.Column (db.LargeBinary)
+    solution = db.Column (db.LargeBinary)
+
+class Person(db.Model):
+    __tablename__ = "person"
+    person_id = db.Column (db.INTEGER, primary_key=True)
+    room_id = db.Column (db.INTEGER, db.ForeignKey("room.room_id"))
+    world_id = db.Column (db.INTEGER, db.ForeignKey("world.world_id"))
+    person_name =  db.Column (db.VARCHAR(100))
+    person_desc = db.Column (db.VARCHAR(1024))
+    person_img = db.Column (db.VARCHAR(384))
+
+class Junction(db.Model):
+    __tablename__ = "junction"
+    junction_id = db.Column (db.INTEGER, primary_key=True)
+    room_id = db.Column (db.INTEGER, db.ForeignKey("room.room_id"))
+    world_id = db.Column (db.INTEGER, db.ForeignKey("world.world_id"))
+    dest_id = db.Column (db.INTEGER, db.ForeignKey("room.room_id"))
+    junction_desc = db.Column (db.VARCHAR(1024))
+
+class Solution(db.Model):
+    __tablename__ = "solution"
+    solution_id = db.Column (db.INTEGER, primary_key=True)
+    objective_id = db.Column (db.INTEGER, db.ForeignKey("objective.objective_id"))
+    creator_id = db.Column (db.INTEGER, db.ForeignKey("creator.creator_id"))
+    solution_text = db.Column (db.LargeBinary)
 
 # initialize a completely new world using a world template suplied as JSON
 def init_world(worldfile, creator_name, world_name, world_desc, world_url, world_img):
@@ -104,99 +112,93 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url, world
     f = open(worldfile)
     data = json.load(f)
 
-    try:
-        # Connect to an existing database and ceate a cursor to perform database operations
-        connection = get_db_connection()
-        cursor = connection.cursor()
+    # Connect to an existing database and ceate a cursor to perform database operations
+    creator = Creator.query.filter_by(creator_name=creator_name).first()
 
-        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
-        creator_id = creator[0]
+    world = World()
+    world.creator_id = creator.creator_id
+    world.world_name = world_name
+    world.world_desc = world_desc
+    world.world_url = world_url
+    world.world_img = world_img
+    db.session.add(world)
+    db.session.commit()
+    counter_loaded = counter_loaded + 1
 
-        insert_query = "INSERT INTO world (creator_id, world_name, world_desc, world_url, world_img) VALUES (%s, %s, %s, %s, %s);"
-        cursor.execute(insert_query, (creator_id, world_name, world_desc, world_url, world_img))
-        connection.commit()
+    world =  World.query.filter_by(world_name=world_name).first()
+
+    # load all rooms before to enable foreign key relationship
+    for i in data["rooms"]:
+        room = Room()
+        room.world_id = world.world_id
+        room.room_name = i["name"]
+        room.room_desc = i["description"]
+        room.room_img = i["image"]
+        db.session.add(room)
+        db.session.commit()
         counter_loaded = counter_loaded + 1
 
-        world = fetch_one_from_db(f'SELECT * FROM world where world_name = \'{world_name}\';')
-        world_id = world[0]
+    # load all other elements and check foreign key relationship
+    for i in data["rooms"]:
+        room_name = i["name"]
+        room = Room.query.filter_by(room_name=room_name).filter_by(world_id=world.world_id).first()
 
-        # load all rooms before to enable foreign key relationship
-        for i in data["rooms"]:
-            room_name = i["name"]
-            room_desc = i["description"]
-            room_img = i["image"]
-
-            insert_query = "INSERT INTO room (world_id, room_name, room_desc, room_img) VALUES (%s, %s, %s, %s);"
-            cursor.execute(insert_query, (world_id, room_name, room_desc, room_img))
-            connection.commit()
-            counter_loaded = counter_loaded + 1
-
-        # load all other elements and check foreign key relationship
-        for i in data["rooms"]:
-            room_name = i["name"]
-            room = fetch_one_from_db(f'SELECT * FROM room where room_name = \'{room_name}\' and world_id = {world_id};')
-            room_id = room[0]
-
-            # load all items in the room
-            if "items" in i:
-                for j in i["items"]:
-                    item_name = j["name"]
-                    item_desc = j["description"]
-                    item_img = j["image"]
-
-                    insert_query = "INSERT INTO item (room_id, world_id, item_name, item_desc, item_img) VALUES (%s, %s, %s, %s, %s);"
-                    cursor.execute(insert_query, (room_id, world_id, item_name, item_desc, item_img))
-                    connection.commit()
-                    counter_loaded = counter_loaded + 1
-            
-            # load all characters in the room
-            if "characters" in i:
-                for j in i["characters"]:
-                    person_name = j["name"]
-                    person_desc = j["description"]
-                    person_img = j["image"]
-
-                    insert_query = "INSERT INTO person (room_id, world_id, person_name, person_desc, person_img) VALUES (%s, %s, %s, %s, %s);"
-                    cursor.execute(insert_query, (room_id, world_id, person_name, person_desc, person_img))
-                    connection.commit()
-                    counter_loaded = counter_loaded + 1
-            
-            # load all objectives in the room
-            if "objectives" in i:
-                for j in i["objectives"]:
-                    objective_name = j["name"]
-                    objective_desc = j["description"]
-                    difficulty = j["difficulty"]
-                    objective_url = j["url"]
-                    supported_by = j["supportedby"]
-                    requires = j["requires"]
-                    objective_img = j["image"]
-
-                    insert_query = "INSERT INTO objective (room_id, world_id, objective_name, objective_desc, difficulty, objective_url, supported_by, requires, objective_img) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
-                    cursor.execute(insert_query, (room_id, world_id, objective_name, objective_desc, difficulty, objective_url, supported_by, requires, objective_img))
-                    connection.commit()
-                    counter_loaded = counter_loaded + 1
-            
-            # load all junctions in the room
-            if "junctions" in i:
-                for j in i["junctions"]:
-                    destination = j["destination"]
-                    junction_desc = j["description"]
-
-                    dest = fetch_one_from_db(f'SELECT * FROM room where room_name = \'{destination}\' and world_id = {world_id};')
-                    dest_id = dest[0]
-
-                    insert_query = "INSERT INTO junction (room_id, world_id, dest_id, junction_desc) VALUES (%s, %s, %s, %s);"
-                    cursor.execute(insert_query, (room_id, world_id, dest_id, junction_desc))
-                    connection.commit()
-                    counter_loaded = counter_loaded + 1
+        # load all items in the room
+        if "items" in i:
+            for j in i["items"]:
+                item = Item()
+                item.room_id = room.room_id
+                item.world_id = world.world_id
+                item.item_name = j["name"]
+                item.item_desc = j["description"]
+                item.item_img = j["image"]
+                db.session.add(item)
+                db.session.commit()
+                counter_loaded = counter_loaded + 1
         
-    except (Exception, Error) as error:
-        return 0
-    finally:
-        if (connection):
-            cursor.close()
-            connection.close()
+        # load all characters in the room
+        if "characters" in i:
+            for j in i["characters"]:
+                person = Person()
+                person.room_id = room.room_id
+                person.world_id = world.world_id
+                person.person_name = j["name"]
+                person.person_desc = j["description"]
+                person.person_img = j["image"]
+                db.session.add(person)
+                db.session.commit()
+                counter_loaded = counter_loaded + 1
+        
+        # load all objectives in the room
+        if "objectives" in i:
+            for j in i["objectives"]:
+                objective = Objective()
+                objective.room_id = room.room_id
+                objective.world_id = world.world_id
+                objective.objective_name = j["name"]
+                objective.objective_desc = j["description"]
+                objective.difficulty = j["difficulty"]
+                objective.objective_url = j["url"]
+                objective.supported_by = j["supportedby"]
+                objective.requires = j["requires"]
+                objective.objective_img = j["image"]
+                db.session.add(objective)
+                db.session.commit()
+                counter_loaded = counter_loaded + 1
+        
+        # load all junctions in the room
+        if "junctions" in i:
+            for j in i["junctions"]:
+                junction = Junction()
+                junction.room_id = room.room_id
+                junction.world_id = world.world_id
+
+                destroom = Room.query.filter_by(world_id=world.world_id).filter_by(room_name=j["destination"]).first()
+                junction.dest_id = destroom.room_id
+                junction.junction_desc = j["description"]
+                db.session.add(junction)
+                db.session.commit()
+                counter_loaded = counter_loaded + 1
     
     f.close()
     return(counter_loaded)
@@ -205,11 +207,11 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url, world
 def is_authenticated(auth, admin):
     users = dict()
     if (admin):
-        creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator WHERE creator_role = \'admin\';')
+        creators = Creator.query.filter_by(creator_role="admin").order_by(Creator.creator_id.asc())
     else:
-        creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator;')
-    for i in creator:
-        users[i[0]] = i[1]
+        creators = Creator.query.order_by(Creator.creator_id.asc())
+    for i in creators:
+        users[i.creator_name] = i.creator_pass
 
     if auth:
         if auth['username'] in users and check_password_hash(users.get(auth['username']), auth['password']):
@@ -219,9 +221,9 @@ def is_authenticated(auth, admin):
 @auth.verify_password
 def verify_password(username, password):
     users = dict()
-    creator = fetch_all_from_db(f'SELECT creator_name, creator_pass FROM creator;')
-    for i in creator:
-        users[i[0]] = i[1]
+    creators = Creator.query.order_by(Creator.creator_id.asc())
+    for i in creators:
+        users[i.creator_name] = i.creator_pass
 
     if username in users and \
             check_password_hash(users.get(username), password):
@@ -240,12 +242,12 @@ def get_my_index():
 # enable a HTML view to read the database contents
 @app.route('/flask/creators', methods = ['GET'])
 def get_all_creators():
-    creators = fetch_all_from_db('SELECT * FROM creator ORDER BY creator_id ASC;')
+    creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
 
 @app.route('/flask/creator/<int:num>', methods = ['GET'])
 def get_single_creator(num):
-    creator = fetch_one_from_db(f'SELECT * FROM creator where creator_id = {num};')
+    creator = Creator.query.filter_by(creator_id=num).first()
     return render_template('creator_detail.html', creator=creator)
 
 @app.route('/flask/newcreator', methods=['GET'])
@@ -254,68 +256,70 @@ def get_new_creator():
 
 @app.route('/flask/newcreator', methods=['POST'])
 def post_new_creator():
-    creator_name = request.form["creator"]
-    creator_pass = request.form["password"]
-    creator_hash = generate_password_hash(creator_pass, method='pbkdf2:sha256', salt_length=16)
-    update_one_in_db(f'INSERT INTO creator (creator_name, creator_pass, creator_role) VALUES (\'{creator_name}\', \'{creator_hash}\', \'user\');')
-    
-    creators = fetch_all_from_db('SELECT * FROM creator ORDER BY creator_id ASC;')
+    creator = Creator()
+    creator.creator_name = request.form["creator"]
+    creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
+    creator.creator_role = "user"
+    db.session.add(creator)
+    db.session.commit()
+
+    creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
 
 @app.route('/flask/worlds', methods = ['GET'])
 def get_all_worlds():
-    worlds = fetch_all_from_db('SELECT * FROM world ORDER BY world_id ASC;')
+    worlds = World.query.order_by(World.world_id.asc())
     return render_template('world.html', worlds=worlds)
 
 @app.route('/flask/world/<int:num>', methods = ['GET'])
 def get_single_world(num):
-    world = fetch_one_from_db(f'SELECT * FROM world where world_id = {num};')
+    world = World.query.filter_by(world_id=num).first()
     return render_template('world_detail.html', world=world)
 
 @app.route('/flask/rooms/<int:num>', methods = ['GET'])
 def get_all_rooms(num):
-    rooms = fetch_all_from_db(f'SELECT * FROM room where world_id = {num} ORDER BY room_id ASC;')
+    rooms = Room.query.filter_by(world_id=num).order_by(Room.room_id.asc())
     return render_template('room.html', rooms=rooms, world_id=num)
 
 @app.route('/flask/room/<int:num>', methods = ['GET'])
 def get_single_room(num):
-    room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
+    room = Room.query.filter_by(room_id=num).first()
     return render_template('room_detail.html', room=room)
 
 @app.route('/flask/items/<int:num>', methods = ['GET'])
 def get_all_items(num):
-    items = fetch_all_from_db(f'SELECT * FROM item where world_id = {num} ORDER BY item_id ASC;')
+    items = Item.query.filter_by(world_id=num).order_by(Item.item_id.asc())
     return render_template('item.html', items=items, world_id=num)
 
 @app.route('/flask/item/<int:num>', methods = ['GET'])
 def get_single_item(num):
-    item = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
+    item = Item.query.filter_by(item_id=num).first()
     return render_template('item_detail.html', item=item)
 
 @app.route('/flask/persons/<int:num>', methods = ['GET'])
 def get_all_persons(num):
-    persons = fetch_all_from_db(f'SELECT * FROM person where world_id = {num} ORDER BY person_id ASC;')
+    persons = Person.query.filter_by(world_id=num).order_by(Person.person_id.asc())
     return render_template('person.html', persons=persons, world_id=num)
 
 @app.route('/flask/person/<int:num>', methods = ['GET'])
 def get_single_person(num):
-    person = fetch_one_from_db(f'SELECT * FROM person where person_id = {num};')
+    person = Person.query.filter_by(person_id=num).first()
     return render_template('person_detail.html', person=person)
 
 @app.route('/flask/objectives/<int:num>', methods = ['GET'])
 def get_all_objectives(num):
-    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {num} ORDER BY objective_id ASC;')
+    objectives = Objective.query.filter_by(world_id=num).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=num)
 
 @app.route('/flask/objective/<int:num>', methods = ['GET'])
 def get_single_objective(num):
-    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
-    if (objective[10] != None):
-        mdquest = markdown2.markdown(str(bytes(objective[10]), 'utf-8'), extras=['fenced-code-blocks'])
+    objective = Objective.query.filter_by(objective_id=num).first()
+    if (objective.quest != None):
+        mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
     else:
         mdquest = ""
-    if (objective[11] != None):
-        mdsolution = markdown2.markdown(str(bytes(objective[11]), 'utf-8'), extras=['fenced-code-blocks'])
+    if (objective.solution != None):
+        mdsolution = markdown2.markdown(str(bytes(objective.solution), 'utf-8'), extras=['fenced-code-blocks'])
     else:
         mdsolution = ""
 
@@ -323,96 +327,102 @@ def get_single_objective(num):
 
 @app.route('/flask/junctions/<int:num>', methods = ['GET'])
 def get_all_junctions(num):
-    junctions = fetch_all_from_db(f'SELECT * FROM junction where world_id = {num} ORDER BY junction_id ASC;')
+    junctions = Junction.query.filter_by(world_id=num).order_by(Junction.junction_id.asc())
     return render_template('junction.html', junctions=junctions, world_id=num)
 
 @app.route('/flask/junction/<int:num>', methods = ['GET'])
 def get_single_junction(num):
-    junction = fetch_one_from_db(f'SELECT * FROM junction where junction_id = {num};')
+    junction = Junction.query.filter_by(junction_id=num).first()
     return render_template('junction_detail.html', junction=junction)
 
 @app.route('/flask/quest/<int:num>', methods=['POST'])
 def set_single_quest(num):
-    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    objective = Objective.query.filter_by(objective_id=num).first()
     if (is_authenticated(request.authorization, True)):
         id = "quest"
 
-        update_one_in_db(f'UPDATE objective set quest={psycopg2.Binary(request.form[id].encode())} WHERE objective_id = {num};')
-    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
-    return render_template('objective.html', objectives=objectives, world_id=objective[2])
+        objective.quest = request.form[id].encode()
+        db.session.commit()
+    objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+    return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/flask/quest/<int:num>', methods=['GET'])
 def get_single_quest(num):
-    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    objective = Objective.query.filter_by(objective_id=num).first()
     if (is_authenticated(request.authorization, True)):
-        if (objective[10] != None):
-            return render_template('quest_detail.html', quest=str(bytes(objective[10]), 'utf-8'), number=num, world_id=objective[2])
+        if (objective.quest != None):
+            return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'), number=num, world_id=objective.world_id)
         else:
-            return render_template('quest_detail.html', quest="", number=num, world_id=objective[2])
+            return render_template('quest_detail.html', quest="", number=num, world_id=objective.world_id)
     else:
-        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
-        return render_template('objective.html', objectives=objectives, world_id=objective[2])
+        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/flask/solution/<int:num>', methods=['POST'])
 def set_single_solution(num):
-    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    objective = Objective.query.filter_by(objective_id=num).first()
     if (is_authenticated(request.authorization, True)):
         id = "solution"
 
-        update_one_in_db(f'UPDATE objective set solution={psycopg2.Binary(request.form[id].encode())} WHERE objective_id = {num};')
-    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
-    return render_template('objective.html', objectives=objectives, world_id=objective[2])
+        objective.solution = request.form[id].encode()
+        db.session.commit()
+    objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+    return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/flask/solution/<int:num>', methods=['GET'])
 def get_single_solution(num):
-    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    objective = Objective.query.filter_by(objective_id=num).first()
     if (is_authenticated(request.authorization, True)):
-        if (objective[11] != None):
-            return render_template('solution_detail.html', solution=str(bytes(objective[11]), 'utf-8'), number=num, world_id=objective[2])
+        if (objective.solution != None):
+            return render_template('solution_detail.html', solution=str(bytes(objective.solution), 'utf-8'), number=num, world_id=objective.world_id)
         else:
-            return render_template('solution_detail.html', solution="", number=num, world_id=objective[2])
+            return render_template('solution_detail.html', solution="", number=num, world_id=objective.world_id)
     else:
-        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
-        return render_template('objective.html', objectives=objectives, world_id=objective[2])
+        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/flask/mysolution/<int:num>', methods=['POST'])
 def set_my_solution(num):
-    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    objective = Objective.query.filter_by(objective_id=num).first()
     if (is_authenticated(request.authorization, False)):
-        creator_name = request.authorization['username']
-        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
-        creator_id = creator[0]
+        creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
         id = "solution"
         
-        update_one_in_db(f'DELETE FROM solution WHERE objective_id = {num} and creator_id = {creator_id};')
-        update_one_in_db(f'INSERT INTO solution (objective_id, creator_id, solution_text) VALUES ({num}, {creator_id}, {psycopg2.Binary(request.form[id].encode())});')        
-    objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
-    return render_template('objective.html', objectives=objectives, world_id=objective[2])
+        solution = Solution.query.filter_by(objective_id=num).filter_by(creator_id=creator.creator_id).first()
+        if solution is not None:
+            db.session.delete(solution)
+            db.session.commit()
+
+        solution_new = Solution()
+        solution_new.objective_id = num
+        solution_new.creator_id = creator.creator_id
+        solution_new.solution_text = request.form[id].encode()
+        db.session.add(solution_new)
+        db.session.commit()
+
+    objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+    return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/flask/mysolution/<int:num>', methods=['GET'])
 def get_my_solution(num):
-    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    objective = Objective.query.filter_by(objective_id=num).first()
     if (is_authenticated(request.authorization, False)):
-        creator_name = request.authorization['username']
-        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
-        creator_id = creator[0]
+        creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
 
-        solution = fetch_one_from_db(f'SELECT * FROM solution where objective_id = {num} and creator_id = {creator_id};')
+        solution = Solution.query.filter_by(objective_id=num).filter_by(creator_id=creator.creator_id).first()
         if (solution != None):
-            return render_template('solution_my_detail.html', solution=str(bytes(solution[3]), 'utf-8'), number=num, world_id=objective[2])
+            return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), number=num, world_id=objective.world_id)
         else:
-            return render_template('solution_my_detail.html', solution="", number=num, world_id=objective[2])
+            return render_template('solution_my_detail.html', solution="", number=num, world_id=objective.world_id)
     else:
-        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
-        return render_template('objective.html', objectives=objectives, world_id=objective[2])
+        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/flask/mywalkthrough/<int:num>', methods=['GET'])
 def get_my_walkthrough(num):
-    objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
+    objective = Objective.query.filter_by(objective_id=num).first()
     if (is_authenticated(request.authorization, False)):
-        creator_name = request.authorization['username']
-        creator = fetch_one_from_db(f'SELECT * FROM creator where creator_name = \'{creator_name}\';')
-        creator_id = creator[0]
+        creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
 
         with open(gamedata + "/walkthrough.md", 'w') as f:
             f.write("Markdown")
@@ -420,8 +430,8 @@ def get_my_walkthrough(num):
         # return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
         return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md')
     else:
-        objectives = fetch_all_from_db(f'SELECT * FROM objective where world_id = {objective[2]} ORDER BY objective_id ASC;')
-        return render_template('objective.html', objectives=objectives, world_id=objective[2])
+        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
@@ -454,84 +464,107 @@ def get_world():
 @app.route('/api/room/<int:num>', methods=['POST'])
 def set_room(num):
     if (is_authenticated(request.authorization, True)):
-        room = json.loads(request.data)
-        update_one_in_db(f'UPDATE room SET room_name = \'{room["name"]}\', room_desc = \'{room["description"]}\', room_img = \'{room["image"]}\' where room_id = {num};')
-        return jsonify({'success': f'room {room["name"]} updated'})
+        data = json.loads(request.data)
+        room = Room.query.filter_by(room_id=num).first()
+        room.room_name = data["name"]
+        room.room_desc = data["description"]
+        room.room_img = data["image"]
+        db.session.commit()
+        return jsonify({'success': f'room {data["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/room/<int:num>', methods=['GET'])
 def get_room(num):
     if (is_authenticated(request.authorization, False)):
-        room = fetch_one_from_db(f'SELECT * FROM room where room_id = {num};')
-        return jsonify({'name': room[2],  'description': room[3],  'image': room[4]})
+        room = Room.query.filter_by(room_id=num).first()
+        return jsonify({'name': room.room_name,  'description': room.room_desc,  'image': room.room_img})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/item/<int:num>', methods=['POST'])
 def set_item(num):
     if (is_authenticated(request.authorization, True)):
-        item = json.loads(request.data)
-        update_one_in_db(f'UPDATE item SET item_name = \'{item["name"]}\', item_desc = \'{item["description"]}\', item_img = \'{item["image"]}\' where item_id = {num};')
-        return jsonify({'success': f'item {item["name"]} updated'})
+        data = json.loads(request.data)
+        item = Item.query.filter_by(item_id=num).first()
+        item.item_name = data["name"]
+        item.item_desc = data["description"]
+        item.item_img = data["image"]
+        db.session.commit()
+        return jsonify({'success': f'item {data["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/item/<int:num>', methods=['GET'])
 def get_item(num):
     if (is_authenticated(request.authorization, False)):
-        item = fetch_one_from_db(f'SELECT * FROM item where item_id = {num};')
-        return jsonify({'name': item[3],  'description': item[4],  'image': item[5]})
+        item = Item.query.filter_by(item_id=num).first()
+        return jsonify({'name': item.item_name,  'description': item.item_desc,  'image': item.item_img})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/person/<int:num>', methods=['POST'])
 def set_person(num):
     if (is_authenticated(request.authorization, True)):
-        person = json.loads(request.data)
-        update_one_in_db(f'UPDATE person SET person_name = \'{person["name"]}\', person_desc = \'{person["description"]}\', person_img = \'{person["image"]}\' where person_id = {num};')
-        return jsonify({'success': f'person {person["name"]} updated'})
+        data = json.loads(request.data)
+        person = Person.query.filter_by(person_id=num).first()
+        person.person_name = data["name"]
+        person.person_desc = data["description"]
+        person.person_img = data["image"]
+        db.session.commit()
+        return jsonify({'success': f'person {data["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/person/<int:num>', methods=['GET'])
 def get_person(num):
     if (is_authenticated(request.authorization, False)):
-        person = fetch_one_from_db(f'SELECT * FROM person where person_id = {num};')
-        return jsonify({'name': person[3],  'description': person[4],  'image': person[5]})
+        person = Person.query.filter_by(person_id=num).first()
+        return jsonify({'name': person.person_name,  'description': person.person_desc,  'image': person.person_img})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/objective/<int:num>', methods=['POST'])
 def set_objective(num):
     if (is_authenticated(request.authorization, True)):
-        objective = json.loads(request.data)
-        update_one_in_db(f'UPDATE objective SET objective_name = \'{objective["name"]}\', objective_desc = \'{objective["description"]}\', difficulty = \'{objective["difficulty"]}\', objective_url = \'{objective["url"]}\', supported_by = \'{objective["supportedby"]}\', requires = \'{objective["requires"]}\', objective_img = \'{objective["image"]}\'  where objective_id = {num};')
-        return jsonify({'success': f'objective {objective["name"]} updated'})
+        data = json.loads(request.data)
+        objective = Objective.query.filter_by(objective_id=num).first()
+        objective.objective_name = data["name"]
+        objective.objective_desc = data["description"]
+        objective.difficulty = data["difficulty"]
+        objective.objective_url = data["url"]
+        objective.supported_by = data["supportedby"]
+        objective.requires = data["requires"]
+        objective.objective_img = data["image"]
+        db.session.commit()
+        return jsonify({'success': f'objective {data["name"]} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/objective/<int:num>', methods=['GET'])
 def get_objective(num):
     if (is_authenticated(request.authorization, False)):
-        objective = fetch_one_from_db(f'SELECT * FROM objective where objective_id = {num};')
-        return jsonify({'name': objective[3],  'description': objective[4],  'difficulty': objective[5],  'url': objective[6],  'supportedby': objective[7],  'requires': objective[8],  'image': objective[9]})
+        objective = Objective.query.filter_by(objective_id=num).first()
+        return jsonify({'name': objective.objective_name,  'description': objective.objective_desc,  'difficulty': objective.difficulty,  'url': objective.objective_url,  'supportedby': objective.supported_by,  'requires': objective.requires,  'image': objective.objective_img})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/junction/<int:num>', methods=['POST'])
 def set_junction(num):
     if (is_authenticated(request.authorization, True)):
-        junction = json.loads(request.data)
-        update_one_in_db(f'UPDATE junction SET dest_id = \'{junction["destination"]}\', junction_desc = \'{junction["description"]}\' where junction_id = {num};')
-        return jsonify({'success': f'junction {junction["destination"]} updated'})
+        data = json.loads(request.data)
+        junction = Junction.query.filter_by(junction_id=num).first()
+        junction.dest_id = data["destination"]
+        junction.junction_desc = data["description"]
+        db.session.commit()
+        return jsonify({'success': f'junction {num} updated'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/junction/<int:num>', methods=['GET'])
 def get_junction(num):
     if (is_authenticated(request.authorization, False)):
-        junction = fetch_one_from_db(f'SELECT * FROM junction where junction_id = {num};')
-        return jsonify({'destination': junction[3],  'description': junction[4]})
+        junction = Junction.query.filter_by(junction_id=num).first()
+        return jsonify({'destination': junction.dest_id,  'description': junction.junction_desc})
     else:
         return jsonify({'error': 'wrong credentials'})

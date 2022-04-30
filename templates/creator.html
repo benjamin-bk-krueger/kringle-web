@@ -6,7 +6,7 @@
     <p>
         <ul>
             {% for creator in creators %}
-            <li><a href="{{ url_for('get_single_creator', num=creator[0])}}">{{ creator[1] }} (#{{ creator[0] }})</a></li>
+            <li><a href="{{ url_for('get_single_creator', num=creator.creator_id)}}">{{ creator.creator_name }} (#{{ creator.creator_id }})</a></li>
             {% endfor %}
         </ul>
     </p>

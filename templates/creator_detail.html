@@ -1,13 +1,13 @@
 {% extends 'base_init.html' %}
 
 {% block content %}
-    <h2>{% block title %} {{ creator[1] }} (#{{ creator[0] }}) {% endblock %}</h2>
+    <h2>{% block title %} {{ creator.creator_name }} (#{{ creator.creator_id }}) {% endblock %}</h2>
 
     <p>
-        Role: {{ creator[3] }}
+        Role: {{ creator.creator_role }}
     </p>
 
-    <img src="{{ creator[4] if (creator[4]!='') else '/static/not_found.jpg' }}" alt="Creator Image" width="33%" height="33%">
+    <img src="{{ creator.creator_img if (creator.creator_img!='') else '/static/not_found.jpg' }}" alt="Creator Image" width="33%" height="33%">
 
     <p><a href="{{ url_for('get_all_creators') }}">All Creators</a></p>
 {% endblock %}

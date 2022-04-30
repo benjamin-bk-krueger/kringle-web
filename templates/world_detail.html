@@ -1,21 +1,21 @@
 {% extends 'base_init.html' %}
 
 {% block content %}
-    <h2>{% block title %} {{ world[2] }} (#{{ world[0] }}) {% endblock %}</h2>
+    <h2>{% block title %} {{ world.world_name }} (#{{ world.world_id }}) {% endblock %}</h2>
 
     <p>
-        <i>Created by <a href="{{ url_for('get_single_creator', num=world[1])}}">Creator #{{ world[1] }}</a></i></br>
-        Description: {{ world[3] }}</br>
-        URL: {{ world[4] }}
+        <i>Created by <a href="{{ url_for('get_single_creator', num=world.creator_id)}}">Creator #{{ world.creator_id }}</a></i></br>
+        Description: {{ world.world_desc }}</br>
+        URL: {{ world.world_url }}
     </p>
 
-    <img src="{{ world[5] if (world[5]!='') else '/static/not_found.jpg' }}" alt="World Image" width="33%" height="33%">
+    <img src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Image" width="33%" height="33%">
 
-    <form action="{{ url_for('get_all_rooms', num=world[0]) }}" method="GET">
+    <form action="{{ url_for('get_all_rooms', num=world.world_id) }}" method="GET">
         <input type="submit" value="Select">
     </form>
 
-    <form action="{{ url_for('get_my_walkthrough', num=world[0]) }}" method="GET">
+    <form action="{{ url_for('get_my_walkthrough', num=world.world_id) }}" method="GET">
         <input type="submit" value="Walkthrough">
     </form>
 

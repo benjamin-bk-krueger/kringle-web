@@ -14,7 +14,7 @@
     <p>
         <ul>
             {% for junction in junctions %}
-            <li><a href="{{ url_for('get_single_junction', num=junction[0])}}">#{{ junction[0] }}</a></li>
+            <li><a href="{{ url_for('get_single_junction', num=junction.junction_id)}}">#{{ junction.junction_id }}</a></li>
             {% endfor %}
         </ul>
     </p>

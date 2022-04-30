@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_all_rooms', num=room[1]) }}">Rooms</a>
-    <a href="{{ url_for('get_all_items', num=room[1]) }}">Items</a>
-    <a href="{{ url_for('get_all_persons', num=room[1]) }}">Persons</a>
-    <a href="{{ url_for('get_all_objectives', num=room[1] ) }}">Objectives</a>
-    <a href="{{ url_for('get_all_junctions', num=room[1]) }}">Junctions</a>
+    <a href="{{ url_for('get_all_rooms', num=room.world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_all_items', num=room.world_id) }}">Items</a>
+    <a href="{{ url_for('get_all_persons', num=room.world_id) }}">Persons</a>
+    <a href="{{ url_for('get_all_objectives', num=room.world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_all_junctions', num=room.world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
-    <h2>{% block title %} {{ room[2] }} (#{{ room[0] }}) {% endblock %}</h2>
+    <h2>{% block title %} {{ room.room_name }} (#{{ room.room_id }}) {% endblock %}</h2>
         
     <p>
-        <i>Found in <a href="{{ url_for('get_single_world', num=room[1])}}">World #{{ room[1] }}</a></i></br>
-        Description: {{ room[3] }}
+        <i>Found in <a href="{{ url_for('get_single_world', num=room.world_id)}}">World #{{ room.world_id }}</a></i></br>
+        Description: {{ room.room_desc }}
     </p>
 
-    <img src="{{ room[4] if (room[4]!='') else '/static/not_found.jpg' }}" alt="Room Image" width="33%" height="33%">
+    <img src="{{ room.room_img if (room.room_img!='') else '/static/not_found.jpg' }}" alt="Room Image" width="33%" height="33%">
 
-    <p><a href="{{ url_for('get_all_rooms', num=room[1]) }}">All Rooms</a></p>
+    <p><a href="{{ url_for('get_all_rooms', num=room.world_id) }}">All Rooms</a></p>
 {% endblock %}

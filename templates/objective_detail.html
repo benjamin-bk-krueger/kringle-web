@@ -1,26 +1,26 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_all_rooms', num=objective[2]) }}">Rooms</a>
-    <a href="{{ url_for('get_all_items', num=objective[2]) }}">Items</a>
-    <a href="{{ url_for('get_all_persons', num=objective[2]) }}">Persons</a>
-    <a href="{{ url_for('get_all_objectives', num=objective[2] ) }}">Objectives</a>
-    <a href="{{ url_for('get_all_junctions', num=objective[2]) }}">Junctions</a>
+    <a href="{{ url_for('get_all_rooms', num=objective.world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_all_items', num=objective.world_id) }}">Items</a>
+    <a href="{{ url_for('get_all_persons', num=objective.world_id) }}">Persons</a>
+    <a href="{{ url_for('get_all_objectives', num=objective.world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_all_junctions', num=objective.world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
-    <h2>{% block title %} {{ objective[3] }} (#{{ objective[0] }}) {% endblock %}</h2>
+    <h2>{% block title %} {{ objective.objective_name }} (#{{ objective.objective_id }}) {% endblock %}</h2>
 
     <p>
-        <i>Found in <a href="{{ url_for('get_single_room', num=objective[1])}}">Room ID #{{ objective[1] }}</a></i></br>
-        Description: {{ objective[4] }}</br>
-        Difficulty: {{ objective[5] }}</br>
-        URL: {{ objective[6] }}</br>
-        Supported by: {{ objective[7] }}</br>
-        Requires: {{ objective[8] }}
+        <i>Found in <a href="{{ url_for('get_single_room', num=objective.room_id)}}">Room ID #{{ objective.room_id }}</a></i></br>
+        Description: {{ objective.objective_desc }}</br>
+        Difficulty: {{ objective.difficulty }}</br>
+        URL: {{ objective.objective_url }}</br>
+        Supported by: {{ objective.supported_by }}</br>
+        Requires: {{ objective.requires }}
     </p>
 
-    <img src="{{ objective[9] if (objective[9]!='') else '/static/not_found.jpg' }}" alt="Objective Image" width="33%" height="33%">
+    <img src="{{ objective.objective_img if (objective.objective_img!='') else '/static/not_found.jpg' }}" alt="Objective Image" width="33%" height="33%">
 
     <h4>Master Quest</h4>
     <p>
@@ -34,20 +34,20 @@
 
     <h4>Edit Data</h4>
     <p>
-        <form action="{{ url_for('get_single_quest', num=objective[0])}}">
+        <form action="{{ url_for('get_single_quest', num=objective.objective_id)}}">
             <input type="submit" value="Edit Master Quest" />
         </form>
     </p>
     <p>
-        <form action="{{ url_for('get_single_solution', num=objective[0])}}">
+        <form action="{{ url_for('get_single_solution', num=objective.objective_id)}}">
             <input type="submit" value="Edit Master Solution" />
         </form>
     </p>
     <p>
-        <form action="{{ url_for('get_my_solution', num=objective[0])}}">
+        <form action="{{ url_for('get_my_solution', num=objective.objective_id)}}">
             <input type="submit" value="Edit My Solution" />
         </form>
     </p>
 
-    <p><a href="{{ url_for('get_all_objectives', num=objective[2]) }}">All Objectives</a></p>
+    <p><a href="{{ url_for('get_all_objectives', num=objective.world_id) }}">All Objectives</a></p>
 {% endblock %}

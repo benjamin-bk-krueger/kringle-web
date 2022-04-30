@@ -14,7 +14,7 @@
     <p>
         <ul>
             {% for room in rooms %}
-            <li><a href="{{ url_for('get_single_room', num=room[0])}}">{{ room[2] }} (#{{ room[0] }})</a></li>
+            <li><a href="{{ url_for('get_single_room', num=room.room_id)}}">{{ room.room_name }} (#{{ room.room_id }})</a></li>
             {% endfor %}
         </ul>
     </p>

@@ -14,7 +14,7 @@
     <p>
         <ul>
             {% for objective in objectives %}
-            <li><a href="{{ url_for('get_single_objective', num=objective[0])}}">{{ objective[3] }} (#{{ objective[0] }})</a></li>
+            <li><a href="{{ url_for('get_single_objective', num=objective.objective_id)}}">{{ objective.objective_name }} (#{{ objective.objective_id }})</a></li>
             {% endfor %}
         </ul>
     </p>
