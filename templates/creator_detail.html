@@ -9,5 +9,5 @@
 
     <img src="{{ creator.creator_img if (creator.creator_img!='') else '/static/not_found.jpg' }}" alt="Creator Image" width="33%" height="33%">
 
-    <p><a href="{{ url_for('get_all_creators') }}">All Creators</a></p>
+    <p><a href="{{ url_for('get_creators') }}">All Creators</a></p>
 {% endblock %}

@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_all_rooms', num=objective.world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_all_items', num=objective.world_id) }}">Items</a>
-    <a href="{{ url_for('get_all_persons', num=objective.world_id) }}">Persons</a>
-    <a href="{{ url_for('get_all_objectives', num=objective.world_id ) }}">Objectives</a>
-    <a href="{{ url_for('get_all_junctions', num=objective.world_id) }}">Junctions</a>
+    <a href="{{ url_for('get_rooms', num=objective.world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_items', num=objective.world_id) }}">Items</a>
+    <a href="{{ url_for('get_persons', num=objective.world_id) }}">Persons</a>
+    <a href="{{ url_for('get_objectives', num=objective.world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_junctions', num=objective.world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
     <h2>{% block title %} {{ objective.objective_name }} (#{{ objective.objective_id }}) {% endblock %}</h2>
 
     <p>
-        <i>Found in <a href="{{ url_for('get_single_room', num=objective.room_id)}}">Room ID #{{ objective.room_id }}</a></i></br>
+        <i>Found in <a href="{{ url_for('get_room', num=objective.room_id)}}">Room ID #{{ objective.room_id }}</a></i></br>
         Description: {{ objective.objective_desc }}</br>
         Difficulty: {{ objective.difficulty }}</br>
         URL: {{ objective.objective_url }}</br>
@@ -34,20 +34,20 @@
 
     <h4>Edit Data</h4>
     <p>
-        <form action="{{ url_for('get_single_quest', num=objective.objective_id)}}">
+        <form action="{{ url_for('get_quest', num=objective.objective_id)}}">
             <input type="submit" value="Edit Master Quest" />
         </form>
     </p>
     <p>
-        <form action="{{ url_for('get_single_solution', num=objective.objective_id)}}">
+        <form action="{{ url_for('get_solution', num=objective.objective_id)}}">
             <input type="submit" value="Edit Master Solution" />
         </form>
     </p>
     <p>
-        <form action="{{ url_for('get_my_solution', num=objective.objective_id)}}">
+        <form action="{{ url_for('get_mysolution', num=objective.objective_id)}}">
             <input type="submit" value="Edit My Solution" />
         </form>
     </p>
 
-    <p><a href="{{ url_for('get_all_objectives', num=objective.world_id) }}">All Objectives</a></p>
+    <p><a href="{{ url_for('get_objectives', num=objective.world_id) }}">All Objectives</a></p>
 {% endblock %}

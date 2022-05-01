@@ -1,13 +1,10 @@
-import psycopg2 
-import json
-import base64
-import os
-import markdown2
-from psycopg2 import Error 
-from flask import Flask, request, render_template, jsonify, send_file
-from flask_httpauth import HTTPBasicAuth # https://flask-httpauth.readthedocs.io/en/latest/
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
+import json                     # for JSON file handling and parsing
+import os                       # for direct file system and environment access
+import markdown2                # for markdown parsing
+from flask import Flask, request, render_template, jsonify, send_file # most important Flask modules
+from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
+from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
+from werkzeug.security import generate_password_hash, check_password_hash # password hashing
 
 gamedata = os.environ['HOME'] + "/.kringlecon"  # directory for game data
 #POSTGRES_URL = get_env_variable("POSTGRES_URL")
@@ -23,22 +20,36 @@ app = Flask(__name__,
             static_url_path='/static', 
             static_folder='static',
             template_folder='templates')
-auth = HTTPBasicAuth()
 
 # DB configuration
+db = SQLAlchemy()
 DB_URL = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=POSTGRES_USER,pw=POSTGRES_PW,url=POSTGRES_URL,db=POSTGRES_DB)
+app.config['SECRET_KEY'] = 'secret-key-goes-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # silence the deprecation warning
-db = SQLAlchemy(app)
+db.init_app(app)
+
+# Login Manager configuration
+login_manager = LoginManager()
+login_manager.login_view = 'get_login'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(creator_id):
+    # since the user_id is just the primary key of our user table, use it in the query for the user
+    return Creator.query.get(int(creator_id))
 
 # ORM model classes
-class Creator(db.Model):
+class Creator(UserMixin, db.Model):
     __tablename__ = "creator"
     creator_id = db.Column (db.INTEGER, primary_key=True)
     creator_name = db.Column (db.VARCHAR(100), unique=True)
     creator_pass = db.Column (db.VARCHAR(256))
     creator_role = db.Column (db.VARCHAR(10))
     creator_img = db.Column (db.VARCHAR(384))
+
+    def get_id(self):
+           return (self.creator_id)
 
 class World(db.Model):
     __tablename__ = "world"
@@ -218,44 +229,50 @@ def is_authenticated(auth, admin):
             return True
     return False
 
-@auth.verify_password
-def verify_password(username, password):
-    users = dict()
-    creators = Creator.query.order_by(Creator.creator_id.asc())
-    for i in creators:
-        users[i.creator_name] = i.creator_pass
-
-    if username in users and \
-            check_password_hash(users.get(username), password):
-        return username
-
 # entry pages
-@app.route('/flask/login', methods = ['GET'])
-@auth.login_required
-def get_my_login():
+@app.route('/', methods = ['GET'])
+def get_index():
     return render_template('index.html')
 
-@app.route('/flask/index', methods = ['GET'])
-def get_my_index():
+@app.route('/login', methods = ['GET'])
+def get_login():
+    return render_template('login.html')
+
+@app.route('/login', methods = ['POST'])
+def post_login():
+    creator_name = request.form["creator"]
+    creator_pass = request.form["password"]
+    remember = True if request.form.get('remember') else False
+    creator = Creator.query.filter_by(creator_name=creator_name).first()
+
+    if not creator or not check_password_hash(creator.creator_pass, creator_pass):
+        return render_template('login.html')
+    login_user(creator, remember=remember)
+    return render_template('index.html')
+
+@app.route('/logout', methods = ['GET'])
+@login_required
+def get_logout():
+    logout_user()
     return render_template('index.html')
 
 # enable a HTML view to read the database contents
-@app.route('/flask/creators', methods = ['GET'])
-def get_all_creators():
+@app.route('/creators', methods = ['GET'])
+def get_creators():
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
 
-@app.route('/flask/creator/<int:num>', methods = ['GET'])
-def get_single_creator(num):
+@app.route('/creator/<int:num>', methods = ['GET'])
+def get_creator(num):
     creator = Creator.query.filter_by(creator_id=num).first()
     return render_template('creator_detail.html', creator=creator)
 
-@app.route('/flask/newcreator', methods=['GET'])
-def get_new_creator():
+@app.route('/newcreator', methods=['GET'])
+def get_newcreator():
     return render_template('creator_new.html')
 
-@app.route('/flask/newcreator', methods=['POST'])
-def post_new_creator():
+@app.route('/newcreator', methods=['POST'])
+def post_newcreator():
     creator = Creator()
     creator.creator_name = request.form["creator"]
     creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
@@ -266,53 +283,53 @@ def post_new_creator():
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
 
-@app.route('/flask/worlds', methods = ['GET'])
-def get_all_worlds():
+@app.route('/worlds', methods = ['GET'])
+def get_worlds():
     worlds = World.query.order_by(World.world_id.asc())
     return render_template('world.html', worlds=worlds)
 
-@app.route('/flask/world/<int:num>', methods = ['GET'])
-def get_single_world(num):
+@app.route('/world/<int:num>', methods = ['GET'])
+def get_world(num):
     world = World.query.filter_by(world_id=num).first()
     return render_template('world_detail.html', world=world)
 
-@app.route('/flask/rooms/<int:num>', methods = ['GET'])
-def get_all_rooms(num):
+@app.route('/rooms/<int:num>', methods = ['GET'])
+def get_rooms(num):
     rooms = Room.query.filter_by(world_id=num).order_by(Room.room_id.asc())
     return render_template('room.html', rooms=rooms, world_id=num)
 
-@app.route('/flask/room/<int:num>', methods = ['GET'])
-def get_single_room(num):
+@app.route('/room/<int:num>', methods = ['GET'])
+def get_room(num):
     room = Room.query.filter_by(room_id=num).first()
     return render_template('room_detail.html', room=room)
 
-@app.route('/flask/items/<int:num>', methods = ['GET'])
-def get_all_items(num):
+@app.route('/items/<int:num>', methods = ['GET'])
+def get_items(num):
     items = Item.query.filter_by(world_id=num).order_by(Item.item_id.asc())
     return render_template('item.html', items=items, world_id=num)
 
-@app.route('/flask/item/<int:num>', methods = ['GET'])
-def get_single_item(num):
+@app.route('/item/<int:num>', methods = ['GET'])
+def get_item(num):
     item = Item.query.filter_by(item_id=num).first()
     return render_template('item_detail.html', item=item)
 
-@app.route('/flask/persons/<int:num>', methods = ['GET'])
-def get_all_persons(num):
+@app.route('/persons/<int:num>', methods = ['GET'])
+def get_persons(num):
     persons = Person.query.filter_by(world_id=num).order_by(Person.person_id.asc())
     return render_template('person.html', persons=persons, world_id=num)
 
-@app.route('/flask/person/<int:num>', methods = ['GET'])
-def get_single_person(num):
+@app.route('/person/<int:num>', methods = ['GET'])
+def get_person(num):
     person = Person.query.filter_by(person_id=num).first()
     return render_template('person_detail.html', person=person)
 
-@app.route('/flask/objectives/<int:num>', methods = ['GET'])
-def get_all_objectives(num):
+@app.route('/objectives/<int:num>', methods = ['GET'])
+def get_objectives(num):
     objectives = Objective.query.filter_by(world_id=num).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=num)
 
-@app.route('/flask/objective/<int:num>', methods = ['GET'])
-def get_single_objective(num):
+@app.route('/objective/<int:num>', methods = ['GET'])
+def get_objective(num):
     objective = Objective.query.filter_by(objective_id=num).first()
     if (objective.quest != None):
         mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
@@ -325,117 +342,102 @@ def get_single_objective(num):
 
     return render_template('objective_detail.html', objective=objective, mdquest=mdquest, mdsolution=mdsolution)
 
-@app.route('/flask/junctions/<int:num>', methods = ['GET'])
-def get_all_junctions(num):
+@app.route('/junctions/<int:num>', methods = ['GET'])
+def get_junctions(num):
     junctions = Junction.query.filter_by(world_id=num).order_by(Junction.junction_id.asc())
     return render_template('junction.html', junctions=junctions, world_id=num)
 
-@app.route('/flask/junction/<int:num>', methods = ['GET'])
-def get_single_junction(num):
+@app.route('/junction/<int:num>', methods = ['GET'])
+def get_junction(num):
     junction = Junction.query.filter_by(junction_id=num).first()
     return render_template('junction_detail.html', junction=junction)
 
-@app.route('/flask/quest/<int:num>', methods=['POST'])
-def set_single_quest(num):
+@app.route('/quest/<int:num>', methods=['POST'])
+@login_required
+def post_quest(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (is_authenticated(request.authorization, True)):
-        id = "quest"
+    id = "quest"
 
-        objective.quest = request.form[id].encode()
-        db.session.commit()
+    objective.quest = request.form[id].encode()
+    db.session.commit()
     objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/flask/quest/<int:num>', methods=['GET'])
-def get_single_quest(num):
+@app.route('/quest/<int:num>', methods=['GET'])
+@login_required
+def get_quest(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (is_authenticated(request.authorization, True)):
-        if (objective.quest != None):
-            return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'), number=num, world_id=objective.world_id)
-        else:
-            return render_template('quest_detail.html', quest="", number=num, world_id=objective.world_id)
+    if (objective.quest != None):
+        return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'), number=num, world_id=objective.world_id)
     else:
-        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+        return render_template('quest_detail.html', quest="", number=num, world_id=objective.world_id)
 
-@app.route('/flask/solution/<int:num>', methods=['POST'])
-def set_single_solution(num):
+@app.route('/solution/<int:num>', methods=['POST'])
+@login_required
+def post_solution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (is_authenticated(request.authorization, True)):
-        id = "solution"
+    id = "solution"
 
-        objective.solution = request.form[id].encode()
-        db.session.commit()
+    objective.solution = request.form[id].encode()
+    db.session.commit()
     objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/flask/solution/<int:num>', methods=['GET'])
-def get_single_solution(num):
+@app.route('/solution/<int:num>', methods=['GET'])
+@login_required
+def get_solution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (is_authenticated(request.authorization, True)):
-        if (objective.solution != None):
-            return render_template('solution_detail.html', solution=str(bytes(objective.solution), 'utf-8'), number=num, world_id=objective.world_id)
-        else:
-            return render_template('solution_detail.html', solution="", number=num, world_id=objective.world_id)
+    if (objective.solution != None):
+        return render_template('solution_detail.html', solution=str(bytes(objective.solution), 'utf-8'), number=num, world_id=objective.world_id)
     else:
-        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+        return render_template('solution_detail.html', solution="", number=num, world_id=objective.world_id)
 
-@app.route('/flask/mysolution/<int:num>', methods=['POST'])
-def set_my_solution(num):
+@app.route('/mysolution/<int:num>', methods=['POST'])
+@login_required
+def post_mysolution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (is_authenticated(request.authorization, False)):
-        creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
-        id = "solution"
-        
-        solution = Solution.query.filter_by(objective_id=num).filter_by(creator_id=creator.creator_id).first()
-        if solution is not None:
-            db.session.delete(solution)
-            db.session.commit()
-
-        solution_new = Solution()
-        solution_new.objective_id = num
-        solution_new.creator_id = creator.creator_id
-        solution_new.solution_text = request.form[id].encode()
-        db.session.add(solution_new)
+    id = "solution"
+    
+    solution = Solution.query.filter_by(objective_id=num).filter_by(creator_id=current_user.creator_id).first()
+    if solution is not None:
+        db.session.delete(solution)
         db.session.commit()
+
+    solution_new = Solution()
+    solution_new.objective_id = num
+    solution_new.creator_id = current_user.creator_id
+    solution_new.solution_text = request.form[id].encode()
+    db.session.add(solution_new)
+    db.session.commit()
 
     objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/flask/mysolution/<int:num>', methods=['GET'])
-def get_my_solution(num):
+@app.route('/mysolution/<int:num>', methods=['GET'])
+@login_required
+def get_mysolution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (is_authenticated(request.authorization, False)):
-        creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
 
-        solution = Solution.query.filter_by(objective_id=num).filter_by(creator_id=creator.creator_id).first()
-        if (solution != None):
-            return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), number=num, world_id=objective.world_id)
-        else:
-            return render_template('solution_my_detail.html', solution="", number=num, world_id=objective.world_id)
+    solution = Solution.query.filter_by(objective_id=num).filter_by(creator_id=current_user.creator_id).first()
+    if (solution != None):
+        return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), number=num, world_id=objective.world_id)
     else:
-        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+        return render_template('solution_my_detail.html', solution="", number=num, world_id=objective.world_id)
 
-@app.route('/flask/mywalkthrough/<int:num>', methods=['GET'])
-def get_my_walkthrough(num):
+@app.route('/mywalkthrough/<int:num>', methods=['GET'])
+@login_required
+def get_mywalkthrough(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (is_authenticated(request.authorization, False)):
-        creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
 
-        with open(gamedata + "/walkthrough.md", 'w') as f:
-            f.write("Markdown")
+    with open(gamedata + "/walkthrough.md", 'w') as f:
+        f.write("Markdown")
 
-        # return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
-        return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md')
-    else:
-        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+    # return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
+    return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md')
 
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
-def set_world():
+def api_post_world():
     if (is_authenticated(request.authorization, True)):
         world_name = request.args.get('worldname') 
         world_desc = request.args.get('worlddesc') 
@@ -452,7 +454,7 @@ def set_world():
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/world', methods=['GET'])
-def get_world():
+def api_get_world():
     if (is_authenticated(request.authorization, False)):
         with open(gamedata + "/data.json", 'r') as f:
             data = f.read()
@@ -462,7 +464,7 @@ def get_world():
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/room/<int:num>', methods=['POST'])
-def set_room(num):
+def api_post_room(num):
     if (is_authenticated(request.authorization, True)):
         data = json.loads(request.data)
         room = Room.query.filter_by(room_id=num).first()
@@ -475,7 +477,7 @@ def set_room(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/room/<int:num>', methods=['GET'])
-def get_room(num):
+def api_get_room(num):
     if (is_authenticated(request.authorization, False)):
         room = Room.query.filter_by(room_id=num).first()
         return jsonify({'name': room.room_name,  'description': room.room_desc,  'image': room.room_img})
@@ -483,7 +485,7 @@ def get_room(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/item/<int:num>', methods=['POST'])
-def set_item(num):
+def api_post_item(num):
     if (is_authenticated(request.authorization, True)):
         data = json.loads(request.data)
         item = Item.query.filter_by(item_id=num).first()
@@ -496,7 +498,7 @@ def set_item(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/item/<int:num>', methods=['GET'])
-def get_item(num):
+def api_get_item(num):
     if (is_authenticated(request.authorization, False)):
         item = Item.query.filter_by(item_id=num).first()
         return jsonify({'name': item.item_name,  'description': item.item_desc,  'image': item.item_img})
@@ -504,7 +506,7 @@ def get_item(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/person/<int:num>', methods=['POST'])
-def set_person(num):
+def api_post_person(num):
     if (is_authenticated(request.authorization, True)):
         data = json.loads(request.data)
         person = Person.query.filter_by(person_id=num).first()
@@ -517,7 +519,7 @@ def set_person(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/person/<int:num>', methods=['GET'])
-def get_person(num):
+def api_get_person(num):
     if (is_authenticated(request.authorization, False)):
         person = Person.query.filter_by(person_id=num).first()
         return jsonify({'name': person.person_name,  'description': person.person_desc,  'image': person.person_img})
@@ -525,7 +527,7 @@ def get_person(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/objective/<int:num>', methods=['POST'])
-def set_objective(num):
+def api_post_objective(num):
     if (is_authenticated(request.authorization, True)):
         data = json.loads(request.data)
         objective = Objective.query.filter_by(objective_id=num).first()
@@ -542,7 +544,7 @@ def set_objective(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/objective/<int:num>', methods=['GET'])
-def get_objective(num):
+def api_get_objective(num):
     if (is_authenticated(request.authorization, False)):
         objective = Objective.query.filter_by(objective_id=num).first()
         return jsonify({'name': objective.objective_name,  'description': objective.objective_desc,  'difficulty': objective.difficulty,  'url': objective.objective_url,  'supportedby': objective.supported_by,  'requires': objective.requires,  'image': objective.objective_img})
@@ -550,7 +552,7 @@ def get_objective(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/junction/<int:num>', methods=['POST'])
-def set_junction(num):
+def api_post_junction(num):
     if (is_authenticated(request.authorization, True)):
         data = json.loads(request.data)
         junction = Junction.query.filter_by(junction_id=num).first()
@@ -562,7 +564,7 @@ def set_junction(num):
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/junction/<int:num>', methods=['GET'])
-def get_junction(num):
+def api_get_junction(num):
     if (is_authenticated(request.authorization, False)):
         junction = Junction.query.filter_by(junction_id=num).first()
         return jsonify({'destination': junction.dest_id,  'description': junction.junction_desc})

@@ -4,20 +4,20 @@
     <h2>{% block title %} {{ world.world_name }} (#{{ world.world_id }}) {% endblock %}</h2>
 
     <p>
-        <i>Created by <a href="{{ url_for('get_single_creator', num=world.creator_id)}}">Creator #{{ world.creator_id }}</a></i></br>
+        <i>Created by <a href="{{ url_for('get_creator', num=world.creator_id)}}">Creator #{{ world.creator_id }}</a></i></br>
         Description: {{ world.world_desc }}</br>
         URL: {{ world.world_url }}
     </p>
 
     <img src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Image" width="33%" height="33%">
 
-    <form action="{{ url_for('get_all_rooms', num=world.world_id) }}" method="GET">
+    <form action="{{ url_for('get_rooms', num=world.world_id) }}" method="GET">
         <input type="submit" value="Select">
     </form>
 
-    <form action="{{ url_for('get_my_walkthrough', num=world.world_id) }}" method="GET">
+    <form action="{{ url_for('get_mywalkthrough', num=world.world_id) }}" method="GET">
         <input type="submit" value="Walkthrough">
     </form>
 
-    <p><a href="{{ url_for('get_all_worlds') }}">All Worlds</a></p>
+    <p><a href="{{ url_for('get_worlds') }}">All Worlds</a></p>
 {% endblock %}

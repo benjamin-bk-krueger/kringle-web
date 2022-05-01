@@ -15,7 +15,7 @@
   <div id="pagestart"></div>
 
   <nav>
-    <a href="{{ url_for('get_my_index') }}"><i>Back</i></a>
+    <a href="{{ url_for('get_index') }}"><i>Back</i></a>
     {% block links %} {% endblock %}
 
     <a href="/wetty/ssh/game?pass=game"><b>Start game</b></a>
@@ -26,8 +26,8 @@
   </main>
 
   <footer>
-    <p>Logged in as {{ request.authorization.get('username') if (request.authorization != None)  }} </p>
-    <p><a href="{{ url_for('get_my_login') }}">Log in</a></p>
+    <p>Logged in as {{ current_user.creator_name if (current_user != None)  }} </p>
+    <p><a href="{{ url_for('get_logout') }}">Log out</a></p>
     <p><a href="#pagestart">Go to top of page</a></p>
   </footer>
 </body>

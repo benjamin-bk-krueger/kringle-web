@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_all_rooms', num=person.world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_all_items', num=person.world_id) }}">Items</a>
-    <a href="{{ url_for('get_all_persons', num=person.world_id) }}">Persons</a>
-    <a href="{{ url_for('get_all_objectives', num=person.world_id ) }}">Objectives</a>
-    <a href="{{ url_for('get_all_junctions', num=person.world_id) }}">Junctions</a>
+    <a href="{{ url_for('get_rooms', num=person.world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_items', num=person.world_id) }}">Items</a>
+    <a href="{{ url_for('get_persons', num=person.world_id) }}">Persons</a>
+    <a href="{{ url_for('get_objectives', num=person.world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_junctions', num=person.world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
     <h1>{% block title %} {{ person.person_name }} (#{{ person.person_id }}) {% endblock %}</h1>
     
     <p>
-        <i>Found in <a href="{{ url_for('get_single_room', num=person.room_id)}}">Room ID #{{ person.room_id }}</a></i></br>
+        <i>Found in <a href="{{ url_for('get_room', num=person.room_id)}}">Room ID #{{ person.room_id }}</a></i></br>
         Description: {{ person.person_desc }}
     </p>
 
     <img src="{{ person.person_img if (person.person_img!='') else '/static/not_found.jpg' }}" alt="Person Image" width="33%" height="33%">
 
-    <p><a href="{{ url_for('get_all_persons', num=person.world_id) }}">All Persons</a></p>
+    <p><a href="{{ url_for('get_persons', num=person.world_id) }}">All Persons</a></p>
 {% endblock %}

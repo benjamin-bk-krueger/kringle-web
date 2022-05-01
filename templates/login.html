@@ -1,0 +1,15 @@
+{% extends 'base_init.html' %}
+
+{% block content %}
+    <h2>{% block title %} Login {% endblock %}</h2>
+    
+    <h4>Enter your login data:</h4>
+    <form action="{{ url_for('post_login') }}" method="POST">
+        Name: <input type="text" name="creator" size="20" maxlength="20" minlength="5"><br>
+        Password: <input type="password" name="password" size="20" maxlength="20" minlength="5"><br>
+        <input type="checkbox" name="remember">Remember me<br>
+        <input type="submit" value="Log in">
+    </form>
+
+    <a href="{{ url_for('get_index') }}">Index</a>
+{% endblock %}

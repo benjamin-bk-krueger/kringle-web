@@ -6,10 +6,10 @@
     <p>
         <ul>
             {% for world in worlds %}
-            <li><a href="{{ url_for('get_single_world', num=world.world_id)}}">{{ world.world_name }} (#{{ world.world_id }})</a></li>
+            <li><a href="{{ url_for('get_world', num=world.world_id)}}">{{ world.world_name }} (#{{ world.world_id }})</a></li>
             {% endfor %}
         </ul>
     </p>
     
-    <a href="{{ url_for('get_my_index') }}">Index</a>
+    <a href="{{ url_for('get_index') }}">Index</a>
 {% endblock %}

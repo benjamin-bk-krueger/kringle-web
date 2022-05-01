@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_all_rooms', num=world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_all_items', num=world_id) }}">Items</a>
-    <a href="{{ url_for('get_all_persons', num=world_id) }}">Persons</a>
-    <a href="{{ url_for('get_all_objectives', num=world_id ) }}">Objectives</a>
-    <a href="{{ url_for('get_all_junctions', num=world_id) }}">Junctions</a>
+    <a href="{{ url_for('get_rooms', num=world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_items', num=world_id) }}">Items</a>
+    <a href="{{ url_for('get_persons', num=world_id) }}">Persons</a>
+    <a href="{{ url_for('get_objectives', num=world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_junctions', num=world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
@@ -14,10 +14,10 @@
     <p>
         <ul>
             {% for item in items %}
-            <li><a href="{{ url_for('get_single_item', num=item.item_id)}}">{{ item.item_name }} (#{{ item.item_id }})</a></li>
+            <li><a href="{{ url_for('get_item', num=item.item_id)}}">{{ item.item_name }} (#{{ item.item_id }})</a></li>
             {% endfor %}
         </ul>
     </p>
 
-    <a href="{{ url_for('get_my_index') }}">Index</a>
+    <a href="{{ url_for('get_index') }}">Index</a>
 {% endblock %}
