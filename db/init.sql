@@ -2,7 +2,6 @@ CREATE TABLE creator (
     creator_id SERIAL PRIMARY KEY,
     creator_name VARCHAR ( 100 ) UNIQUE NOT NULL,
     creator_pass VARCHAR ( 256 ),
-    creator_role VARCHAR ( 10 ),
     creator_img VARCHAR ( 384 )
 );
 

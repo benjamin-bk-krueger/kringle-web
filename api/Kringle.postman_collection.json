@@ -9,6 +9,9 @@
 		{
 			"name": "World",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -40,13 +43,31 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "{{baseurl}}/api/world",
+					"raw": "{{baseurl}}/api/world?worldname=KringleCon20xx&worlddesc=A shiny new world&worldurl=None URL yet&worldimg=none",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
 						"api",
 						"world"
+					],
+					"query": [
+						{
+							"key": "worldname",
+							"value": "KringleCon20xx"
+						},
+						{
+							"key": "worlddesc",
+							"value": "A shiny new world"
+						},
+						{
+							"key": "worldurl",
+							"value": "None URL yet"
+						},
+						{
+							"key": "worldimg",
+							"value": "none"
+						}
 					]
 				}
 			},
@@ -66,6 +87,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -114,6 +138,9 @@
 		{
 			"name": "Item",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -162,6 +189,9 @@
 		{
 			"name": "Person",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -210,6 +240,9 @@
 		{
 			"name": "Objective",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -258,6 +291,9 @@
 		{
 			"name": "Junction",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {

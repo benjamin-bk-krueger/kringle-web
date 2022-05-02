@@ -6,16 +6,13 @@ from flask_login import UserMixin, LoginManager, login_user, logout_user, login_
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
 from werkzeug.security import generate_password_hash, check_password_hash # password hashing
 
-gamedata = os.environ['HOME'] + "/.kringlecon"  # directory for game data
-#POSTGRES_URL = get_env_variable("POSTGRES_URL")
-#POSTGRES_USER = get_env_variable("POSTGRES_USER")
-#POSTGRES_PW = get_env_variable("POSTGRES_PW")
-#POSTGRES_DB = get_env_variable("POSTGRES_DB")
-POSTGRES_URL = "kringle_database:5432"
-POSTGRES_USER = "postgres"
-POSTGRES_PW = "postgres"
-POSTGRES_DB = "postgres"
+GAME_DATA = os.environ['HOME'] + "/.kringlecon"     # directory for game data
+POSTGRES_URL = os.environ['POSTGRES_URL']           # DB connection data
+POSTGRES_USER = os.environ['POSTGRES_USER'] 
+POSTGRES_PW = os.environ['POSTGRES_PW'] 
+POSTGRES_DB = os.environ['POSTGRES_DB'] 
 
+# Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
             static_url_path='/static', 
             static_folder='static',
@@ -31,23 +28,23 @@ db.init_app(app)
 
 # Login Manager configuration
 login_manager = LoginManager()
-login_manager.login_view = 'get_login'
+login_manager.login_view = 'get_login' # show this page if a login is required
 login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(creator_id):
-    # since the user_id is just the primary key of our user table, use it in the query for the user
+    # since the creator_id is just the primary key of our user table, use it in the query for the user
     return Creator.query.get(int(creator_id))
 
-# ORM model classes
+# ORM model classes, Creator table is used for the Login Manager
 class Creator(UserMixin, db.Model):
     __tablename__ = "creator"
     creator_id = db.Column (db.INTEGER, primary_key=True)
     creator_name = db.Column (db.VARCHAR(100), unique=True)
     creator_pass = db.Column (db.VARCHAR(256))
-    creator_role = db.Column (db.VARCHAR(10))
     creator_img = db.Column (db.VARCHAR(384))
 
+    # match the correct row for the Login Manager ID
     def get_id(self):
            return (self.creator_id)
 
@@ -118,14 +115,15 @@ class Solution(db.Model):
 
 # initialize a completely new world using a world template suplied as JSON
 def init_world(worldfile, creator_name, world_name, world_desc, world_url, world_img):
-    counter_loaded = 0
+    counter_loaded = 0 # count each single element
 
     f = open(worldfile)
     data = json.load(f)
 
-    # Connect to an existing database and ceate a cursor to perform database operations
+    # each world is linked to it's creator
     creator = Creator.query.filter_by(creator_name=creator_name).first()
 
+    # create a new ORM object for each ORM type and feed the JSON values into it
     world = World()
     world.creator_id = creator.creator_id
     world.world_name = world_name
@@ -136,6 +134,7 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url, world
     db.session.commit()
     counter_loaded = counter_loaded + 1
 
+    # each world element is linked to it's world
     world =  World.query.filter_by(world_name=world_name).first()
 
     # load all rooms before to enable foreign key relationship
@@ -214,22 +213,18 @@ def init_world(worldfile, creator_name, world_name, world_desc, world_url, world
     f.close()
     return(counter_loaded)
 
-# check if the basic authentication is valid
-def is_authenticated(auth, admin):
-    users = dict()
-    if (admin):
-        creators = Creator.query.filter_by(creator_role="admin").order_by(Creator.creator_id.asc())
+# check if the basic authentication is valid, used for API calls
+def is_authenticated(auth):
+    creator_name = auth['username']
+    creator_pass = auth['password']
+    creator = Creator.query.filter_by(creator_name=creator_name).first()
+
+    if not creator or not check_password_hash(creator.creator_pass, creator_pass):
+        return -1
     else:
-        creators = Creator.query.order_by(Creator.creator_id.asc())
-    for i in creators:
-        users[i.creator_name] = i.creator_pass
+        return creator.creator_id
 
-    if auth:
-        if auth['username'] in users and check_password_hash(users.get(auth['username']), auth['password']):
-            return True
-    return False
-
-# entry pages
+# Flask entry pages
 @app.route('/', methods = ['GET'])
 def get_index():
     return render_template('index.html')
@@ -247,8 +242,9 @@ def post_login():
 
     if not creator or not check_password_hash(creator.creator_pass, creator_pass):
         return render_template('login.html')
-    login_user(creator, remember=remember)
-    return render_template('index.html')
+    else:
+        login_user(creator, remember=remember)
+        return render_template('index.html')
 
 @app.route('/logout', methods = ['GET'])
 @login_required
@@ -256,7 +252,7 @@ def get_logout():
     logout_user()
     return render_template('index.html')
 
-# enable a HTML view to read the database contents
+# Flask HTML views to read and modify the database contents
 @app.route('/creators', methods = ['GET'])
 def get_creators():
     creators = Creator.query.order_by(Creator.creator_id.asc())
@@ -276,7 +272,6 @@ def post_newcreator():
     creator = Creator()
     creator.creator_name = request.form["creator"]
     creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
-    creator.creator_role = "user"
     db.session.add(creator)
     db.session.commit()
 
@@ -356,10 +351,13 @@ def get_junction(num):
 @login_required
 def post_quest(num):
     objective = Objective.query.filter_by(objective_id=num).first()
+    room = Room.query.filter_by(room_id=objective.room_id).first()
+    world = World.query.filter_by(world_id=room.world_id).first()
     id = "quest"
 
-    objective.quest = request.form[id].encode()
-    db.session.commit()
+    if (world.creator_id == current_user.creator_id):
+        objective.quest = request.form[id].encode()
+        db.session.commit()
     objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
@@ -367,19 +365,29 @@ def post_quest(num):
 @login_required
 def get_quest(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (objective.quest != None):
-        return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'), number=num, world_id=objective.world_id)
+    room = Room.query.filter_by(room_id=objective.room_id).first()
+    world = World.query.filter_by(world_id=room.world_id).first()
+
+    if (world.creator_id == current_user.creator_id):
+        if (objective.quest != None):
+            return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'), number=num, world_id=objective.world_id)
+        else:
+            return render_template('quest_detail.html', quest="", number=num, world_id=objective.world_id)
     else:
-        return render_template('quest_detail.html', quest="", number=num, world_id=objective.world_id)
+        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/solution/<int:num>', methods=['POST'])
 @login_required
 def post_solution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
+    room = Room.query.filter_by(room_id=objective.room_id).first()
+    world = World.query.filter_by(world_id=room.world_id).first()
     id = "solution"
 
-    objective.solution = request.form[id].encode()
-    db.session.commit()
+    if (world.creator_id == current_user.creator_id):
+        objective.solution = request.form[id].encode()
+        db.session.commit()
     objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
@@ -387,10 +395,17 @@ def post_solution(num):
 @login_required
 def get_solution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
-    if (objective.solution != None):
-        return render_template('solution_detail.html', solution=str(bytes(objective.solution), 'utf-8'), number=num, world_id=objective.world_id)
+    room = Room.query.filter_by(room_id=objective.room_id).first()
+    world = World.query.filter_by(world_id=room.world_id).first()
+
+    if (world.creator_id == current_user.creator_id):
+        if (objective.solution != None):
+            return render_template('solution_detail.html', solution=str(bytes(objective.solution), 'utf-8'), number=num, world_id=objective.world_id)
+        else:
+            return render_template('solution_detail.html', solution="", number=num, world_id=objective.world_id)
     else:
-        return render_template('solution_detail.html', solution="", number=num, world_id=objective.world_id)
+        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/mysolution/<int:num>', methods=['POST'])
 @login_required
@@ -427,146 +442,157 @@ def get_mysolution(num):
 @app.route('/mywalkthrough/<int:num>', methods=['GET'])
 @login_required
 def get_mywalkthrough(num):
-    objective = Objective.query.filter_by(objective_id=num).first()
+    # objective = Objective.query.filter_by(objective_id=num).first()
 
-    with open(gamedata + "/walkthrough.md", 'w') as f:
+    with open(GAME_DATA + "/walkthrough.md", 'w') as f:
         f.write("Markdown")
 
-    # return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
-    return send_file(gamedata + "/walkthrough.md", attachment_filename='walkthrough.md')
+    # return send_file(GAME_DATA + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
+    return send_file(GAME_DATA + "/walkthrough.md", attachment_filename='walkthrough.md')
 
 # enable a REST API to modify the database contents
 @app.route('/api/world', methods=['POST'])
 def api_post_world():
-    if (is_authenticated(request.authorization, True)):
+    if (is_authenticated(request.authorization)):
         world_name = request.args.get('worldname') 
         world_desc = request.args.get('worlddesc') 
         world_url = request.args.get('worldurl') 
         world_img = request.args.get('worldimg')
 
         record = json.loads(request.data)
-        with open(gamedata + "/data.json", 'w') as f:
+        with open(GAME_DATA + "/data.json", 'w') as f:
             f.write(json.dumps(record, indent=4))
         # purge_db()
-        i = init_world(gamedata + "/data.json", request.authorization['username'], world_name, world_desc, world_url, world_img)
+        i = init_world(GAME_DATA + "/data.json", request.authorization['username'], world_name, world_desc, world_url, world_img)
         return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/world', methods=['GET'])
 def api_get_world():
-    if (is_authenticated(request.authorization, False)):
-        with open(gamedata + "/data.json", 'r') as f:
-            data = f.read()
-            records = json.loads(data)
-            return jsonify(records)
-    else:
-        return jsonify({'error': 'wrong credentials'})
+    with open(GAME_DATA + "/data.json", 'r') as f:
+        data = f.read()
+        records = json.loads(data)
+        return jsonify(records)
 
 @app.route('/api/room/<int:num>', methods=['POST'])
 def api_post_room(num):
-    if (is_authenticated(request.authorization, True)):
+    creator_id = is_authenticated(request.authorization)
+    if (creator_id > 0):
         data = json.loads(request.data)
         room = Room.query.filter_by(room_id=num).first()
-        room.room_name = data["name"]
-        room.room_desc = data["description"]
-        room.room_img = data["image"]
-        db.session.commit()
-        return jsonify({'success': f'room {data["name"]} updated'})
+        world = World.query.filter_by(world_id=room.world_id).first()
+        if (creator_id == world.creator_id):
+            room.room_name = data["name"]
+            room.room_desc = data["description"]
+            room.room_img = data["image"]
+            db.session.commit()
+            return jsonify({'success': f'room {data["name"]} updated'})
+        else:
+            return jsonify({'error': 'not authorized for object'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/room/<int:num>', methods=['GET'])
 def api_get_room(num):
-    if (is_authenticated(request.authorization, False)):
-        room = Room.query.filter_by(room_id=num).first()
-        return jsonify({'name': room.room_name,  'description': room.room_desc,  'image': room.room_img})
-    else:
-        return jsonify({'error': 'wrong credentials'})
+    room = Room.query.filter_by(room_id=num).first()
+    return jsonify({'name': room.room_name,  'description': room.room_desc,  'image': room.room_img})
 
 @app.route('/api/item/<int:num>', methods=['POST'])
 def api_post_item(num):
-    if (is_authenticated(request.authorization, True)):
+    creator_id = is_authenticated(request.authorization)
+    if (creator_id > 0):
         data = json.loads(request.data)
         item = Item.query.filter_by(item_id=num).first()
-        item.item_name = data["name"]
-        item.item_desc = data["description"]
-        item.item_img = data["image"]
-        db.session.commit()
-        return jsonify({'success': f'item {data["name"]} updated'})
+        room = Room.query.filter_by(room_id=item.room_id).first()
+        world = World.query.filter_by(world_id=room.world_id).first()
+        if (creator_id == world.creator_id):
+            item.item_name = data["name"]
+            item.item_desc = data["description"]
+            item.item_img = data["image"]
+            db.session.commit()
+            return jsonify({'success': f'item {data["name"]} updated'})
+        else:
+            return jsonify({'error': 'not authorized for object'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/item/<int:num>', methods=['GET'])
 def api_get_item(num):
-    if (is_authenticated(request.authorization, False)):
-        item = Item.query.filter_by(item_id=num).first()
-        return jsonify({'name': item.item_name,  'description': item.item_desc,  'image': item.item_img})
-    else:
-        return jsonify({'error': 'wrong credentials'})
+    item = Item.query.filter_by(item_id=num).first()
+    return jsonify({'name': item.item_name,  'description': item.item_desc,  'image': item.item_img})
 
 @app.route('/api/person/<int:num>', methods=['POST'])
 def api_post_person(num):
-    if (is_authenticated(request.authorization, True)):
+    creator_id = is_authenticated(request.authorization)
+    if (creator_id > 0):
         data = json.loads(request.data)
         person = Person.query.filter_by(person_id=num).first()
-        person.person_name = data["name"]
-        person.person_desc = data["description"]
-        person.person_img = data["image"]
-        db.session.commit()
-        return jsonify({'success': f'person {data["name"]} updated'})
+        room = Room.query.filter_by(room_id=person.room_id).first()
+        world = World.query.filter_by(world_id=room.world_id).first()
+        if (creator_id == world.creator_id):
+            person.person_name = data["name"]
+            person.person_desc = data["description"]
+            person.person_img = data["image"]
+            db.session.commit()
+            return jsonify({'success': f'person {data["name"]} updated'})
+        else:
+            return jsonify({'error': 'not authorized for object'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/person/<int:num>', methods=['GET'])
 def api_get_person(num):
-    if (is_authenticated(request.authorization, False)):
-        person = Person.query.filter_by(person_id=num).first()
-        return jsonify({'name': person.person_name,  'description': person.person_desc,  'image': person.person_img})
-    else:
-        return jsonify({'error': 'wrong credentials'})
+    person = Person.query.filter_by(person_id=num).first()
+    return jsonify({'name': person.person_name,  'description': person.person_desc,  'image': person.person_img})
 
 @app.route('/api/objective/<int:num>', methods=['POST'])
 def api_post_objective(num):
-    if (is_authenticated(request.authorization, True)):
+    creator_id = is_authenticated(request.authorization)
+    if (creator_id > 0):
         data = json.loads(request.data)
         objective = Objective.query.filter_by(objective_id=num).first()
-        objective.objective_name = data["name"]
-        objective.objective_desc = data["description"]
-        objective.difficulty = data["difficulty"]
-        objective.objective_url = data["url"]
-        objective.supported_by = data["supportedby"]
-        objective.requires = data["requires"]
-        objective.objective_img = data["image"]
-        db.session.commit()
-        return jsonify({'success': f'objective {data["name"]} updated'})
+        room = Room.query.filter_by(room_id=objective.room_id).first()
+        world = World.query.filter_by(world_id=room.world_id).first()
+        if (creator_id == world.creator_id):
+            objective.objective_name = data["name"]
+            objective.objective_desc = data["description"]
+            objective.difficulty = data["difficulty"]
+            objective.objective_url = data["url"]
+            objective.supported_by = data["supportedby"]
+            objective.requires = data["requires"]
+            objective.objective_img = data["image"]
+            db.session.commit()
+            return jsonify({'success': f'objective {data["name"]} updated'})
+        else:
+            return jsonify({'error': 'not authorized for object'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/objective/<int:num>', methods=['GET'])
 def api_get_objective(num):
-    if (is_authenticated(request.authorization, False)):
-        objective = Objective.query.filter_by(objective_id=num).first()
-        return jsonify({'name': objective.objective_name,  'description': objective.objective_desc,  'difficulty': objective.difficulty,  'url': objective.objective_url,  'supportedby': objective.supported_by,  'requires': objective.requires,  'image': objective.objective_img})
-    else:
-        return jsonify({'error': 'wrong credentials'})
+    objective = Objective.query.filter_by(objective_id=num).first()
+    return jsonify({'name': objective.objective_name,  'description': objective.objective_desc,  'difficulty': objective.difficulty,  'url': objective.objective_url,  'supportedby': objective.supported_by,  'requires': objective.requires,  'image': objective.objective_img})
 
 @app.route('/api/junction/<int:num>', methods=['POST'])
 def api_post_junction(num):
-    if (is_authenticated(request.authorization, True)):
+    creator_id = is_authenticated(request.authorization)
+    if (creator_id > 0):
         data = json.loads(request.data)
         junction = Junction.query.filter_by(junction_id=num).first()
-        junction.dest_id = data["destination"]
-        junction.junction_desc = data["description"]
-        db.session.commit()
-        return jsonify({'success': f'junction {num} updated'})
+        room = Room.query.filter_by(room_id=junction.room_id).first()
+        world = World.query.filter_by(world_id=room.world_id).first()
+        if (creator_id == world.creator_id):
+            junction.dest_id = data["destination"]
+            junction.junction_desc = data["description"]
+            db.session.commit()
+            return jsonify({'success': f'junction {num} updated'})
+        else:
+            return jsonify({'error': 'not authorized for object'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
 @app.route('/api/junction/<int:num>', methods=['GET'])
 def api_get_junction(num):
-    if (is_authenticated(request.authorization, False)):
-        junction = Junction.query.filter_by(junction_id=num).first()
-        return jsonify({'destination': junction.dest_id,  'description': junction.junction_desc})
-    else:
-        return jsonify({'error': 'wrong credentials'})
+    junction = Junction.query.filter_by(junction_id=num).first()
+    return jsonify({'destination': junction.dest_id,  'description': junction.junction_desc})
