@@ -1,9 +1,9 @@
 import json                     # for JSON file handling and parsing
 import os                       # for direct file system and environment access
-import markdown2                # for markdown parsing
 from flask import Flask, request, render_template, jsonify, send_file # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
+from flaskext.markdown import Markdown # for markdown parsing
 from werkzeug.security import generate_password_hash, check_password_hash # password hashing
 
 GAME_DATA = os.environ['HOME'] + "/.kringlecon"     # directory for game data
@@ -11,6 +11,7 @@ POSTGRES_URL = os.environ['POSTGRES_URL']           # DB connection data
 POSTGRES_USER = os.environ['POSTGRES_USER'] 
 POSTGRES_PW = os.environ['POSTGRES_PW'] 
 POSTGRES_DB = os.environ['POSTGRES_DB'] 
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
@@ -21,10 +22,13 @@ app = Flask(__name__,
 # DB configuration
 db = SQLAlchemy()
 DB_URL = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=POSTGRES_USER,pw=POSTGRES_PW,url=POSTGRES_URL,db=POSTGRES_DB)
-app.config['SECRET_KEY'] = 'secret-key-goes-here'
+app.config['SECRET_KEY'] = SECRET_KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # silence the deprecation warning
 db.init_app(app)
+
+# Markdown constructor
+Markdown(app)
 
 # Login Manager configuration
 # See https://www.digitalocean.com/community/tutorials/how-to-add-authentication-to-your-app-with-flask-login#step-2-creating-the-main-app-file
@@ -271,11 +275,14 @@ def get_newcreator():
 
 @app.route('/newcreator', methods=['POST'])
 def post_newcreator():
-    creator = Creator()
-    creator.creator_name = request.form["creator"]
-    creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
-    db.session.add(creator)
-    db.session.commit()
+    # temporary fix
+    invitation = request.form["invitation"]
+    if (invitation == "heureka"):
+        creator = Creator()
+        creator.creator_name = request.form["creator"]
+        creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
+        db.session.add(creator)
+        db.session.commit()
 
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
@@ -329,11 +336,13 @@ def get_objectives(num):
 def get_objective(num):
     objective = Objective.query.filter_by(objective_id=num).first()
     if (objective.quest != None):
-        mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+        # mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+        mdquest = str(bytes(objective.quest), 'utf-8')
     else:
         mdquest = ""
     if (objective.solution != None):
-        mdsolution = markdown2.markdown(str(bytes(objective.solution), 'utf-8'), extras=['fenced-code-blocks'])
+        # mdsolution = markdown2.markdown(str(bytes(objective.solution), 'utf-8'), extras=['fenced-code-blocks'])
+        mdsolution = str(bytes(objective.solution), 'utf-8')
     else:
         mdsolution = ""
 

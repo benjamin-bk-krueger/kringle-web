@@ -3,6 +3,14 @@ version: "3.7"
 services:
   web:
     image : benjaminkrueger/kringle-web
+    environment:
+      - POSTGRES_URL=kringle_database:5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PW=postgres
+      - POSTGRES_DB=postgres
+      - SECRET_KEY=secret-key-goes-here
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
     command: /home/flask/flask.sh
     user: flask
     ports:

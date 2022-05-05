@@ -1,12 +1,12 @@
 FROM ubuntu:latest
 
 LABEL version="0.9"
-LABEL maintaner="Ben Krueger <sayhello@blk8.de>"
+LABEL maintainer="Ben Krueger <sayhello@blk8.de>"
 
 RUN apt-get update
 RUN apt-get install -y python3 python3-pip python3-psycopg2
 
-RUN pip3 install flask flask-sqlalchemy flask-login markdown2
+RUN pip3 install flask flask-sqlalchemy flask-login flask-markdown
 
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
