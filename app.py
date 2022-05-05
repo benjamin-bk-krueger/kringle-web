@@ -1,9 +1,9 @@
 import json                     # for JSON file handling and parsing
 import os                       # for direct file system and environment access
+import markdown2                # for markdown parsing
 from flask import Flask, request, render_template, jsonify, send_file # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
-from flaskext.markdown import Markdown # for markdown parsing
 from werkzeug.security import generate_password_hash, check_password_hash # password hashing
 
 GAME_DATA = os.environ['HOME'] + "/.kringlecon"     # directory for game data
@@ -26,9 +26,6 @@ app.config['SECRET_KEY'] = SECRET_KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # silence the deprecation warning
 db.init_app(app)
-
-# Markdown constructor
-Markdown(app)
 
 # Login Manager configuration
 # See https://www.digitalocean.com/community/tutorials/how-to-add-authentication-to-your-app-with-flask-login#step-2-creating-the-main-app-file
@@ -336,13 +333,11 @@ def get_objectives(num):
 def get_objective(num):
     objective = Objective.query.filter_by(objective_id=num).first()
     if (objective.quest != None):
-        # mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
-        mdquest = str(bytes(objective.quest), 'utf-8')
+        mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
     else:
         mdquest = ""
     if (objective.solution != None):
-        # mdsolution = markdown2.markdown(str(bytes(objective.solution), 'utf-8'), extras=['fenced-code-blocks'])
-        mdsolution = str(bytes(objective.solution), 'utf-8')
+        mdsolution = markdown2.markdown(str(bytes(objective.solution), 'utf-8'), extras=['fenced-code-blocks'])
     else:
         mdsolution = ""
 
