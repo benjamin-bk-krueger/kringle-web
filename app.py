@@ -231,15 +231,15 @@ def is_authenticated(auth):
         return creator.creator_id
 
 # Flask entry pages
-@app.route('/', methods = ['GET'])
+@app.route('/kringle', methods = ['GET'])
 def get_index():
     return render_template('index.html')
 
-@app.route('/login', methods = ['GET'])
+@app.route('/kringle/login', methods = ['GET'])
 def get_login():
     return render_template('login.html')
 
-@app.route('/login', methods = ['POST'])
+@app.route('/kringle/login', methods = ['POST'])
 def post_login():
     creator_name = request.form["creator"]
     creator_pass = request.form["password"]
@@ -252,28 +252,28 @@ def post_login():
         login_user(creator, remember=remember)
         return render_template('index.html')
 
-@app.route('/logout', methods = ['GET'])
+@app.route('/kringle/logout', methods = ['GET'])
 @login_required
 def get_logout():
     logout_user()
     return render_template('index.html')
 
 # Flask HTML views to read and modify the database contents
-@app.route('/creators', methods = ['GET'])
+@app.route('/kringle/creators', methods = ['GET'])
 def get_creators():
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
 
-@app.route('/creator/<int:num>', methods = ['GET'])
+@app.route('/kringle/creator/<int:num>', methods = ['GET'])
 def get_creator(num):
     creator = Creator.query.filter_by(creator_id=num).first()
     return render_template('creator_detail.html', creator=creator)
 
-@app.route('/newcreator', methods=['GET'])
+@app.route('/kringle/newcreator', methods=['GET'])
 def get_newcreator():
     return render_template('creator_new.html')
 
-@app.route('/newcreator', methods=['POST'])
+@app.route('/kringle/newcreator', methods=['POST'])
 def post_newcreator():
     # temporary fix
     invitation = request.form["invitation"]
@@ -287,52 +287,52 @@ def post_newcreator():
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
 
-@app.route('/worlds', methods = ['GET'])
+@app.route('/kringle/worlds', methods = ['GET'])
 def get_worlds():
     worlds = World.query.order_by(World.world_id.asc())
     return render_template('world.html', worlds=worlds)
 
-@app.route('/world/<int:num>', methods = ['GET'])
+@app.route('/kringle/world/<int:num>', methods = ['GET'])
 def get_world(num):
     world = World.query.filter_by(world_id=num).first()
     return render_template('world_detail.html', world=world)
 
-@app.route('/rooms/<int:num>', methods = ['GET'])
+@app.route('/kringle/rooms/<int:num>', methods = ['GET'])
 def get_rooms(num):
     rooms = Room.query.filter_by(world_id=num).order_by(Room.room_id.asc())
     return render_template('room.html', rooms=rooms, world_id=num)
 
-@app.route('/room/<int:num>', methods = ['GET'])
+@app.route('/kringle/room/<int:num>', methods = ['GET'])
 def get_room(num):
     room = Room.query.filter_by(room_id=num).first()
     return render_template('room_detail.html', room=room)
 
-@app.route('/items/<int:num>', methods = ['GET'])
+@app.route('/kringle/items/<int:num>', methods = ['GET'])
 def get_items(num):
     items = Item.query.filter_by(world_id=num).order_by(Item.item_id.asc())
     return render_template('item.html', items=items, world_id=num)
 
-@app.route('/item/<int:num>', methods = ['GET'])
+@app.route('/kringle/item/<int:num>', methods = ['GET'])
 def get_item(num):
     item = Item.query.filter_by(item_id=num).first()
     return render_template('item_detail.html', item=item)
 
-@app.route('/persons/<int:num>', methods = ['GET'])
+@app.route('/kringle/persons/<int:num>', methods = ['GET'])
 def get_persons(num):
     persons = Person.query.filter_by(world_id=num).order_by(Person.person_id.asc())
     return render_template('person.html', persons=persons, world_id=num)
 
-@app.route('/person/<int:num>', methods = ['GET'])
+@app.route('/kringle/person/<int:num>', methods = ['GET'])
 def get_person(num):
     person = Person.query.filter_by(person_id=num).first()
     return render_template('person_detail.html', person=person)
 
-@app.route('/objectives/<int:num>', methods = ['GET'])
+@app.route('/kringle/objectives/<int:num>', methods = ['GET'])
 def get_objectives(num):
     objectives = Objective.query.filter_by(world_id=num).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=num)
 
-@app.route('/objective/<int:num>', methods = ['GET'])
+@app.route('/kringle/objective/<int:num>', methods = ['GET'])
 def get_objective(num):
     objective = Objective.query.filter_by(objective_id=num).first()
     if (objective.quest != None):
@@ -348,17 +348,17 @@ def get_objective(num):
 
     return render_template('objective_detail.html', objective=objective, mdquest=mdquest, mdsolution=mdsolution)
 
-@app.route('/junctions/<int:num>', methods = ['GET'])
+@app.route('/kringle/junctions/<int:num>', methods = ['GET'])
 def get_junctions(num):
     junctions = Junction.query.filter_by(world_id=num).order_by(Junction.junction_id.asc())
     return render_template('junction.html', junctions=junctions, world_id=num)
 
-@app.route('/junction/<int:num>', methods = ['GET'])
+@app.route('/kringle/junction/<int:num>', methods = ['GET'])
 def get_junction(num):
     junction = Junction.query.filter_by(junction_id=num).first()
     return render_template('junction_detail.html', junction=junction)
 
-@app.route('/quest/<int:num>', methods=['POST'])
+@app.route('/kringle/quest/<int:num>', methods=['POST'])
 @login_required
 def post_quest(num):
     objective = Objective.query.filter_by(objective_id=num).first()
@@ -372,7 +372,7 @@ def post_quest(num):
     objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/quest/<int:num>', methods=['GET'])
+@app.route('/kringle/quest/<int:num>', methods=['GET'])
 @login_required
 def get_quest(num):
     objective = Objective.query.filter_by(objective_id=num).first()
@@ -388,7 +388,7 @@ def get_quest(num):
         objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
         return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/solution/<int:num>', methods=['POST'])
+@app.route('/kringle/solution/<int:num>', methods=['POST'])
 @login_required
 def post_solution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
@@ -402,7 +402,7 @@ def post_solution(num):
     objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/solution/<int:num>', methods=['GET'])
+@app.route('/kringle/solution/<int:num>', methods=['GET'])
 @login_required
 def get_solution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
@@ -418,7 +418,7 @@ def get_solution(num):
         objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
         return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/mysolution/<int:num>', methods=['POST'])
+@app.route('/kringle/mysolution/<int:num>', methods=['POST'])
 @login_required
 def post_mysolution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
@@ -439,7 +439,7 @@ def post_mysolution(num):
     objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/mysolution/<int:num>', methods=['GET'])
+@app.route('/kringle/mysolution/<int:num>', methods=['GET'])
 @login_required
 def get_mysolution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
@@ -450,7 +450,7 @@ def get_mysolution(num):
     else:
         return render_template('solution_my_detail.html', solution="", number=num, world_id=objective.world_id)
 
-@app.route('/mywalkthrough/<int:num>', methods=['GET'])
+@app.route('/kringle/mywalkthrough/<int:num>', methods=['GET'])
 @login_required
 def get_mywalkthrough(num):
     # objective = Objective.query.filter_by(objective_id=num).first()
