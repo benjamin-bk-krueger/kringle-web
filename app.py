@@ -129,18 +129,19 @@ def upload_file(file_name, bucket, object_name):
 
     return response
 
-def download_file(file_name, bucket):
+def download_file(creator_name, file_name, bucket):
     s3 = boto3.resource('s3', endpoint_url=S3_ENDPOINT)
     output = f"{DOWNLOAD_FOLDER}/{file_name}"
-    s3.Bucket(bucket).download_file(file_name, output)
+    s3.Bucket(bucket).download_file(creator_name + "/" + file_name, output)
 
     return output
 
-def list_files(bucket):
+def list_files(creator_name, bucket):
     s3 = boto3.client('s3', endpoint_url=S3_ENDPOINT)
     contents = []
     for item in s3.list_objects(Bucket=bucket)['Contents']:
-        contents.append(item)
+        if (item['Key'].startswith(creator_name)):
+            contents.append(item)
 
     return contents
 
@@ -287,27 +288,25 @@ def get_logout():
 @app.route("/web/storage", methods=['GET'])
 @login_required
 def get_storage():
-    contents = list_files(BUCKET)
+    contents = list_files(current_user.creator_name, BUCKET)
     return render_template('storage.html', contents=contents)
 
 @app.route("/web/upload", methods=['POST'])
 @login_required
 def post_upload():
-    if request.method == "POST":
-        f = request.files['file']
-        f.save(os.path.join(UPLOAD_FOLDER, f.filename))
-        upload_file(f"{UPLOAD_FOLDER}/{f.filename}", BUCKET, f.filename)
+    f = request.files['file']
+    f.save(os.path.join(UPLOAD_FOLDER, f.filename))
+    upload_file(f"{UPLOAD_FOLDER}/{f.filename}", BUCKET, f"{current_user.creator_name}/{f.filename}")
 
-    contents = list_files(BUCKET)
+    contents = list_files(current_user.creator_name, BUCKET)
     return render_template('storage.html', contents=contents)
 
-@app.route("/web/download/<filename>", methods=['GET'])
+@app.route("/web/download/<creator_name>/<filename>", methods=['GET'])
 @login_required
-def get_download(filename):
-    if request.method == 'GET':
-        output = download_file(filename, BUCKET)
+def get_download(creator_name, filename):
+    output = download_file(creator_name, filename, BUCKET)
 
-        return send_file(output, as_attachment=True)
+    return send_file(output, as_attachment=True)
 
 # Flask HTML views to read and modify the database contents
 @app.route('/web/creators', methods = ['GET'])
