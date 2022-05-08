@@ -11,11 +11,14 @@ services:
       - SECRET_KEY=secret-key-goes-here
       - FLASK_ENV=development
       - FLASK_DEBUG=1
+      - S3_ENDPOINT=https://s3.hidrive.strato.com
     command: /home/flask/flask.sh
     user: flask
     ports:
       - 127.0.0.1:5010:5010
     container_name: kringle_web
+    volumes:
+      - ./.aws/:/home/flask/.aws/
 
   database:
     image: postgres

@@ -20,6 +20,7 @@
     <a href="{{ url_for('get_index') }}"><i>Back</i></a>
     {% block links %} {% endblock %}
 
+    <a href="{{ url_for('get_download') }}"><b>Storage</b></a>
     <!--<a href="/wetty/ssh/game?pass=game"><b>Start game</b></a>-->
   </nav>
 
@@ -29,7 +30,7 @@
 
   <footer>
     <p>Logged in as {{ current_user.creator_name if (current_user != None)  }} </p>
-    <p><a href="{{ url_for('get_logout') }}">Log out</a></p>
+    <p><a href="{{ url_for('get_storage') }}">Log out</a></p>
     <p><a href="#pagestart">Go to top of page</a></p>
   </footer>
 </body>

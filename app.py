@@ -1,6 +1,7 @@
 import json                     # for JSON file handling and parsing
 import os                       # for direct file system and environment access
 import markdown2                # for markdown parsing
+import boto3                    # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
 from flask import Flask, request, render_template, jsonify, send_file # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
@@ -12,6 +13,11 @@ POSTGRES_USER = os.environ['POSTGRES_USER']
 POSTGRES_PW = os.environ['POSTGRES_PW'] 
 POSTGRES_DB = os.environ['POSTGRES_DB'] 
 SECRET_KEY = os.environ['SECRET_KEY']
+S3_ENDPOINT = os.environ['S3_ENDPOINT']
+UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"
+DOWNLOAD_FOLDER = os.environ['HOME'] + "/downloads"
+BUCKET = "kringle"
+
 
 # Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
@@ -115,6 +121,28 @@ class Solution(db.Model):
     objective_id = db.Column (db.INTEGER, db.ForeignKey("objective.objective_id"))
     creator_id = db.Column (db.INTEGER, db.ForeignKey("creator.creator_id"))
     solution_text = db.Column (db.LargeBinary)
+
+# S3 helper functions
+def upload_file(file_name, bucket, object_name):
+    s3_client = boto3.client('s3', endpoint_url=S3_ENDPOINT)
+    response = s3_client.upload_file(file_name, bucket, object_name)
+
+    return response
+
+def download_file(file_name, bucket):
+    s3 = boto3.resource('s3', endpoint_url=S3_ENDPOINT)
+    output = f"{DOWNLOAD_FOLDER}/{file_name}"
+    s3.Bucket(bucket).download_file(file_name, output)
+
+    return output
+
+def list_files(bucket):
+    s3 = boto3.client('s3', endpoint_url=S3_ENDPOINT)
+    contents = []
+    for item in s3.list_objects(Bucket=bucket)['Contents']:
+        contents.append(item)
+
+    return contents
 
 # initialize a completely new world using a world template suplied as JSON
 def init_world(worldfile, creator_name, world_name, world_desc, world_url, world_img):
@@ -254,6 +282,32 @@ def post_login():
 def get_logout():
     logout_user()
     return render_template('index.html')
+
+# S3 storage pages
+@app.route("/web/storage", methods=['GET'])
+@login_required
+def get_storage():
+    contents = list_files(BUCKET)
+    return render_template('storage.html', contents=contents)
+
+@app.route("/web/upload", methods=['POST'])
+@login_required
+def post_upload():
+    if request.method == "POST":
+        f = request.files['file']
+        f.save(os.path.join(UPLOAD_FOLDER, f.filename))
+        upload_file(f"{UPLOAD_FOLDER}/{f.filename}", BUCKET, f.filename)
+
+    contents = list_files(BUCKET)
+    return render_template('storage.html', contents=contents)
+
+@app.route("/web/download/<filename>", methods=['GET'])
+@login_required
+def get_download(filename):
+    if request.method == 'GET':
+        output = download_file(filename, BUCKET)
+
+        return send_file(output, as_attachment=True)
 
 # Flask HTML views to read and modify the database contents
 @app.route('/web/creators', methods = ['GET'])
