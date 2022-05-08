@@ -123,9 +123,9 @@ class Solution(db.Model):
     solution_text = db.Column (db.LargeBinary)
 
 # S3 helper functions
-def upload_file(file_name, bucket, object_name):
+def upload_file(creator_name, file_name, bucket, object_name):
     s3_client = boto3.client('s3', endpoint_url=S3_ENDPOINT)
-    response = s3_client.upload_file(file_name, bucket, object_name)
+    response = s3_client.upload_file(file_name, bucket, creator_name + "/" + object_name)
 
     return response
 
@@ -135,6 +135,10 @@ def download_file(creator_name, file_name, bucket):
     s3.Bucket(bucket).download_file(creator_name + "/" + file_name, output)
 
     return output
+
+def delete_file(creator_name, file_name, bucket):
+    s3 = boto3.resource('s3', endpoint_url=S3_ENDPOINT)
+    s3.Object(bucket, creator_name + "/" + file_name).delete()
 
 def list_files(creator_name, bucket):
     s3 = boto3.client('s3', endpoint_url=S3_ENDPOINT)
@@ -296,7 +300,7 @@ def get_storage():
 def post_upload():
     f = request.files['file']
     f.save(os.path.join(UPLOAD_FOLDER, f.filename))
-    upload_file(f"{UPLOAD_FOLDER}/{f.filename}", BUCKET, f"{current_user.creator_name}/{f.filename}")
+    upload_file(current_user.creator_name, f"{UPLOAD_FOLDER}/{f.filename}", BUCKET, f.filename)
 
     contents = list_files(current_user.creator_name, BUCKET)
     return render_template('storage.html', contents=contents)
@@ -307,6 +311,14 @@ def get_download(creator_name, filename):
     output = download_file(creator_name, filename, BUCKET)
 
     return send_file(output, as_attachment=True)
+
+@app.route("/web/delete/<creator_name>/<filename>", methods=['GET'])
+@login_required
+def get_delete(creator_name, filename):
+    delete_file(creator_name, filename, BUCKET)
+
+    contents = list_files(current_user.creator_name, BUCKET)
+    return render_template('storage.html', contents=contents)
 
 # Flask HTML views to read and modify the database contents
 @app.route('/web/creators', methods = ['GET'])

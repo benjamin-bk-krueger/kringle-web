@@ -6,17 +6,18 @@
     <p>
         <h3>Upload your file here:</h3>
         <form method="POST" action="{{ url_for('post_upload') }}" enctype=multipart/form-data>
-        <input type=file name=file>
+        <input type=file name=file accept="image/gif, image/jpeg, image/png">
         <input type=submit value=Upload>
         </form>
     </p>
     <p>
         <h3>These are your uploaded files:</h3>
-        <p>Click on the filename to download it.</p>
+        <p>Click on the options to download or delete them.<br>Below are the markdown snippets.</p>
         <ul>
         {% for item in contents %}
             <li>
-            <a href="{{ url_for('get_download', creator_name='.', filename=item.Key) }}"> {{ item.Key }} </a>
+                <b>{{ item.Key }}</b>: [<a href="{{ url_for('get_download', creator_name='.', filename=item.Key) }}">download</a>, <a href="{{ url_for('get_delete', creator_name='.', filename=item.Key) }}">delete</a>]<br>
+                ![{{ item.Key }}](https://s3.hidrive.strato.com/kringle/{{ item.Key }})
             </li>
         {% endfor %}
         </ul>
