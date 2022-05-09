@@ -546,6 +546,27 @@ def api_get_world():
         records = json.loads(data)
         return jsonify(records)
 
+@app.route('/api/creator/<int:num>', methods=['POST'])
+def api_post_creator(num):
+    creator_id = is_authenticated(request.authorization)
+    if (creator_id > 0):
+        data = json.loads(request.data)
+        creator = Creator.query.filter_by(creator_id=num).first()
+        if (creator_id == creator.creator_id):
+            creator.creator_name = data["name"]
+            creator.creator_img = data["image"]
+            db.session.commit()
+            return jsonify({'success': f'creator {data["name"]} updated'})
+        else:
+            return jsonify({'error': 'not authorized for object'})
+    else:
+        return jsonify({'error': 'wrong credentials'})
+
+@app.route('/api/creator/<int:num>', methods=['GET'])
+def api_get_creator(num):
+    creator = Creator.query.filter_by(creator_id=num).first()
+    return jsonify({'name': creator.creator_name, 'image': creator.creator_img})
+
 @app.route('/api/room/<int:num>', methods=['POST'])
 def api_post_room(num):
     creator_id = is_authenticated(request.authorization)
