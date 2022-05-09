@@ -261,7 +261,7 @@ def is_authenticated(auth):
         return creator.creator_id
 
 # Flask entry pages
-@app.route('/web/index', methods = ['GET'])
+@app.route('/web/', methods = ['GET'])
 def get_index():
     return render_template('index.html')
 
