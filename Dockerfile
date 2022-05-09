@@ -24,6 +24,6 @@ COPY templates/ /home/flask/templates/
 COPY static/ /home/flask/static/
 COPY docs/ /home/flask/docs/
 
-RUN cd /home/flask && mkdocs build
+RUN cd /home/flask && mkdocs build && mv ./site ./static
 
 CMD ["/home/flask/flask.sh"]  
