@@ -1,0 +1,7 @@
+site_name: Kringle Web
+site_url: http://kringle.info/
+nav:
+    - Home: index.md
+    - About: about.md
+theme: readthedocs
+favicon: 'img/favicon.ico'
