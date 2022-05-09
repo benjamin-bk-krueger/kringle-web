@@ -1,6 +1,7 @@
 site_name: Kringle Web
-site_url: https://kringle.info/static/mkdocs/
+site_url: https://kringle.info/static/doc/
 site_dir: ./static/mkdocs
+use_directory_urls: false
 nav:
     - Home: index.md
     - About: about.md
