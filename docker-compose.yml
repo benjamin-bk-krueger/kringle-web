@@ -12,6 +12,8 @@ services:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - S3_ENDPOINT=https://s3.hidrive.strato.com
+      - BUCKET_PUBLIC=kringle-public
+      - BUCKET_PRIVATE=kringle-private
     command: /home/flask/flask.sh
     user: flask
     ports:

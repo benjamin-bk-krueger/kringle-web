@@ -16,8 +16,8 @@ SECRET_KEY = os.environ['SECRET_KEY']
 S3_ENDPOINT = os.environ['S3_ENDPOINT']
 UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"
 DOWNLOAD_FOLDER = os.environ['HOME'] + "/downloads"
-BUCKET = "kringle"
-
+BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
+BUCKET_PRIVATE = os.environ['BUCKET_PRIVATE']
 
 # Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
@@ -52,6 +52,7 @@ class Creator(UserMixin, db.Model):
     creator_name = db.Column (db.VARCHAR(100), unique=True)
     creator_pass = db.Column (db.VARCHAR(256))
     creator_img = db.Column (db.VARCHAR(384))
+    creator_role = db.Column (db.VARCHAR(20))
 
     # match the correct row for the Login Manager ID
     def get_id(self):
@@ -292,7 +293,7 @@ def get_logout():
 @app.route("/web/storage", methods=['GET'])
 @login_required
 def get_storage():
-    contents = list_files(current_user.creator_name, BUCKET)
+    contents = list_files(current_user.creator_name, BUCKET_PUBLIC)
     return render_template('storage.html', contents=contents)
 
 @app.route("/web/upload", methods=['POST'])
@@ -300,24 +301,24 @@ def get_storage():
 def post_upload():
     f = request.files['file']
     f.save(os.path.join(UPLOAD_FOLDER, f.filename))
-    upload_file(current_user.creator_name, f"{UPLOAD_FOLDER}/{f.filename}", BUCKET, f.filename)
+    upload_file(current_user.creator_name, f"{UPLOAD_FOLDER}/{f.filename}", BUCKET_PUBLIC, f.filename)
 
-    contents = list_files(current_user.creator_name, BUCKET)
+    contents = list_files(current_user.creator_name, BUCKET_PUBLIC)
     return render_template('storage.html', contents=contents)
 
 @app.route("/web/download/<creator_name>/<filename>", methods=['GET'])
 @login_required
 def get_download(creator_name, filename):
-    output = download_file(creator_name, filename, BUCKET)
+    output = download_file(creator_name, filename, BUCKET_PUBLIC)
 
     return send_file(output, as_attachment=True)
 
 @app.route("/web/delete/<creator_name>/<filename>", methods=['GET'])
 @login_required
 def get_delete(creator_name, filename):
-    delete_file(creator_name, filename, BUCKET)
+    delete_file(creator_name, filename, BUCKET_PUBLIC)
 
-    contents = list_files(current_user.creator_name, BUCKET)
+    contents = list_files(current_user.creator_name, BUCKET_PUBLIC)
     return render_template('storage.html', contents=contents)
 
 # Flask HTML views to read and modify the database contents
@@ -522,10 +523,9 @@ def get_mywalkthrough(num):
     return send_file(GAME_DATA + "/walkthrough.md", attachment_filename='walkthrough.md')
 
 # enable a REST API to modify the database contents
-@app.route('/api/world', methods=['POST'])
-def api_post_world():
+@app.route('/api/world/<worldname>', methods=['POST'])
+def api_post_world(worldname):
     if (is_authenticated(request.authorization)):
-        world_name = request.args.get('worldname') 
         world_desc = request.args.get('worlddesc') 
         world_url = request.args.get('worldurl') 
         world_img = request.args.get('worldimg')
@@ -534,17 +534,16 @@ def api_post_world():
         with open(GAME_DATA + "/data.json", 'w') as f:
             f.write(json.dumps(record, indent=4))
         # purge_db()
-        i = init_world(GAME_DATA + "/data.json", request.authorization['username'], world_name, world_desc, world_url, world_img)
+        upload_file("world", GAME_DATA + "/data.json", BUCKET_PRIVATE, worldname + ".world")
+        i = init_world(GAME_DATA + "/data.json", request.authorization['username'], worldname, world_desc, world_url, world_img)
         return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
-@app.route('/api/world', methods=['GET'])
-def api_get_world():
-    with open(GAME_DATA + "/data.json", 'r') as f:
-        data = f.read()
-        records = json.loads(data)
-        return jsonify(records)
+@app.route('/api/world/<worldname>', methods=['GET'])
+def api_get_world(worldname):
+    output = download_file("world", worldname + ".world", BUCKET_PRIVATE)
+    return send_file(output)
 
 @app.route('/api/creator/<int:num>', methods=['POST'])
 def api_post_creator(num):
