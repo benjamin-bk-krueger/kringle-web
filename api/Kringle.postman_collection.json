@@ -66,13 +66,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseurl}}/api/world",
+					"raw": "{{baseurl}}/api/world/KringleCon2021",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
 						"api",
-						"world"
+						"world",
+						"KringleCon2021"
 					]
 				}
 			},
@@ -94,30 +95,27 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "{{baseurl}}/api/world?worldname=KringleCon20xx&worlddesc=A shiny new world&worldurl=None URL yet&worldimg=none",
+					"raw": "{{baseurl}}/api/world/KringleCon2021?worlddesc=Calling Birds&worldurl=https://www.sans.org/mlp/holiday-hack-challenge/&worldimg=https://images.contentstack.io/v3/assets/blt36c2e63521272fdc/blt3df4f4efd480f7ca/61ac2c72c7c3037339ab466a/RANGES_2021_Holiday_740x370_Custom_@2X.jpg",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
 						"api",
-						"world"
+						"world",
+						"KringleCon2021"
 					],
 					"query": [
 						{
-							"key": "worldname",
-							"value": "KringleCon20xx"
-						},
-						{
 							"key": "worlddesc",
-							"value": "A shiny new world"
+							"value": "Calling Birds"
 						},
 						{
 							"key": "worldurl",
-							"value": "None URL yet"
+							"value": "https://www.sans.org/mlp/holiday-hack-challenge/"
 						},
 						{
 							"key": "worldimg",
-							"value": "none"
+							"value": "https://images.contentstack.io/v3/assets/blt36c2e63521272fdc/blt3df4f4efd480f7ca/61ac2c72c7c3037339ab466a/RANGES_2021_Holiday_740x370_Custom_@2X.jpg"
 						}
 					]
 				}
