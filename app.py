@@ -50,6 +50,7 @@ class Creator(UserMixin, db.Model):
     __tablename__ = "creator"
     creator_id = db.Column (db.INTEGER, primary_key=True)
     creator_name = db.Column (db.VARCHAR(100), unique=True)
+    creator_mail = db.Column (db.VARCHAR(100), unique=True)
     creator_pass = db.Column (db.VARCHAR(256))
     creator_img = db.Column (db.VARCHAR(384))
     creator_role = db.Column (db.VARCHAR(20))
@@ -343,6 +344,7 @@ def post_newcreator():
     if (invitation == "heureka"):
         creator = Creator()
         creator.creator_name = request.form["creator"]
+        creator.creator_mail = request.form["mail"]
         creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
         db.session.add(creator)
         db.session.commit()
