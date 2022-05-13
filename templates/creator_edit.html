@@ -1,0 +1,22 @@
+{% extends 'base_init.html' %}
+
+{% block content %}
+    <h2>{% block title %} Edit Creator {% endblock %}</h2>
+
+    <h4>Please enter data:</h4>
+    <form action="{{ url_for('post_mailcreator') }}" method="POST">
+        E-Mail: <input type="email" name="mail" size="20" maxlength="100" minlength="5" value="{{ creator.creator_mail }}"><br>
+        Image: <input type="text" name="image" size="20" maxlength="200" minlength="5" value="{{ creator.creator_img }}"><br>
+        <input type="submit" value="Update">
+    </form>
+
+    <h4>Set new password:</h4>
+    <form action="{{ url_for('post_passcreator') }}" method="POST" oninput="result.value=!!password2.value&&(password.value==password2.value)?'Password matching.':'Passwords NOT matching!'">
+        Password: <input type="password" name="password" size="20" maxlength="20" minlength="5"><br>
+        Password Verification: <input type="password" name="password2" size="20" maxlength="20" minlength="5"><br>
+        <output name="result"></output><br>
+        <input type="submit" value="Set">
+    </form>
+    
+    <a href="{{ url_for('get_index') }}">Index</a>
+{% endblock %}

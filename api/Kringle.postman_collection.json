@@ -7,57 +7,6 @@
 	},
 	"item": [
 		{
-			"name": "Creator",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseurl}}/api/creator/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"creator",
-						"{{num}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Creator",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "{{baseurl}}/api/creator/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"creator",
-						"{{num}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "World",
 			"request": {
 				"auth": {

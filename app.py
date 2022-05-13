@@ -333,9 +333,10 @@ def get_creator(num):
     creator = Creator.query.filter_by(creator_id=num).first()
     return render_template('creator_detail.html', creator=creator)
 
-@app.route('/web/newcreator', methods=['GET'])
+@app.route('/web/newcreator', methods = ['GET'])
 def get_newcreator():
-    return render_template('creator_new.html')
+    creators = Creator.query.order_by(Creator.creator_id.asc())
+    return render_template('creator_new.html', creators=creators)
 
 @app.route('/web/newcreator', methods=['POST'])
 def post_newcreator():
@@ -351,6 +352,36 @@ def post_newcreator():
 
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
+
+@app.route('/web/mycreator', methods = ['GET'])
+@login_required
+def get_mycreator():
+    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
+    creators = Creator.query.order_by(Creator.creator_id.asc())
+    return render_template('creator_edit.html', creator=creator, creators=creators)
+
+@app.route('/web/mailcreator', methods=['POST'])
+@login_required
+def post_mailcreator():
+    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
+    creators = Creator.query.order_by(Creator.creator_id.asc())
+    creator.creator_mail = request.form["mail"]
+    creator.creator_img = request.form["image"]
+    db.session.commit()
+
+    creators = Creator.query.order_by(Creator.creator_id.asc())
+    return render_template('creator_edit.html', creator=creator, creators=creators)
+
+@app.route('/web/passcreator', methods=['POST'])
+@login_required
+def post_passcreator():
+    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
+    creators = Creator.query.order_by(Creator.creator_id.asc())
+    creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
+    db.session.commit()
+
+    creators = Creator.query.order_by(Creator.creator_id.asc())
+    return render_template('creator_edit.html', creator=creator, creators=creators)
 
 @app.route('/web/worlds', methods = ['GET'])
 def get_worlds():
@@ -546,27 +577,6 @@ def api_post_world(worldname):
 def api_get_world(worldname):
     output = download_file("world", worldname + ".world", BUCKET_PRIVATE)
     return send_file(output)
-
-@app.route('/api/creator/<int:num>', methods=['POST'])
-def api_post_creator(num):
-    creator_id = is_authenticated(request.authorization)
-    if (creator_id > 0):
-        data = json.loads(request.data)
-        creator = Creator.query.filter_by(creator_id=num).first()
-        if (creator_id == creator.creator_id):
-            creator.creator_name = data["name"]
-            creator.creator_img = data["image"]
-            db.session.commit()
-            return jsonify({'success': f'creator {data["name"]} updated'})
-        else:
-            return jsonify({'error': 'not authorized for object'})
-    else:
-        return jsonify({'error': 'wrong credentials'})
-
-@app.route('/api/creator/<int:num>', methods=['GET'])
-def api_get_creator(num):
-    creator = Creator.query.filter_by(creator_id=num).first()
-    return jsonify({'name': creator.creator_name, 'image': creator.creator_img})
 
 @app.route('/api/room/<int:num>', methods=['POST'])
 def api_post_room(num):

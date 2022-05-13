@@ -1,7 +1,7 @@
 {% extends 'base_init.html' %}
 
 {% block content %}
-    <h2>{% block title %} New Creator {% endblock %}</h2>
+    <h2>{% block title %} >New Creator {% endblock %}</h2>
 
     <h4>Please enter data:</h4>
     <form action="{{ url_for('post_newcreator') }}" method="POST" oninput="result.value=!!password2.value&&(password.value==password2.value)?'Password matching.':'Passwords NOT matching!'">
@@ -13,4 +13,6 @@
         Invitation Code: <input type="text" name="invitation" size="20" maxlength="20"><br>
         <input type="submit" value="Create">
     </form>
+    
+    <a href="{{ url_for('get_index') }}">Index</a>
 {% endblock %}
