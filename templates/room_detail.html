@@ -16,7 +16,11 @@
         Description: {{ room.room_desc }}
     </p>
 
-    <img src="{{ room.room_img if (room.room_img!='') else '/static/not_found.jpg' }}" alt="Room Image" width="33%" height="33%">
+    <p>
+        <img src="{{ room.room_img if (room.room_img!='') else '/static/not_found.jpg' }}" alt="Room Image" width="33%" height="33%">
+    </p>
 
-    <p><a href="{{ url_for('get_rooms', num=room.world_id) }}">All Rooms</a></p>
+    <p>
+        <a href="{{ url_for('get_rooms', num=room.world_id) }}">All Rooms</a>
+    </p>
 {% endblock %}

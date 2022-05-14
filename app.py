@@ -267,6 +267,11 @@ def is_authenticated(auth):
 def get_index():
     return render_template('index.html')
 
+@app.route('/web/logged', methods = ['GET'])
+@login_required
+def get_logged():
+    return render_template('index.html')
+
 @app.route('/web/login', methods = ['GET'])
 def get_login():
     return render_template('login.html')
@@ -336,7 +341,7 @@ def get_creator(num):
 @app.route('/web/newcreator', methods = ['GET'])
 def get_newcreator():
     creators = Creator.query.order_by(Creator.creator_id.asc())
-    return render_template('creator_new.html', creators=creators)
+    return render_template('account.html', creators=creators)
 
 @app.route('/web/newcreator', methods=['POST'])
 def post_newcreator():
@@ -347,6 +352,7 @@ def post_newcreator():
         creator.creator_name = request.form["creator"]
         creator.creator_mail = request.form["mail"]
         creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
+        creator.creator_img = ""
         db.session.add(creator)
         db.session.commit()
 
@@ -358,7 +364,7 @@ def post_newcreator():
 def get_mycreator():
     creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
     creators = Creator.query.order_by(Creator.creator_id.asc())
-    return render_template('creator_edit.html', creator=creator, creators=creators)
+    return render_template('account_detail.html', creator=creator, creators=creators)
 
 @app.route('/web/mailcreator', methods=['POST'])
 @login_required
@@ -370,7 +376,7 @@ def post_mailcreator():
     db.session.commit()
 
     creators = Creator.query.order_by(Creator.creator_id.asc())
-    return render_template('creator_edit.html', creator=creator, creators=creators)
+    return render_template('account_detail.html', creator=creator, creators=creators)
 
 @app.route('/web/passcreator', methods=['POST'])
 @login_required
@@ -381,7 +387,17 @@ def post_passcreator():
     db.session.commit()
 
     creators = Creator.query.order_by(Creator.creator_id.asc())
-    return render_template('creator_edit.html', creator=creator, creators=creators)
+    return render_template('account_detail.html', creator=creator, creators=creators)
+
+@app.route('/web/delcreator', methods=['POST'])
+@login_required
+def post_delcreator():
+    confirmation = request.form["confirm"]
+    if (confirmation == "delete"):
+        Creator.query.filter_by(creator_id=current_user.creator_id).delete()
+        db.session.commit()
+        logout_user()
+    return render_template('index.html')
 
 @app.route('/web/worlds', methods = ['GET'])
 def get_worlds():

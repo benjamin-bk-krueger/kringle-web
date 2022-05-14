@@ -16,7 +16,11 @@
         Description: {{ item.item_desc }}
     </p>
 
-    <img src="{{ item.item_img if (item.item_img!='') else '/static/not_found.jpg' }}" alt="Item Image" width="33%" height="33%">
+    <p>
+        <img src="{{ item.item_img if (item.item_img!='') else '/static/not_found.jpg' }}" alt="Item Image" width="33%" height="33%">
+    </p>
 
-    <p><a href="{{ url_for('get_items', num=item.world_id) }}">All Items</a></p>
+    <p>
+        <a href="{{ url_for('get_items', num=item.world_id) }}">All Items</a>
+    </p>
 {% endblock %}

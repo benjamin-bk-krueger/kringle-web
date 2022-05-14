@@ -4,15 +4,18 @@
     <h2>{% block title %} S3 Storage {% endblock %}</h2>
 
     <p>
-        <h3>Upload your file here:</h3>
+        <h4>Upload your file here:</h4>
         <form method="POST" action="{{ url_for('post_upload') }}" enctype=multipart/form-data>
         <input type=file name=file accept="image/gif, image/jpeg, image/png">
         <input type=submit value=Upload>
         </form>
     </p>
+
+    <br><hr><br>
+    
     <p>
-        <h3>These are your uploaded files:</h3>
-        <p>Click on the options to download or delete them.<br>Below are the markdown snippets.</p>
+        <h4>These are your uploaded files:</h4>
+        Click on the options to download or delete them.<br>Below are the markdown snippets.
         <ul>
         {% for item in contents %}
             <li>

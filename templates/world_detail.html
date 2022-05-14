@@ -9,15 +9,23 @@
         URL: {{ world.world_url }}
     </p>
 
-    <img src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Image" width="33%" height="33%">
+    <p>
+        <img src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Image" width="33%" height="33%">
+    </p>
 
-    <form action="{{ url_for('get_rooms', num=world.world_id) }}" method="GET">
-        <input type="submit" value="Select">
-    </form>
+    <p>
+        <form action="{{ url_for('get_rooms', num=world.world_id) }}" method="GET">
+            <input type="submit" value="Select">
+        </form>
+    </p>
 
-    <form action="{{ url_for('get_mywalkthrough', num=world.world_id) }}" method="GET">
-        <input type="submit" value="Walkthrough">
-    </form>
+    <p>
+        <form action="{{ url_for('get_mywalkthrough', num=world.world_id) }}" method="GET">
+            <input type="submit" value="Walkthrough">
+        </form>
+    </p>
 
-    <p><a href="{{ url_for('get_worlds') }}">All Worlds</a></p>
+    <p>
+        <a href="{{ url_for('get_worlds') }}">All Worlds</a>
+    </p>
 {% endblock %}

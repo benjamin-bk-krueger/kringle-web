@@ -17,5 +17,7 @@
         Description: {{ junction.junction_desc }}
     </p>
 
-    <p><a href="{{ url_for('get_junctions', num=junction.world_id) }}">All Junctions</a></p>
+    <p>
+        <a href="{{ url_for('get_junctions', num=junction.world_id) }}">All Junctions</a>
+    </p>
 {% endblock %}

@@ -9,14 +9,18 @@
 {% endblock %}
 
 {% block content %}
-    <h1>{% block title %} {{ person.person_name }} (#{{ person.person_id }}) {% endblock %}</h1>
+    <h2>{% block title %} {{ person.person_name }} (#{{ person.person_id }}) {% endblock %}</h2>
     
     <p>
         <i>Found in <a href="{{ url_for('get_room', num=person.room_id)}}">Room ID #{{ person.room_id }}</a></i></br>
         Description: {{ person.person_desc }}
     </p>
 
-    <img src="{{ person.person_img if (person.person_img!='') else '/static/not_found.jpg' }}" alt="Person Image" width="33%" height="33%">
+    <p>
+        <img src="{{ person.person_img if (person.person_img!='') else '/static/not_found.jpg' }}" alt="Person Image" width="33%" height="33%">
+    </p>
 
-    <p><a href="{{ url_for('get_persons', num=person.world_id) }}">All Persons</a></p>
+    <p>
+        <a href="{{ url_for('get_persons', num=person.world_id) }}">All Persons</a>
+    </p>
 {% endblock %}
