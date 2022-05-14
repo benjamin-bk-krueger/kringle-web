@@ -13,11 +13,13 @@
 
     <p>
         <i>Found in <a href="{{ url_for('get_room', num=objective.room_id)}}">Room ID #{{ objective.room_id }}</a></i></br>
-        Description: {{ objective.objective_desc }}</br>
-        Difficulty: {{ objective.difficulty }}</br>
-        URL: {{ objective.objective_url }}</br>
-        Supported by: {{ objective.supported_by }}</br>
-        Requires: {{ objective.requires }}
+        <table><tbody>
+            <tr><td width="30%">Description:</td> <td width="70%">{{ objective.objective_desc }}</td></tr>
+            <tr><td>Difficulty:</td> <td>{{ objective.difficulty }}</td></tr>
+            <tr><td>URL:</td> <td>{{ objective.objective_url }}</td></tr>
+            <tr><td>Supported by:</td> <td>{{ objective.supported_by }}</td></tr>
+            <tr><td>Requires:</td> <td>{{ objective.requires }}</td></tr>
+        </tbody></table>
     </p>
 
     <p>

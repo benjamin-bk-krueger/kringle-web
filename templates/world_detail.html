@@ -5,8 +5,10 @@
 
     <p>
         <i>Created by <a href="{{ url_for('get_creator', num=world.creator_id)}}">Creator #{{ world.creator_id }}</a></i></br>
-        Description: {{ world.world_desc }}</br>
-        URL: {{ world.world_url }}
+        <table><tbody>
+            <tr><td width="30%">Description:</td> <td width="70%">{{ world.world_desc }}</td></tr>
+            <tr><td>URL:</td> <td>{{ world.world_url }}</td></tr>
+        </tbody></table>
     </p>
 
     <p>

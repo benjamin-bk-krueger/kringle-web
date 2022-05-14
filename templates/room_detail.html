@@ -13,7 +13,9 @@
         
     <p>
         <i>Found in <a href="{{ url_for('get_world', num=room.world_id)}}">World #{{ room.world_id }}</a></i></br>
-        Description: {{ room.room_desc }}
+        <table><tbody>
+            <tr><td width="30%">Description:</td> <td width="70%">{{ room.room_desc }}</td></tr>
+        </tbody></table>
     </p>
 
     <p>

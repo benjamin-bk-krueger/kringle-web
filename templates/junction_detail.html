@@ -14,7 +14,9 @@
     <p>
         <i>Found in <a href="{{ url_for('get_room', num=junction.room_id)}}">Room ID #{{ junction.room_id }}</a></i></br>
         <i>Targeting <a href="{{ url_for('get_room', num=junction.dest_id)}}">Room ID #{{ junction.dest_id }}</a></i></br>
-        Description: {{ junction.junction_desc }}
+        <table><tbody>
+            <tr><td width="30%">Description:</td> <td width="70%">{{ junction.junction_desc }}</td></tr>
+        </tbody></table>
     </p>
 
     <p>
