@@ -409,6 +409,15 @@ def get_world(num):
     world = World.query.filter_by(world_id=num).first()
     return render_template('world_detail.html', world=world)
 
+@app.route('/web/delworld/<int:num>', methods=['GET'])
+@login_required
+def get_delworld(num):
+    World.query.filter_by(world_id=num).delete()
+    db.session.commit()
+
+    worlds = World.query.order_by(World.world_id.asc())
+    return render_template('world.html', worlds=worlds)
+
 @app.route('/web/rooms/<int:num>', methods = ['GET'])
 def get_rooms(num):
     rooms = Room.query.filter_by(world_id=num).order_by(Room.room_id.asc())

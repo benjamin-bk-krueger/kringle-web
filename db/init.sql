@@ -22,7 +22,7 @@ CREATE TABLE world (
 
 CREATE TABLE room (
     room_id SERIAL PRIMARY KEY,
-    world_id INT REFERENCES world ( world_id ),
+    world_id INT REFERENCES world ( world_id ) ON DELETE CASCADE,
     room_name VARCHAR ( 100 ),
     room_desc VARCHAR ( 1024 ),
     room_img VARCHAR ( 384),
@@ -35,8 +35,8 @@ ON room ( room_name, world_id );
 
 CREATE TABLE item (
     item_id SERIAL PRIMARY KEY,
-    room_id INT REFERENCES room ( room_id ),
-    world_id INT REFERENCES world ( world_id ),
+    room_id INT REFERENCES room ( room_id ) ON DELETE CASCADE,
+    world_id INT REFERENCES world ( world_id ) ON DELETE CASCADE,
     item_name VARCHAR ( 100 ),
     item_desc VARCHAR ( 1024 ),
     item_img VARCHAR ( 384 ),
@@ -49,8 +49,8 @@ ON item ( item_name, world_id );
 
 CREATE TABLE objective (
     objective_id SERIAL PRIMARY KEY,
-    room_id INT REFERENCES room ( room_id ),
-    world_id INT REFERENCES world ( world_id ),
+    room_id INT REFERENCES room ( room_id ) ON DELETE CASCADE,
+    world_id INT REFERENCES world ( world_id ) ON DELETE CASCADE,
     objective_name VARCHAR ( 100 ),
     objective_desc VARCHAR ( 1024 ),
     difficulty INT,
@@ -69,8 +69,8 @@ ON objective ( objective_name, world_id );
 
 CREATE TABLE person (
     person_id SERIAL PRIMARY KEY,
-    room_id INT REFERENCES room ( room_id ),
-    world_id INT REFERENCES world ( world_id),
+    room_id INT REFERENCES room ( room_id ) ON DELETE CASCADE,
+    world_id INT REFERENCES world ( world_id) ON DELETE CASCADE,
     person_name VARCHAR ( 100 ),
     person_desc VARCHAR ( 1024 ),
     person_img VARCHAR ( 384 ),
@@ -83,9 +83,9 @@ ON person ( person_name, room_id );
 
 CREATE TABLE junction (
     junction_id SERIAL PRIMARY KEY,
-    room_id INT REFERENCES room ( room_id ),
-    world_id INT REFERENCES world ( world_id ),
-    dest_id INT REFERENCES room ( room_id ),
+    room_id INT REFERENCES room ( room_id ) ON DELETE CASCADE,
+    world_id INT REFERENCES world ( world_id ) ON DELETE CASCADE,
+    dest_id INT REFERENCES room ( room_id ) ON DELETE CASCADE,
     junction_desc VARCHAR ( 1024 ),
     created timestamp default current_timestamp,
     modified timestamp default current_timestamp
