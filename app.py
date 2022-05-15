@@ -553,12 +553,16 @@ def post_mysolution(num):
 @login_required
 def get_mysolution(num):
     objective = Objective.query.filter_by(objective_id=num).first()
+    if (objective.quest != None):
+        mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+    else:
+        mdquest = ""
 
     solution = Solution.query.filter_by(objective_id=num).filter_by(creator_id=current_user.creator_id).first()
     if (solution != None):
-        return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), number=num, world_id=objective.world_id)
+        return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), mdquest=mdquest, number=num, world_id=objective.world_id)
     else:
-        return render_template('solution_my_detail.html', solution="", number=num, world_id=objective.world_id)
+        return render_template('solution_my_detail.html', solution="", mdquest=mdquest, number=num, world_id=objective.world_id)
 
 @app.route('/web/mywalkthrough/<int:num>', methods=['GET'])
 @login_required

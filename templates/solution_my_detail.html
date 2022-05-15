@@ -12,6 +12,13 @@
     <h2>{% block title %} Single Solution {% endblock %}</h2>
 
     <p>
+        <h4>For following quest:</h4>
+        {{ mdquest|safe }}
+    </p>
+
+    <br><hr><br>
+
+    <p>
         <form action="{{ url_for('post_mysolution', num=number)}}" method="POST">
             <textarea name="solution" cols="50" rows="10">{{ solution }}</textarea>
             <script>
