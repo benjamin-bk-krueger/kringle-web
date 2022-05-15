@@ -36,8 +36,12 @@
     <br><hr><br>
 
     <p>
-        <h4>Master Solution</h4>
-        {{ mdsolution|safe }}
+        <h4>Public Solutions</h4>
+        <ul>
+            {% for solution in solutions %}
+            <li><a href="{{ url_for('get_solution', num=solution.solution_id)}}">Solution (#{{ solution.solution_id  }})</a>, created by <a href="{{ url_for('get_creator', num=solution.creator_id)}}">Creator (#{{ solution.creator_id  }})</a></li>
+            {% endfor %}
+        </ul>
     </p>
 
     <br><hr><br>
@@ -46,9 +50,6 @@
         <h4>Edit Data</h4>
         <form action="{{ url_for('get_quest', num=objective.objective_id)}}">
             <input type="submit" value="Edit Master Quest" />
-        </form>
-        <form action="{{ url_for('get_solution', num=objective.objective_id)}}">
-            <input type="submit" value="Edit Master Solution" />
         </form>
         <form action="{{ url_for('get_mysolution', num=objective.objective_id)}}">
             <input type="submit" value="Edit My Solution" />

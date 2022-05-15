@@ -98,7 +98,6 @@ class Objective(db.Model):
     requires = db.Column (db.VARCHAR(100))
     objective_img = db.Column (db.VARCHAR(384))
     quest = db.Column (db.LargeBinary)
-    solution = db.Column (db.LargeBinary)
 
 class Person(db.Model):
     __tablename__ = "person"
@@ -123,6 +122,7 @@ class Solution(db.Model):
     objective_id = db.Column (db.INTEGER, db.ForeignKey("objective.objective_id"))
     creator_id = db.Column (db.INTEGER, db.ForeignKey("creator.creator_id"))
     solution_text = db.Column (db.LargeBinary)
+    visible = db.Column (db.INTEGER)
 
 # S3 helper functions
 def upload_file(creator_name, file_name, bucket, object_name):
@@ -412,7 +412,7 @@ def get_world(num):
 @app.route('/web/delworld/<int:num>', methods=['GET'])
 @login_required
 def get_delworld(num):
-    World.query.filter_by(world_id=num).delete()
+    World.query.filter_by(world_id=num).filter_by(creator_id=current_user.creator_id).delete()
     db.session.commit()
 
     worlds = World.query.order_by(World.world_id.asc())
@@ -456,16 +456,13 @@ def get_objectives(num):
 @app.route('/web/objective/<int:num>', methods = ['GET'])
 def get_objective(num):
     objective = Objective.query.filter_by(objective_id=num).first()
+    solutions = Solution.query.filter_by(objective_id=num).filter_by(visible=1).order_by(Solution.solution_id.asc())
     if (objective.quest != None):
         mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
     else:
         mdquest = ""
-    if (objective.solution != None):
-        mdsolution = markdown2.markdown(str(bytes(objective.solution), 'utf-8'), extras=['fenced-code-blocks'])
-    else:
-        mdsolution = ""
 
-    return render_template('objective_detail.html', objective=objective, mdquest=mdquest, mdsolution=mdsolution)
+    return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions)
 
 @app.route('/web/junctions/<int:num>', methods = ['GET'])
 def get_junctions(num):
@@ -507,32 +504,19 @@ def get_quest(num):
         objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
         return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
-@app.route('/web/solution/<int:num>', methods=['POST'])
-@login_required
-def post_solution(num):
-    objective = Objective.query.filter_by(objective_id=num).first()
-    room = Room.query.filter_by(room_id=objective.room_id).first()
-    world = World.query.filter_by(world_id=room.world_id).first()
-    id = "solution"
-
-    if (world.creator_id == current_user.creator_id):
-        objective.solution = request.form[id].encode()
-        db.session.commit()
-    objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-    return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
-
 @app.route('/web/solution/<int:num>', methods=['GET'])
 @login_required
 def get_solution(num):
-    objective = Objective.query.filter_by(objective_id=num).first()
-    room = Room.query.filter_by(room_id=objective.room_id).first()
-    world = World.query.filter_by(world_id=room.world_id).first()
+    solution = Solution.query.filter_by(solution_id=num).first()
+    objective = Objective.query.filter_by(objective_id=solution.objective_id).first()
 
-    if (world.creator_id == current_user.creator_id):
-        if (objective.solution != None):
-            return render_template('solution_detail.html', solution=str(bytes(objective.solution), 'utf-8'), number=num, world_id=objective.world_id)
+    if (solution.visible == 1):
+        if (solution.solution_text != None):
+            mdsolution = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'), extras=['fenced-code-blocks'])
+
+            return render_template('solution_detail.html', mdsolution=mdsolution, number=num, world_id=objective.world_id)
         else:
-            return render_template('solution_detail.html', solution="", number=num, world_id=objective.world_id)
+            return render_template('solution_detail.html', mdsolution="", number=num, world_id=objective.world_id)
     else:
         objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
         return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
@@ -552,6 +536,8 @@ def post_mysolution(num):
     solution_new.objective_id = num
     solution_new.creator_id = current_user.creator_id
     solution_new.solution_text = request.form[id].encode()
+    if ('visible' in request.form):
+        solution_new.visible = 1
     db.session.add(solution_new)
     db.session.commit()
 
@@ -569,9 +555,9 @@ def get_mysolution(num):
 
     solution = Solution.query.filter_by(objective_id=num).filter_by(creator_id=current_user.creator_id).first()
     if (solution != None):
-        return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), mdquest=mdquest, number=num, world_id=objective.world_id)
+        return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), visible=solution.visible, mdquest=mdquest, number=num, world_id=objective.world_id)
     else:
-        return render_template('solution_my_detail.html', solution="", mdquest=mdquest, number=num, world_id=objective.world_id)
+        return render_template('solution_my_detail.html', solution="", visible=0, mdquest=mdquest, number=num, world_id=objective.world_id)
 
 @app.route('/web/mywalkthrough/<int:num>', methods=['GET'])
 @login_required

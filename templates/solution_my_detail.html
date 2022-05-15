@@ -20,10 +20,11 @@
 
     <p>
         <form action="{{ url_for('post_mysolution', num=number)}}" method="POST">
-            <textarea name="solution" cols="50" rows="10">{{ solution }}</textarea>
+            <textarea name="solution" cols="50" rows="10">{{ solution }}</textarea><br>
             <script>
                 const easyMDE = new EasyMDE();
             </script>
+            <input type="checkbox" id="visible" name="visible" value="1" {{ 'checked' if (visible==1) }}> <label for="visible">Make solution public</label><br>
             <input type="submit" value="Submit">
         </form>
     </p>

@@ -59,7 +59,6 @@ CREATE TABLE objective (
     requires VARCHAR ( 100 ),
     objective_img VARCHAR ( 384 ),
     quest BYTEA,
-    solution BYTEA,
     created timestamp default current_timestamp,
     modified timestamp default current_timestamp
 );
@@ -99,6 +98,7 @@ CREATE TABLE solution (
     objective_id INT REFERENCES objective ( objective_id ),
     creator_id INT REFERENCES creator ( creator_id ),
     solution_text BYTEA,
+    visible INT default 0,
     created timestamp default current_timestamp,
     modified timestamp default current_timestamp
 );

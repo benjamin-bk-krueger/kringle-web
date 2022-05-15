@@ -12,12 +12,10 @@
     <h2>{% block title %} Single Solution {% endblock %}</h2>
 
     <p>
-        <form action="{{ url_for('post_solution', num=number)}}" method="POST">
-            <textarea name="solution" cols="50" rows="10">{{ solution }}</textarea>
-            <script>
-                const easyMDE = new EasyMDE();
-            </script>
-            <input type="submit" value="Submit">
-        </form>
+        {{ mdsolution|safe }}
+    </p>
+
+    <p>
+        <a href="{{ url_for('get_objectives', num=world_id) }}">All Objectives</a>
     </p>
 {% endblock %}
