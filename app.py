@@ -5,6 +5,7 @@ import boto3                    # for S3 storage, see https://stackabuse.com/fil
 from flask import Flask, request, render_template, jsonify, send_file # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
+from flask_sitemap import Sitemap # sitemap.xml
 from werkzeug.security import generate_password_hash, check_password_hash # password hashing
 
 GAME_DATA = os.environ['HOME'] + "/.kringlecon"     # directory for game data
@@ -24,6 +25,9 @@ app = Flask(__name__,
             static_url_path='/static', 
             static_folder='static',
             template_folder='templates')
+
+# sitemap.xml configuration
+ext = Sitemap(app=app)
 
 # DB configuration
 db = SQLAlchemy()
@@ -261,6 +265,14 @@ def is_authenticated(auth):
         return -1
     else:
         return creator.creator_id
+
+# Sitemap page
+@ext.register_generator
+def index():
+    # Not needed if you set SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS=True
+    yield 'get_index', {}
+    yield 'get_creators', {}
+    yield 'get_worlds', {}
 
 # Flask entry pages
 @app.route('/web/', methods = ['GET'])
