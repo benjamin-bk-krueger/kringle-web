@@ -71,6 +71,7 @@ class World(db.Model):
     world_desc = db.Column (db.VARCHAR(1024))
     world_url = db.Column (db.VARCHAR(256))
     world_img = db.Column (db.VARCHAR(384))
+    visible = db.Column (db.INTEGER)
 
 class Room(db.Model):
     __tablename__ = "room"
@@ -127,6 +128,14 @@ class Solution(db.Model):
     creator_id = db.Column (db.INTEGER, db.ForeignKey("creator.creator_id"))
     solution_text = db.Column (db.LargeBinary)
     visible = db.Column (db.INTEGER)
+
+class Invitation(db.Model):
+    __tablename__ = "invitation"
+    invitation_id = db.Column (db.INTEGER, primary_key=True)
+    invitation_code = db.Column (db.VARCHAR(20))
+    invitation_role = db.Column (db.VARCHAR(20))
+    invitation_forever = db.Column (db.INTEGER)
+    invitation_taken = db.Column (db.INTEGER)
 
 # S3 helper functions
 def upload_file(creator_name, file_name, bucket, object_name):
@@ -357,16 +366,22 @@ def get_newcreator():
 
 @app.route('/web/newcreator', methods=['POST'])
 def post_newcreator():
-    # temporary fix
-    invitation = request.form["invitation"]
-    if (invitation == "heureka"):
-        creator = Creator()
-        creator.creator_name = request.form["creator"]
-        creator.creator_mail = request.form["mail"]
-        creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
-        creator.creator_img = ""
-        db.session.add(creator)
-        db.session.commit()
+    code = request.form["invitation"]
+    invitation  = Invitation.query.filter_by(invitation_code=code).first()
+
+    if (invitation):
+        if (invitation.invitation_forever == 1 or invitation.invitation_taken == 0):
+            creator = Creator()
+            creator.creator_name = request.form["creator"]
+            creator.creator_mail = request.form["mail"]
+            creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
+            creator.creator_role = invitation.invitation_role
+            creator.creator_img = ""
+            db.session.add(creator)
+            db.session.commit()
+
+            invitation.invitation_taken = 1
+            db.session.commit()
 
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
@@ -430,6 +445,20 @@ def get_delworld(num):
     worlds = World.query.order_by(World.world_id.asc())
     return render_template('world.html', worlds=worlds)
 
+@app.route('/web/switchworld/<int:num>', methods=['GET'])
+@login_required
+def get_switchworld(num):
+    world = World.query.filter_by(world_id=num).filter_by(creator_id=current_user.creator_id).first()
+    if (world):
+        if (world.visible == 0):
+            world.visible = 1
+        else:
+            world.visible = 0
+        db.session.commit()
+
+    worlds = World.query.order_by(World.world_id.asc())
+    return render_template('world.html', worlds=worlds)
+
 @app.route('/web/rooms/<int:num>', methods = ['GET'])
 def get_rooms(num):
     rooms = Room.query.filter_by(world_id=num).order_by(Room.room_id.asc())
@@ -469,12 +498,13 @@ def get_objectives(num):
 def get_objective(num):
     objective = Objective.query.filter_by(objective_id=num).first()
     solutions = Solution.query.filter_by(objective_id=num).filter_by(visible=1).order_by(Solution.solution_id.asc())
+    world = World.query.filter_by(world_id=objective.world_id).first()
     if (objective.quest != None):
         mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
     else:
         mdquest = ""
 
-    return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions)
+    return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions, world=world)
 
 @app.route('/web/junctions/<int:num>', methods = ['GET'])
 def get_junctions(num):
@@ -521,8 +551,9 @@ def get_quest(num):
 def get_solution(num):
     solution = Solution.query.filter_by(solution_id=num).first()
     objective = Objective.query.filter_by(objective_id=solution.objective_id).first()
+    world = World.query.filter_by(world_id=objective.world_id).first()
 
-    if (solution.visible == 1):
+    if (solution.visible == 1 and world.visible == 1):
         if (solution.solution_text != None):
             mdsolution = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'), extras=['fenced-code-blocks'])
 
@@ -586,17 +617,21 @@ def get_mywalkthrough(num):
 @app.route('/api/world/<worldname>', methods=['POST'])
 def api_post_world(worldname):
     if (is_authenticated(request.authorization)):
-        world_desc = request.args.get('worlddesc') 
-        world_url = request.args.get('worldurl') 
-        world_img = request.args.get('worldimg')
+        creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
+        if (creator.creator_role == 'creator'):
+            world_desc = request.args.get('worlddesc') 
+            world_url = request.args.get('worldurl') 
+            world_img = request.args.get('worldimg')
 
-        record = json.loads(request.data)
-        with open(GAME_DATA + "/data.json", 'w') as f:
-            f.write(json.dumps(record, indent=4))
-        # purge_db()
-        upload_file("world", GAME_DATA + "/data.json", BUCKET_PRIVATE, worldname + ".world")
-        i = init_world(GAME_DATA + "/data.json", request.authorization['username'], worldname, world_desc, world_url, world_img)
-        return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
+            record = json.loads(request.data)
+            with open(GAME_DATA + "/data.json", 'w') as f:
+                f.write(json.dumps(record, indent=4))
+            # purge_db()
+            upload_file("world", GAME_DATA + "/data.json", BUCKET_PRIVATE, worldname + ".world")
+            i = init_world(GAME_DATA + "/data.json", request.authorization['username'], worldname, world_desc, world_url, world_img)
+            return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
+        else:
+            return jsonify({'error': 'insufficient permissions'})
     else:
         return jsonify({'error': 'wrong credentials'})
 

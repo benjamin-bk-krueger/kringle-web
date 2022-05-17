@@ -38,9 +38,13 @@
     <p>
         <h4>Public Solutions</h4>
         <ul>
-            {% for solution in solutions %}
-            <li><a href="{{ url_for('get_solution', num=solution.solution_id)}}">Solution (#{{ solution.solution_id  }})</a>, created by <a href="{{ url_for('get_creator', num=solution.creator_id)}}">Creator (#{{ solution.creator_id  }})</a></li>
-            {% endfor %}
+            {% if world.visible == 1 %}
+                {% for solution in solutions %}
+                <li><a href="{{ url_for('get_solution', num=solution.solution_id)}}">Solution (#{{ solution.solution_id  }})</a>, created by <a href="{{ url_for('get_creator', num=solution.creator_id)}}">Creator (#{{ solution.creator_id  }})</a></li>
+                {% endfor %}
+            {% else %}
+                Solutions are not visible as this world is not public currently.
+            {% endif %}
         </ul>
     </p>
 

@@ -8,6 +8,7 @@
         <table><tbody>
             <tr><td width="30%">Description:</td> <td width="70%">{{ world.world_desc }}</td></tr>
             <tr><td>URL:</td> <td>{{ world.world_url }}</td></tr>
+            <tr><td>Public:</td> <td>{{ 'Yes' if (world.visible == 1) else 'No' }}</td></tr>
         </tbody></table>
     </p>
 
@@ -24,6 +25,12 @@
     <p>
         <form action="{{ url_for('get_mywalkthrough', num=world.world_id) }}" method="GET">
             <input type="submit" value="Walkthrough">
+        </form>
+    </p>
+
+    <p>
+        <form action="{{ url_for('get_switchworld', num=world.world_id) }}" method="GET">
+            <input type="submit" value="Switch Visibility">
         </form>
     </p>
 

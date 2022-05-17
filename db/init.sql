@@ -16,6 +16,7 @@ CREATE TABLE world (
     world_desc VARCHAR ( 1024 ),
     world_url VARCHAR ( 256 ),
     world_img VARCHAR ( 384 ),
+    visible INT default 0,
     created timestamp default current_timestamp,
     modified timestamp default current_timestamp
 );
@@ -106,6 +107,14 @@ CREATE TABLE solution (
 CREATE UNIQUE INDEX idx_solution_creator
 ON solution ( objective_id, creator_id );
 
+CREATE TABLE invitation (
+    invitation_id SERIAL PRIMARY KEY,
+    invitation_code VARCHAR ( 20 ) UNIQUE NOT NULL,
+    invitation_role VARCHAR ( 20 ) NOT NULL,
+    invitation_forever INT default 0,
+    invitation_taken INT default 0
+);
+
 CREATE OR REPLACE FUNCTION update_modified_column()   
 RETURNS TRIGGER AS $$
 BEGIN
@@ -122,3 +131,7 @@ CREATE TRIGGER update_objective_modtime BEFORE UPDATE ON objective FOR EACH ROW 
 CREATE TRIGGER update_person_modtime BEFORE UPDATE ON person FOR EACH ROW EXECUTE PROCEDURE  update_modified_column();
 CREATE TRIGGER update_junction_modtime BEFORE UPDATE ON junction FOR EACH ROW EXECUTE PROCEDURE  update_modified_column();
 CREATE TRIGGER update_solution_modtime BEFORE UPDATE ON solution FOR EACH ROW EXECUTE PROCEDURE  update_modified_column();
+
+-- To be removed at a later stage
+INSERT INTO invitation(invitation_code, invitation_role, invitation_forever) VALUES ('heureka', 'creator', 0);
+INSERT INTO invitation(invitation_code, invitation_role, invitation_forever) VALUES ('sunshine', 'user', 1);
