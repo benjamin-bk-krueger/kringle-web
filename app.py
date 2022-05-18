@@ -349,6 +349,18 @@ def get_delete(creator_name, filename):
     return render_template('storage.html', contents=contents)
 
 # Flask HTML views to read and modify the database contents
+@app.route('/web/stats', methods = ['GET'])
+def get_stats():
+    creatorcount = Creator.query.count()
+    worldcount = World.query.count()
+    roomcount = Room.query.count()
+    itemcount = Item.query.count()
+    personcount = Person.query.count()
+    objectivecount = Objective.query.count()
+    junctioncount = Junction.query.count()
+
+    return render_template('stats.html', creatorcount=creatorcount, worldcount=worldcount, roomcount=roomcount, itemcount=itemcount, personcount=personcount, objectivecount=objectivecount, junctioncount=junctioncount)
+
 @app.route('/web/creators', methods = ['GET'])
 def get_creators():
     creators = Creator.query.order_by(Creator.creator_id.asc())

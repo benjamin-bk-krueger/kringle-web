@@ -1,0 +1,17 @@
+{% extends 'base_init.html' %}
+
+{% block content %}
+    <h2>{% block title %} Stats {% endblock %}</h2>
+
+    <p>
+        <ul>
+            <li>Creator count: {{ creatorcount }}</li>
+            <li>World count: {{ worldcount }}</li>
+            <li>Room count: {{ roomcount }}</li>
+            <li>Item count: {{ itemcount }}</li>
+            <li>Person count: {{ personcount }}</li>
+            <li>Objective count: {{ objectivecount }}</li>
+            <li>Junction count: {{ junctioncount }}</li>
+        </ul>
+    </p>    
+{% endblock %}
