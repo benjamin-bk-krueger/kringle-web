@@ -7,6 +7,7 @@ from flask_login import UserMixin, LoginManager, login_user, logout_user, login_
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
 from flask_sitemap import Sitemap # sitemap.xml
 from werkzeug.security import generate_password_hash, check_password_hash # password hashing
+from werkzeug.utils import secure_filename
 
 GAME_DATA = os.environ['HOME'] + "/.kringlecon"     # directory for game data
 POSTGRES_URL = os.environ['POSTGRES_URL']           # DB connection data
@@ -334,7 +335,7 @@ def get_storage():
 @login_required
 def post_upload():
     f = request.files['file']
-    f.save(os.path.join(UPLOAD_FOLDER, f.filename))
+    f.save(os.path.join(UPLOAD_FOLDER, secure_filename(f.filename)))
     upload_file(current_user.creator_name, f"{UPLOAD_FOLDER}/{f.filename}", BUCKET_PUBLIC, f.filename)
 
     contents = list_files(current_user.creator_name, BUCKET_PUBLIC)
@@ -343,7 +344,7 @@ def post_upload():
 @app.route("/web/download/<creator_name>/<filename>", methods=['GET'])
 @login_required
 def get_download(creator_name, filename):
-    output = download_file(creator_name, filename, BUCKET_PUBLIC)
+    output = download_file(creator_name, secure_filename(filename), BUCKET_PUBLIC)
 
     return send_file(output, as_attachment=True)
 
@@ -689,7 +690,7 @@ def api_post_world(worldname):
 
 @app.route('/api/world/<worldname>', methods=['GET'])
 def api_get_world(worldname):
-    output = download_file("world", worldname + ".world", BUCKET_PRIVATE)
+    output = download_file("world", secure_filename(worldname) + ".world", BUCKET_PRIVATE)
     return send_file(output)
 
 @app.route('/api/room/<int:num>', methods=['POST'])
