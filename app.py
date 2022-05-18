@@ -137,6 +137,13 @@ class Invitation(db.Model):
     invitation_forever = db.Column (db.INTEGER)
     invitation_taken = db.Column (db.INTEGER)
 
+class Voting(db.Model):
+    __tablename__ = "voting"
+    voting_id = db.Column (db.INTEGER, primary_key=True)
+    creator_id = db.Column (db.INTEGER, db.ForeignKey("creator.creator_id"))
+    solution_id = db.Column (db.INTEGER, db.ForeignKey("solution.solution_id"))
+    rating = db.Column (db.INTEGER)
+
 # S3 helper functions
 def upload_file(creator_name, file_name, bucket, object_name):
     s3_client = boto3.client('s3', endpoint_url=S3_ENDPOINT)
@@ -511,12 +518,22 @@ def get_objective(num):
     objective = Objective.query.filter_by(objective_id=num).first()
     solutions = Solution.query.filter_by(objective_id=num).filter_by(visible=1).order_by(Solution.solution_id.asc())
     world = World.query.filter_by(world_id=objective.world_id).first()
+    
+    votingall = dict()
+    creatorall = dict()
+    for solution in solutions:
+        votingcount = Voting.query.filter_by(solution_id=solution.solution_id).filter_by(rating=1).count()
+        creatorname = Creator.query.filter_by(creator_id=solution.creator_id).first().creator_name
+        votingall[solution.solution_id]=votingcount
+        creatorall[solution.solution_id]=creatorname
+
+
     if (objective.quest != None):
         mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
     else:
         mdquest = ""
 
-    return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions, world=world)
+    return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions, world=world, votingall=votingall, creatorall=creatorall)
 
 @app.route('/web/junctions/<int:num>', methods = ['GET'])
 def get_junctions(num):
@@ -575,6 +592,29 @@ def get_solution(num):
     else:
         objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
         return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+
+@app.route('/web/likesolution/<int:num>', methods=['GET'])
+@login_required
+def get_likesolution(num):
+    voting = Voting.query.filter_by(solution_id=num).filter_by(creator_id=current_user.creator_id).first()
+    solution = Solution.query.filter_by(solution_id=num).first()
+    objective = Objective.query.filter_by(objective_id=solution.objective_id).first()
+    if (voting):
+        if (voting.rating == 0):
+            voting.rating = 1
+        else:
+            voting.rating = 0
+        db.session.commit()
+    else:
+        voting = Voting()
+        voting.creator_id = current_user.creator_id
+        voting.solution_id = num
+        voting.rating = 1
+        db.session.add(voting)
+        db.session.commit()
+
+    objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
+    return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
 
 @app.route('/web/mysolution/<int:num>', methods=['POST'])
 @login_required

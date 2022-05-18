@@ -112,8 +112,22 @@ CREATE TABLE invitation (
     invitation_code VARCHAR ( 20 ) UNIQUE NOT NULL,
     invitation_role VARCHAR ( 20 ) NOT NULL,
     invitation_forever INT default 0,
-    invitation_taken INT default 0
+    invitation_taken INT default 0,
+    created timestamp default current_timestamp,
+    modified timestamp default current_timestamp
 );
+
+CREATE TABLE voting (
+    voting_id SERIAL PRIMARY KEY,
+    creator_id INT REFERENCES creator ( creator_id ),
+    solution_id INT REFERENCES solution ( solution_id ),
+    rating INT default 1,
+    created timestamp default current_timestamp,
+    modified timestamp default current_timestamp
+);
+
+CREATE UNIQUE INDEX idx_voting_creator
+ON voting ( creator_id, solution_id );
 
 CREATE OR REPLACE FUNCTION update_modified_column()   
 RETURNS TRIGGER AS $$

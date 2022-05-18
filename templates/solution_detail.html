@@ -1,4 +1,4 @@
-{% extends 'base_editor.html' %}
+{% extends 'base.html' %}
 
 {% block links %}
     <a href="{{ url_for('get_rooms', num=world_id) }}">Rooms</a>
@@ -13,6 +13,12 @@
 
     <p>
         {{ mdsolution|safe }}
+    </p>
+
+    <p>
+        <form action="{{ url_for('get_likesolution', num=number) }}" method="GET">
+            <input type="submit" value="Like / Unlike">
+        </form>
     </p>
 
     <p>

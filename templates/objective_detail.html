@@ -40,7 +40,7 @@
         <ul>
             {% if world.visible == 1 %}
                 {% for solution in solutions %}
-                <li><a href="{{ url_for('get_solution', num=solution.solution_id)}}">Solution (#{{ solution.solution_id  }})</a>, created by <a href="{{ url_for('get_creator', num=solution.creator_id)}}">Creator (#{{ solution.creator_id  }})</a></li>
+                <li><a href="{{ url_for('get_solution', num=solution.solution_id)}}">Solution (#{{ solution.solution_id  }})</a>, created by <a href="{{ url_for('get_creator', num=solution.creator_id)}}">Creator (#{{ solution.creator_id  }})</a> - {{ creatorall[solution.solution_id] }}, votes: {{ votingall[solution.solution_id] }}</li>
                 {% endfor %}
             {% else %}
                 Solutions are not visible as this world is not public currently.
