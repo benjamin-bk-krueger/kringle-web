@@ -2,24 +2,25 @@ import json                     # for JSON file handling and parsing
 import os                       # for direct file system and environment access
 import markdown2                # for markdown parsing
 import boto3                    # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
+import bleach                   # for user input sanitization
 from flask import Flask, request, render_template, jsonify, send_file # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
-from flask_sitemap import Sitemap # sitemap.xml
-from werkzeug.security import generate_password_hash, check_password_hash # password hashing
-from werkzeug.utils import secure_filename
+from flask_sitemap import Sitemap # to generate sitemap.xml
+from werkzeug.security import generate_password_hash, check_password_hash # for password hashing
+from werkzeug.utils import secure_filename # to prevent path traversal attacks
 
-GAME_DATA = os.environ['HOME'] + "/.kringlecon"     # directory for game data
-POSTGRES_URL = os.environ['POSTGRES_URL']           # DB connection data
-POSTGRES_USER = os.environ['POSTGRES_USER'] 
-POSTGRES_PW = os.environ['POSTGRES_PW'] 
-POSTGRES_DB = os.environ['POSTGRES_DB'] 
-SECRET_KEY = os.environ['SECRET_KEY']
-S3_ENDPOINT = os.environ['S3_ENDPOINT']
-UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"
+# the app configuration is done via environmental variables
+POSTGRES_URL    = os.environ['POSTGRES_URL']           # DB connection data
+POSTGRES_USER   = os.environ['POSTGRES_USER'] 
+POSTGRES_PW     = os.environ['POSTGRES_PW'] 
+POSTGRES_DB     = os.environ['POSTGRES_DB'] 
+SECRET_KEY      = os.environ['SECRET_KEY']
+S3_ENDPOINT     = os.environ['S3_ENDPOINT']             # where S3 buckets are located
+BUCKET_PUBLIC   = os.environ['BUCKET_PUBLIC']
+BUCKET_PRIVATE  = os.environ['BUCKET_PRIVATE']
+UPLOAD_FOLDER   = os.environ['HOME'] + "/uploads"       # directory for game data
 DOWNLOAD_FOLDER = os.environ['HOME'] + "/downloads"
-BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
-BUCKET_PRIVATE = os.environ['BUCKET_PRIVATE']
 
 # Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
@@ -296,6 +297,10 @@ def index():
 def get_index():
     return render_template('index.html')
 
+@app.route('/web/error', methods = ['GET'])
+def get_error():
+    return render_template('error.html')
+
 @app.route('/web/logged', methods = ['GET'])
 @login_required
 def get_logged():
@@ -359,30 +364,34 @@ def get_delete(creator_name, filename):
 # Flask HTML views to read and modify the database contents
 @app.route('/web/stats', methods = ['GET'])
 def get_stats():
-    creatorcount = Creator.query.count()
-    worldcount = World.query.count()
-    roomcount = Room.query.count()
-    itemcount = Item.query.count()
-    personcount = Person.query.count()
-    objectivecount = Objective.query.count()
-    junctioncount = Junction.query.count()
+    counts = dict()
+    counts['creator'] = Creator.query.count()
+    counts['world'] = World.query.count()
+    counts['room'] = Room.query.count()
+    counts['item'] = Item.query.count()
+    counts['person'] = Person.query.count()
+    counts['objective'] = Objective.query.count()
+    counts['junction'] = Junction.query.count()
+    counts['solution'] = Solution.query.count()
 
-    return render_template('stats.html', creatorcount=creatorcount, worldcount=worldcount, roomcount=roomcount, itemcount=itemcount, personcount=personcount, objectivecount=objectivecount, junctioncount=junctioncount)
+    return render_template('stats.html', counts=counts)
 
 @app.route('/web/creators', methods = ['GET'])
 def get_creators():
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
 
-@app.route('/web/creator/<int:num>', methods = ['GET'])
-def get_creator(num):
-    creator = Creator.query.filter_by(creator_id=num).first()
-    return render_template('creator_detail.html', creator=creator)
+@app.route('/web/creator/<int:creator_id>', methods = ['GET'])
+def get_creator(creator_id):
+    creator = Creator.query.filter_by(creator_id=creator_id).first()
+    if (creator):
+        return render_template('creator_detail.html', creator=creator)
+    else:
+        return render_template('error.html')
 
 @app.route('/web/newcreator', methods = ['GET'])
 def get_newcreator():
-    creators = Creator.query.order_by(Creator.creator_id.asc())
-    return render_template('account.html', creators=creators)
+    return render_template('account.html')
 
 @app.route('/web/newcreator', methods=['POST'])
 def post_newcreator():
@@ -392,8 +401,8 @@ def post_newcreator():
     if (invitation):
         if (invitation.invitation_forever == 1 or invitation.invitation_taken == 0):
             creator = Creator()
-            creator.creator_name = request.form["creator"]
-            creator.creator_mail = request.form["mail"]
+            creator.creator_name = bleach.clean(request.form["creator"])
+            creator.creator_mail = bleach.clean(request.form["mail"])
             creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
             creator.creator_role = invitation.invitation_role
             creator.creator_img = ""
@@ -451,10 +460,13 @@ def get_worlds():
     worlds = World.query.order_by(World.world_id.asc())
     return render_template('world.html', worlds=worlds)
 
-@app.route('/web/world/<int:num>', methods = ['GET'])
-def get_world(num):
-    world = World.query.filter_by(world_id=num).first()
-    return render_template('world_detail.html', world=world)
+@app.route('/web/world/<int:world_id>', methods = ['GET'])
+def get_world(world_id):
+    world = World.query.filter_by(world_id=world_id).first()
+    if (world):
+        return render_template('world_detail.html', world=world)
+    else:
+        return render_template('error.html')
 
 @app.route('/web/delworld/<int:num>', methods=['GET'])
 @login_required
@@ -660,11 +672,11 @@ def get_mysolution(num):
 def get_mywalkthrough(num):
     # objective = Objective.query.filter_by(objective_id=num).first()
 
-    with open(GAME_DATA + "/walkthrough.md", 'w') as f:
+    with open(DOWNLOAD_FOLDER + "/walkthrough.md", 'w') as f:
         f.write("Markdown")
 
-    # return send_file(GAME_DATA + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
-    return send_file(GAME_DATA + "/walkthrough.md", attachment_filename='walkthrough.md')
+    # return send_file(DOWNLOAD_FOLDER + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
+    return send_file(DOWNLOAD_FOLDER + "/walkthrough.md", attachment_filename='walkthrough.md')
 
 # enable a REST API to modify the database contents
 @app.route('/api/world/<worldname>', methods=['POST'])
@@ -677,11 +689,11 @@ def api_post_world(worldname):
             world_img = request.args.get('worldimg')
 
             record = json.loads(request.data)
-            with open(GAME_DATA + "/data.json", 'w') as f:
+            with open(UPLOAD_FOLDER + "/data.json", 'w') as f:
                 f.write(json.dumps(record, indent=4))
             # purge_db()
-            upload_file("world", GAME_DATA + "/data.json", BUCKET_PRIVATE, worldname + ".world")
-            i = init_world(GAME_DATA + "/data.json", request.authorization['username'], worldname, world_desc, world_url, world_img)
+            upload_file("world", UPLOAD_FOLDER + "/data.json", BUCKET_PRIVATE, worldname + ".world")
+            i = init_world(UPLOAD_FOLDER + "/data.json", request.authorization['username'], worldname, world_desc, world_url, world_img)
             return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
         else:
             return jsonify({'error': 'insufficient permissions'})

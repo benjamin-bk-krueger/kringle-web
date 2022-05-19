@@ -4,7 +4,7 @@
     <h2>{% block title %} {{ world.world_name }} (#{{ world.world_id }}) {% endblock %}</h2>
 
     <p>
-        <i>Created by <a href="{{ url_for('get_creator', num=world.creator_id)}}">Creator #{{ world.creator_id }}</a></i></br>
+        <i>Created by <a href="{{ url_for('get_creator', creator_id=world.creator_id)}}">Creator #{{ world.creator_id }}</a></i></br>
         <table><tbody>
             <tr><td width="30%">Description:</td> <td width="70%">{{ world.world_desc }}</td></tr>
             <tr><td>URL:</td> <td>{{ world.world_url }}</td></tr>
