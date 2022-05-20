@@ -4,6 +4,9 @@
     <h2>{% block title %} All Worlds {% endblock %}</h2>
 
     <p>
+        {% if worlds.count() == 0 %}
+        No entries found.
+        {% endif %}
         <ul>
             {% for world in worlds %}
             <li><a href="{{ url_for('get_world', world_id=world.world_id)}}">{{ world.world_name }} (#{{ world.world_id }})</a></li>

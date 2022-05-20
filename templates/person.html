@@ -12,6 +12,9 @@
     <h2>{% block title %} All Persons {% endblock %}</h2>
 
     <p>
+        {% if persons.count() == 0 %}
+        No entries found.
+        {% endif %}
         <ul>
             {% for person in persons %}
             <li><a href="{{ url_for('get_person', person_id=person.person_id)}}">{{ person.person_name }} (#{{ person.person_id }})</a></li>

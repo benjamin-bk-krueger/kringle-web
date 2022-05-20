@@ -12,6 +12,9 @@
     <h2>{% block title %} All Rooms {% endblock %}</h2>
 
     <p>
+        {% if rooms.count() == 0 %}
+        No entries found.
+        {% endif %}
         <ul>
             {% for room in rooms %}
             <li><a href="{{ url_for('get_room', room_id=room.room_id)}}">{{ room.room_name }} (#{{ room.room_id }})</a></li>

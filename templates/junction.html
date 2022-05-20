@@ -12,6 +12,9 @@
     <h2>{% block title %} All Junctions {% endblock %}</h2>
 
     <p>
+        {% if junctions.count() == 0 %}
+        No entries found.
+        {% endif %}
         <ul>
             {% for junction in junctions %}
             <li><a href="{{ url_for('get_junction', junction_id=junction.junction_id)}}">Junction #{{ junction.junction_id }}</a></li>

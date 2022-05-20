@@ -2,7 +2,7 @@ import json                     # for JSON file handling and parsing
 import os                       # for direct file system and environment access
 import markdown2                # for markdown parsing
 import boto3                    # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
-from flask import Flask, request, render_template, jsonify, send_file, escape # most important Flask modules
+from flask import Flask, request, render_template, jsonify, send_file, escape, redirect, url_for # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
 from flask_sitemap import Sitemap # to generate sitemap.xml
@@ -40,7 +40,6 @@ db.init_app(app)
 
 # Login Manager configuration
 # See https://www.digitalocean.com/community/tutorials/how-to-add-authentication-to-your-app-with-flask-login#step-2-creating-the-main-app-file
-# See https://www.educba.com/flask-authentication/?source=leftnav
 login_manager = LoginManager()
 login_manager.login_view = 'get_login' # show this page if a login is required
 login_manager.init_app(app)
@@ -199,16 +198,16 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
     for i in data["rooms"]:
         room = Room()
         room.world_id = world.world_id
-        room.room_name = i["name"]
-        room.room_desc = i["description"]
-        room.room_img = i["image"]
+        room.room_name = escape(i["name"])
+        room.room_desc = escape(i["description"])
+        room.room_img = escape(i["image"])
         db.session.add(room)
         db.session.commit()
         counter_loaded = counter_loaded + 1
 
     # load all other elements and check foreign key relationship
     for i in data["rooms"]:
-        room_name = i["name"]
+        room_name = escape(i["name"])
         room = Room.query.filter_by(room_name=room_name).filter_by(world_id=world.world_id).first()
 
         # load all items in the room
@@ -217,9 +216,9 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 item = Item()
                 item.room_id = room.room_id
                 item.world_id = world.world_id
-                item.item_name = j["name"]
-                item.item_desc = j["description"]
-                item.item_img = j["image"]
+                item.item_name = escape(j["name"])
+                item.item_desc = escape(j["description"])
+                item.item_img = escape(j["image"])
                 db.session.add(item)
                 db.session.commit()
                 counter_loaded = counter_loaded + 1
@@ -243,13 +242,13 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 objective = Objective()
                 objective.room_id = room.room_id
                 objective.world_id = world.world_id
-                objective.objective_name = j["name"]
-                objective.objective_desc = j["description"]
-                objective.difficulty = j["difficulty"]
-                objective.objective_url = j["url"]
-                objective.supported_by = j["supportedby"]
-                objective.requires = j["requires"]
-                objective.objective_img = j["image"]
+                objective.objective_name = escape(j["name"])
+                objective.objective_desc = escape(j["description"])
+                objective.difficulty = escape(j["difficulty"])
+                objective.objective_url = escape(j["url"])
+                objective.supported_by = escape(j["supportedby"])
+                objective.requires = escape(j["requires"])
+                objective.objective_img = escape(j["image"])
                 db.session.add(objective)
                 db.session.commit()
                 counter_loaded = counter_loaded + 1
@@ -263,7 +262,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
 
                 destroom = Room.query.filter_by(world_id=world.world_id).filter_by(room_name=j["destination"]).first()
                 junction.dest_id = destroom.room_id
-                junction.junction_desc = j["description"]
+                junction.junction_desc = escape(j["description"])
                 db.session.add(junction)
                 db.session.commit()
                 counter_loaded = counter_loaded + 1
@@ -302,7 +301,7 @@ def get_error():
 @app.route('/web/logged', methods = ['GET'])
 @login_required
 def get_logged():
-    return render_template('index.html')
+    return redirect(url_for('get_index'))
 
 @app.route('/web/login', methods = ['GET'])
 def get_login():
@@ -316,15 +315,15 @@ def post_login():
     creator = Creator.query.filter_by(creator_name=creator_name).first()
 
     if not creator or not check_password_hash(creator.creator_pass, creator_pass):
-        return render_template('login.html')
+        return redirect(url_for('get_login'))
     else:
         login_user(creator, remember=remember)
-        return render_template('index.html')
+        return redirect(url_for('get_index'))
 
 @app.route('/web/logout', methods = ['GET'])
 def get_logout():
     logout_user()
-    return render_template('index.html')
+    return redirect(url_for('get_index'))
 
 # S3 storage pages
 @app.route("/web/storage", methods=['GET'])
@@ -345,8 +344,7 @@ def post_upload():
     f.save(local_file)
     upload_file(BUCKET_PUBLIC, remote_file, local_file)
 
-    contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
-    return render_template('storage.html', contents=contents)
+    return redirect(url_for('get_storage'))
 
 @app.route("/web/download/<string:creatorname>/<string:filename>", methods=['GET'])
 @login_required
@@ -366,8 +364,7 @@ def get_delete(creatorname, filename):
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
     delete_file(BUCKET_PUBLIC, remote_file)
 
-    contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
-    return render_template('storage.html', contents=contents)
+    return redirect(url_for('get_storage'))
 
 # Flask HTML views to read and modify the database contents
 @app.route('/web/stats', methods = ['GET'])
@@ -420,8 +417,7 @@ def post_newcreator():
             invitation.invitation_taken = 1
             db.session.commit()
 
-    creators = Creator.query.order_by(Creator.creator_id.asc())
-    return render_template('creator.html', creators=creators)
+    return redirect(url_for('get_creators'))
 
 @app.route('/web/mycreator', methods = ['GET'])
 @login_required
@@ -441,7 +437,7 @@ def post_mailcreator():
         creator.creator_img = escape(request.form["image"])
         db.session.commit()
         
-        return render_template('account_detail.html', creator=creator)
+        return redirect(url_for('get_mycreator'))
     else:
         return render_template('error.html')
 
@@ -453,7 +449,7 @@ def post_passcreator():
         creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
         db.session.commit()
 
-        return render_template('account_detail.html', creator=creator)
+        return redirect(url_for('get_mycreator'))
     else:
         return render_template('error.html')
 
@@ -465,7 +461,7 @@ def post_delcreator():
         Creator.query.filter_by(creator_id=current_user.creator_id).delete()
         db.session.commit()
         logout_user()
-    return render_template('index.html')
+    return redirect(url_for('get_index'))
 
 @app.route('/web/worlds', methods = ['GET'])
 def get_worlds():
@@ -486,8 +482,7 @@ def get_delworld(world_id):
     World.query.filter_by(world_id=world_id).filter_by(creator_id=current_user.creator_id).delete()
     db.session.commit()
 
-    worlds = World.query.order_by(World.world_id.asc())
-    return render_template('world.html', worlds=worlds)
+    return redirect(url_for('get_worlds'))
 
 @app.route('/web/switchworld/<int:world_id>', methods=['GET'])
 @login_required
@@ -500,8 +495,7 @@ def get_switchworld(world_id):
             world.visible = 1
         db.session.commit()
         
-        worlds = World.query.order_by(World.world_id.asc())
-        return render_template('world_detail.html', world=world)
+        return redirect(url_for('get_world', world_id=world_id))
     else:
         return render_template('error.html')
 
@@ -597,8 +591,7 @@ def post_quest(objective_id):
         if (world.creator_id == current_user.creator_id):
             objective.quest = request.form["quest"].encode()
             db.session.commit()
-        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+        return redirect(url_for('get_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
 
@@ -616,8 +609,7 @@ def get_quest(objective_id):
             else:
                 return render_template('quest_detail.html', quest="", objective_id=objective_id, world_id=objective.world_id)
         else:
-            objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-            return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+            return redirect(url_for('get_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
 
@@ -637,8 +629,7 @@ def get_solution(solution_id):
             else:
                 return render_template('solution_detail.html', mdsolution="", solution_id=solution_id, world_id=objective.world_id)
         else:
-            objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-            return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+            return redirect(url_for('get_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
 
@@ -663,8 +654,7 @@ def get_likesolution(solution_id):
             db.session.add(voting)
             db.session.commit()
 
-        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+        return redirect(url_for('get_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
 
@@ -687,8 +677,7 @@ def post_mysolution(objective_id):
         db.session.add(solution_new)
         db.session.commit()
 
-        objectives = Objective.query.filter_by(world_id=objective.world_id).order_by(Objective.objective_id.asc())
-        return render_template('objective.html', objectives=objectives, world_id=objective.world_id)
+        return redirect(url_for('get_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
 
@@ -733,11 +722,12 @@ def api_post_world(worldname):
             world_img = escape(request.args.get('worldimg'))
 
             record = json.loads(request.data)
-            with open(UPLOAD_FOLDER + "/data.json", 'w') as f:
+            inputfile = f"{UPLOAD_FOLDER}/{secure_filename(worldname)}.world"
+            objectfile = f"world/{secure_filename(worldname)}.world"
+            with open(inputfile, 'w') as f:
                 f.write(json.dumps(record, indent=4))
-            # purge_db()
-            upload_file(BUCKET_PRIVATE, UPLOAD_FOLDER + "/data.json", UPLOAD_FOLDER + "/data.json")
-            i = init_world(UPLOAD_FOLDER + "/data.json", request.authorization['username'], worldname, world_desc, world_url, world_img)
+            upload_file(BUCKET_PRIVATE, objectfile, inputfile)
+            i = init_world(inputfile, request.authorization['username'], worldname, world_desc, world_url, world_img)
             return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
         else:
             return jsonify({'error': 'insufficient permissions'})
@@ -746,7 +736,9 @@ def api_post_world(worldname):
 
 @app.route('/api/world/<string:worldname>', methods=['GET'])
 def api_get_world(worldname):
-    output = download_file(BUCKET_PRIVATE, f"world/{secure_filename(worldname)}.world", f"{DOWNLOAD_FOLDER}/{secure_filename(worldname)}.world")
+    outputfile = f"{DOWNLOAD_FOLDER}/{secure_filename(worldname)}.world"
+    objectfile = f"world/{secure_filename(worldname)}.world"
+    output = download_file(BUCKET_PRIVATE, objectfile, outputfile)
     if (output):
         return send_file(output)
     else:
@@ -758,15 +750,18 @@ def api_post_room(room_id):
     if (creator_id > 0):
         data = json.loads(request.data)
         room = Room.query.filter_by(room_id=room_id).first()
-        world = World.query.filter_by(world_id=room.world_id).first()
-        if (creator_id == world.creator_id):
-            room.room_name = escape(data["name"])
-            room.room_desc = escape(data["description"])
-            room.room_img = escape(data["image"])
-            db.session.commit()
-            return jsonify({'success': f'room {data["name"]} updated'})
+        if (room):
+            world = World.query.filter_by(world_id=room.world_id).first()
+            if (creator_id == world.creator_id):
+                room.room_name = escape(data["name"])
+                room.room_desc = escape(data["description"])
+                room.room_img = escape(data["image"])
+                db.session.commit()
+                return jsonify({'success': f'room {data["name"]} updated'})
+            else:
+                return jsonify({'error': 'not authorized for object'})
         else:
-            return jsonify({'error': 'not authorized for object'})
+            return jsonify({'error': 'element not found'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -784,16 +779,19 @@ def api_post_item(item_id):
     if (creator_id > 0):
         data = json.loads(request.data)
         item = Item.query.filter_by(item_id=item_id).first()
-        room = Room.query.filter_by(room_id=item.room_id).first()
-        world = World.query.filter_by(world_id=room.world_id).first()
-        if (creator_id == world.creator_id):
-            item.item_name = escape(data["name"])
-            item.item_desc = escape(data["description"])
-            item.item_img = escape(data["image"])
-            db.session.commit()
-            return jsonify({'success': f'item {data["name"]} updated'})
+        if (item):
+            room = Room.query.filter_by(room_id=item.room_id).first()
+            world = World.query.filter_by(world_id=room.world_id).first()
+            if (creator_id == world.creator_id):
+                item.item_name = escape(data["name"])
+                item.item_desc = escape(data["description"])
+                item.item_img = escape(data["image"])
+                db.session.commit()
+                return jsonify({'success': f'item {data["name"]} updated'})
+            else:
+                return jsonify({'error': 'not authorized for object'})
         else:
-            return jsonify({'error': 'not authorized for object'})
+            return jsonify({'error': 'element not found'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -811,16 +809,19 @@ def api_post_person(person_id):
     if (creator_id > 0):
         data = json.loads(request.data)
         person = Person.query.filter_by(person_id=person_id).first()
-        room = Room.query.filter_by(room_id=person.room_id).first()
-        world = World.query.filter_by(world_id=room.world_id).first()
-        if (creator_id == world.creator_id):
-            person.person_name = escape(data["name"])
-            person.person_desc = escape(data["description"])
-            person.person_img = escape(data["image"])
-            db.session.commit()
-            return jsonify({'success': f'person {data["name"]} updated'})
+        if (person):
+            room = Room.query.filter_by(room_id=person.room_id).first()
+            world = World.query.filter_by(world_id=room.world_id).first()
+            if (creator_id == world.creator_id):
+                person.person_name = escape(data["name"])
+                person.person_desc = escape(data["description"])
+                person.person_img = escape(data["image"])
+                db.session.commit()
+                return jsonify({'success': f'person {data["name"]} updated'})
+            else:
+                return jsonify({'error': 'not authorized for object'})
         else:
-            return jsonify({'error': 'not authorized for object'})
+            return jsonify({'error': 'element not found'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -838,20 +839,23 @@ def api_post_objective(objective_id):
     if (creator_id > 0):
         data = json.loads(request.data)
         objective = Objective.query.filter_by(objective_id=objective_id).first()
-        room = Room.query.filter_by(room_id=objective.room_id).first()
-        world = World.query.filter_by(world_id=room.world_id).first()
-        if (creator_id == world.creator_id):
-            objective.objective_name = escape(data["name"])
-            objective.objective_desc = escape(data["description"])
-            objective.difficulty = escape(data["difficulty"])
-            objective.objective_url = escape(data["url"])
-            objective.supported_by = escape(data["supportedby"])
-            objective.requires = escape(data["requires"])
-            objective.objective_img = escape(data["image"])
-            db.session.commit()
-            return jsonify({'success': f'objective {data["name"]} updated'})
+        if (objective):
+            room = Room.query.filter_by(room_id=objective.room_id).first()
+            world = World.query.filter_by(world_id=room.world_id).first()
+            if (creator_id == world.creator_id):
+                objective.objective_name = escape(data["name"])
+                objective.objective_desc = escape(data["description"])
+                objective.difficulty = escape(data["difficulty"])
+                objective.objective_url = escape(data["url"])
+                objective.supported_by = escape(data["supportedby"])
+                objective.requires = escape(data["requires"])
+                objective.objective_img = escape(data["image"])
+                db.session.commit()
+                return jsonify({'success': f'objective {data["name"]} updated'})
+            else:
+                return jsonify({'error': 'not authorized for object'})
         else:
-            return jsonify({'error': 'not authorized for object'})
+            return jsonify({'error': 'element not found'})
     else:
         return jsonify({'error': 'wrong credentials'})
 
@@ -869,15 +873,18 @@ def api_post_junction(junction_id):
     if (creator_id > 0):
         data = json.loads(request.data)
         junction = Junction.query.filter_by(junction_id=junction_id).first()
-        room = Room.query.filter_by(room_id=junction.room_id).first()
-        world = World.query.filter_by(world_id=room.world_id).first()
-        if (creator_id == world.creator_id):
-            junction.dest_id = escape(data["destination"])
-            junction.junction_desc = escape(data["description"])
-            db.session.commit()
-            return jsonify({'success': f'junction {junction_id} updated'})
+        if (junction):
+            room = Room.query.filter_by(room_id=junction.room_id).first()
+            world = World.query.filter_by(world_id=room.world_id).first()
+            if (creator_id == world.creator_id):
+                junction.dest_id = escape(data["destination"])
+                junction.junction_desc = escape(data["description"])
+                db.session.commit()
+                return jsonify({'success': f'junction {junction_id} updated'})
+            else:
+                return jsonify({'error': 'not authorized for object'})
         else:
-            return jsonify({'error': 'not authorized for object'})
+            return jsonify({'error': 'element not found'})
     else:
         return jsonify({'error': 'wrong credentials'})
 

@@ -12,6 +12,9 @@
     <h2>{% block title %} All Objectives {% endblock %}</h2>
 
     <p>
+        {% if objectives.count() == 0 %}
+        No entries found.
+        {% endif %}
         <ul>
             {% for objective in objectives %}
             <li><a href="{{ url_for('get_objective', objective_id=objective.objective_id)}}">{{ objective.objective_name }} (#{{ objective.objective_id }})</a></li>

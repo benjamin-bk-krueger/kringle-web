@@ -12,6 +12,9 @@
     <h2>{% block title %} All Items {% endblock %}</h2>
 
     <p>
+        {% if items.count() == 0 %}
+        No entries found.
+        {% endif %}
         <ul>
             {% for item in items %}
             <li><a href="{{ url_for('get_item', item_id=item.item_id)}}">{{ item.item_name }} (#{{ item.item_id }})</a></li>
