@@ -119,8 +119,8 @@ CREATE TABLE invitation (
 
 CREATE TABLE voting (
     voting_id SERIAL PRIMARY KEY,
-    creator_id INT REFERENCES creator ( creator_id ),
-    solution_id INT REFERENCES solution ( solution_id ),
+    creator_id INT REFERENCES creator ( creator_id ) ON DELETE CASCADE,
+    solution_id INT REFERENCES solution ( solution_id ) ON DELETE CASCADE,
     rating INT default 1,
     created timestamp default current_timestamp,
     modified timestamp default current_timestamp

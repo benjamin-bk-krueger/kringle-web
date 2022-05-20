@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_rooms', num=objective.world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_items', num=objective.world_id) }}">Items</a>
-    <a href="{{ url_for('get_persons', num=objective.world_id) }}">Persons</a>
-    <a href="{{ url_for('get_objectives', num=objective.world_id ) }}">Objectives</a>
-    <a href="{{ url_for('get_junctions', num=objective.world_id) }}">Junctions</a>
+    <a href="{{ url_for('get_rooms', world_id=objective.world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_items', world_id=objective.world_id) }}">Items</a>
+    <a href="{{ url_for('get_persons', world_id=objective.world_id) }}">Persons</a>
+    <a href="{{ url_for('get_objectives', world_id=objective.world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_junctions', world_id=objective.world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
     <h2>{% block title %} {{ objective.objective_name }} (#{{ objective.objective_id }}) {% endblock %}</h2>
 
     <p>
-        <i>Found in <a href="{{ url_for('get_room', num=objective.room_id)}}">Room ID #{{ objective.room_id }}</a></i></br>
+        <i>Found in <a href="{{ url_for('get_room', room_id=objective.room_id)}}">Room ID #{{ objective.room_id }}</a></i></br>
         <table><tbody>
             <tr><td width="30%">Description:</td> <td width="70%">{{ objective.objective_desc }}</td></tr>
             <tr><td>Difficulty:</td> <td>{{ objective.difficulty }}</td></tr>
@@ -40,7 +40,7 @@
         <ul>
             {% if world.visible == 1 %}
                 {% for solution in solutions %}
-                <li><a href="{{ url_for('get_solution', num=solution.solution_id)}}">Solution (#{{ solution.solution_id  }})</a>, created by <a href="{{ url_for('get_creator', num=solution.creator_id)}}">Creator (#{{ solution.creator_id  }})</a> - {{ creatorall[solution.solution_id] }}, votes: {{ votingall[solution.solution_id] }}</li>
+                <li><a href="{{ url_for('get_solution', solution_id=solution.solution_id)}}">Solution (#{{ solution.solution_id  }})</a>, created by <a href="{{ url_for('get_creator', creator_id=solution.creator_id)}}">Creator (#{{ solution.creator_id  }})</a> - {{ creatorall[solution.solution_id] }}, votes: {{ votingall[solution.solution_id] }}</li>
                 {% endfor %}
             {% else %}
                 Solutions are not visible as this world is not public currently.
@@ -52,15 +52,15 @@
 
     <p>
         <h4>Edit Data</h4>
-        <form action="{{ url_for('get_quest', num=objective.objective_id)}}">
+        <form action="{{ url_for('get_quest', objective_id=objective.objective_id)}}">
             <input type="submit" value="Edit Master Quest" />
         </form>
-        <form action="{{ url_for('get_mysolution', num=objective.objective_id)}}">
+        <form action="{{ url_for('get_mysolution', objective_id=objective.objective_id)}}">
             <input type="submit" value="Edit My Solution" />
         </form>
     </p>
 
     <p>
-        <a href="{{ url_for('get_objectives', num=objective.world_id) }}">All Objectives</a>
+        <a href="{{ url_for('get_objectives', world_id=objective.world_id) }}">All Objectives</a>
     </p>
 {% endblock %}

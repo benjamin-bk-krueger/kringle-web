@@ -17,25 +17,25 @@
     </p>
 
     <p>
-        <form action="{{ url_for('get_rooms', num=world.world_id) }}" method="GET">
+        <form action="{{ url_for('get_rooms', world_id=world.world_id) }}" method="GET">
             <input type="submit" value="Select">
         </form>
     </p>
 
     <p>
-        <form action="{{ url_for('get_mywalkthrough', num=world.world_id) }}" method="GET">
+        <form action="{{ url_for('get_mywalkthrough', world_id=world.world_id) }}" method="GET">
             <input type="submit" value="Walkthrough">
         </form>
     </p>
 
     <p>
-        <form action="{{ url_for('get_switchworld', num=world.world_id) }}" method="GET">
+        <form action="{{ url_for('get_switchworld', world_id=world.world_id) }}" method="GET">
             <input type="submit" value="Switch Visibility">
         </form>
     </p>
 
     <p>
-        <form action="{{ url_for('get_delworld', num=world.world_id) }}" method="GET">
+        <form action="{{ url_for('get_delworld', world_id=world.world_id) }}" method="GET">
             <input type="submit" value="Delete">
         </form>
     </p>

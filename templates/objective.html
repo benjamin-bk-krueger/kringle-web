@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_rooms', num=world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_items', num=world_id) }}">Items</a>
-    <a href="{{ url_for('get_persons', num=world_id) }}">Persons</a>
-    <a href="{{ url_for('get_objectives', num=world_id ) }}">Objectives</a>
-    <a href="{{ url_for('get_junctions', num=world_id) }}">Junctions</a>
+    <a href="{{ url_for('get_rooms', world_id=world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_items', world_id=world_id) }}">Items</a>
+    <a href="{{ url_for('get_persons', world_id=world_id) }}">Persons</a>
+    <a href="{{ url_for('get_objectives', world_id=world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_junctions', world_id=world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
     <p>
         <ul>
             {% for objective in objectives %}
-            <li><a href="{{ url_for('get_objective', num=objective.objective_id)}}">{{ objective.objective_name }} (#{{ objective.objective_id }})</a></li>
+            <li><a href="{{ url_for('get_objective', objective_id=objective.objective_id)}}">{{ objective.objective_name }} (#{{ objective.objective_id }})</a></li>
             {% endfor %}
         </ul>
     </p>

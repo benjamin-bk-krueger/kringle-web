@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_rooms', num=room.world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_items', num=room.world_id) }}">Items</a>
-    <a href="{{ url_for('get_persons', num=room.world_id) }}">Persons</a>
-    <a href="{{ url_for('get_objectives', num=room.world_id ) }}">Objectives</a>
-    <a href="{{ url_for('get_junctions', num=room.world_id) }}">Junctions</a>
+    <a href="{{ url_for('get_rooms', world_id=room.world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_items', world_id=room.world_id) }}">Items</a>
+    <a href="{{ url_for('get_persons', world_id=room.world_id) }}">Persons</a>
+    <a href="{{ url_for('get_objectives', world_id=room.world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_junctions', world_id=room.world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
     <h2>{% block title %} {{ room.room_name }} (#{{ room.room_id }}) {% endblock %}</h2>
         
     <p>
-        <i>Found in <a href="{{ url_for('get_world', num=room.world_id)}}">World #{{ room.world_id }}</a></i></br>
+        <i>Found in <a href="{{ url_for('get_world', world_id=room.world_id)}}">World #{{ room.world_id }}</a></i></br>
         <table><tbody>
             <tr><td width="30%">Description:</td> <td width="70%">{{ room.room_desc }}</td></tr>
         </tbody></table>
@@ -23,6 +23,6 @@
     </p>
 
     <p>
-        <a href="{{ url_for('get_rooms', num=room.world_id) }}">All Rooms</a>
+        <a href="{{ url_for('get_rooms', world_id=room.world_id) }}">All Rooms</a>
     </p>
 {% endblock %}

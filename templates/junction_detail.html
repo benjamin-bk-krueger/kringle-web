@@ -1,25 +1,25 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_rooms', num=junction.world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_items', num=junction.world_id) }}">Items</a>
-    <a href="{{ url_for('get_persons', num=junction.world_id) }}">Persons</a>
-    <a href="{{ url_for('get_objectives', num=junction.world_id ) }}">Objectives</a>
-    <a href="{{ url_for('get_junctions', num=junction.world_id) }}">Junctions</a>
+    <a href="{{ url_for('get_rooms', world_id=junction.world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_items', world_id=junction.world_id) }}">Items</a>
+    <a href="{{ url_for('get_persons', world_id=junction.world_id) }}">Persons</a>
+    <a href="{{ url_for('get_objectives', world_id=junction.world_id ) }}">Objectives</a>
+    <a href="{{ url_for('get_junctions', world_id=junction.world_id) }}">Junctions</a>
 {% endblock %}
 
 {% block content %}
     <h2>{% block title %} #{{ junction.junction_id }} {% endblock %}</h2>
     
     <p>
-        <i>Found in <a href="{{ url_for('get_room', num=junction.room_id)}}">Room ID #{{ junction.room_id }}</a></i></br>
-        <i>Targeting <a href="{{ url_for('get_room', num=junction.dest_id)}}">Room ID #{{ junction.dest_id }}</a></i></br>
+        <i>Found in <a href="{{ url_for('get_room', room_id=junction.room_id)}}">Room ID #{{ junction.room_id }}</a></i></br>
+        <i>Targeting <a href="{{ url_for('get_room', room_id=junction.dest_id)}}">Room ID #{{ junction.dest_id }}</a></i></br>
         <table><tbody>
             <tr><td width="30%">Description:</td> <td width="70%">{{ junction.junction_desc }}</td></tr>
         </tbody></table>
     </p>
 
     <p>
-        <a href="{{ url_for('get_junctions', num=junction.world_id) }}">All Junctions</a>
+        <a href="{{ url_for('get_junctions', world_id=junction.world_id) }}">All Junctions</a>
     </p>
 {% endblock %}

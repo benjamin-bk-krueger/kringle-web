@@ -19,7 +19,7 @@
         <ul>
         {% for item in contents %}
             <li>
-                <b>{{ item.Key }}</b>: [<a href="{{ url_for('get_download', creator_name='.', filename=item.Key) }}">download</a>, <a href="{{ url_for('get_delete', creator_name='.', filename=item.Key) }}">delete</a>]<br>
+                <b>{{ item.Key }}</b>: [<a href="{{ url_for('get_download', creatorname='.', filename=item.Key) }}">download</a>, <a href="{{ url_for('get_delete', creatorname='.', filename=item.Key) }}">delete</a>]<br>
                 ![{{ item.Key }}](https://s3.hidrive.strato.com/kringle-public/{{ item.Key }})
             </li>
         {% endfor %}
