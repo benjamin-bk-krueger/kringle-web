@@ -1,6 +1,7 @@
 import json                     # for JSON file handling and parsing
 import os                       # for direct file system and environment access
 import markdown2                # for markdown parsing
+import re                       # for regular expressions
 import boto3                    # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
 from flask import Flask, request, render_template, jsonify, send_file, escape, redirect, url_for # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
@@ -200,7 +201,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
         room.world_id = world.world_id
         room.room_name = escape(i["name"])
         room.room_desc = escape(i["description"])
-        room.room_img = escape(i["image"])
+        room.room_img = clean_url(i["image"])
         db.session.add(room)
         db.session.commit()
         counter_loaded = counter_loaded + 1
@@ -218,7 +219,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 item.world_id = world.world_id
                 item.item_name = escape(j["name"])
                 item.item_desc = escape(j["description"])
-                item.item_img = escape(j["image"])
+                item.item_img = clean_url(j["image"])
                 db.session.add(item)
                 db.session.commit()
                 counter_loaded = counter_loaded + 1
@@ -229,9 +230,9 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 person = Person()
                 person.room_id = room.room_id
                 person.world_id = world.world_id
-                person.person_name = j["name"]
-                person.person_desc = j["description"]
-                person.person_img = j["image"]
+                person.person_name = escape(j["name"])
+                person.person_desc = escape(j["description"])
+                person.person_img = clean_url(j["image"])
                 db.session.add(person)
                 db.session.commit()
                 counter_loaded = counter_loaded + 1
@@ -245,10 +246,10 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 objective.objective_name = escape(j["name"])
                 objective.objective_desc = escape(j["description"])
                 objective.difficulty = escape(j["difficulty"])
-                objective.objective_url = escape(j["url"])
+                objective.objective_url = clean_url(j["url"])
                 objective.supported_by = escape(j["supportedby"])
                 objective.requires = escape(j["requires"])
-                objective.objective_img = escape(j["image"])
+                objective.objective_img = clean_url(j["image"])
                 db.session.add(objective)
                 db.session.commit()
                 counter_loaded = counter_loaded + 1
@@ -269,6 +270,10 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
     
     f.close()
     return(counter_loaded)
+
+# URL sanitization
+def clean_url(url):
+    return (re.sub('[^-A-Za-z0-9+&@#/%?=~_|!:,.;\(\)]', '', url))
 
 # check if the basic authentication is valid, used for API calls
 def is_authenticated(auth):
@@ -434,7 +439,7 @@ def post_mailcreator():
     creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
     if (creator):
         creator.creator_mail = escape(request.form["mail"])
-        creator.creator_img = escape(request.form["image"])
+        creator.creator_img = clean_url(request.form["image"])
         db.session.commit()
         
         return redirect(url_for('get_mycreator'))
@@ -718,7 +723,7 @@ def api_post_world(worldname):
         creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
         if (creator.creator_role == 'creator'):
             world_desc = escape(request.args.get('worlddesc'))
-            world_url = escape(request.args.get('worldurl'))
+            world_url = clean_url(request.args.get('worldurl'))
             world_img = escape(request.args.get('worldimg'))
 
             record = json.loads(request.data)
@@ -755,7 +760,7 @@ def api_post_room(room_id):
             if (creator_id == world.creator_id):
                 room.room_name = escape(data["name"])
                 room.room_desc = escape(data["description"])
-                room.room_img = escape(data["image"])
+                room.room_img = clean_url(data["image"])
                 db.session.commit()
                 return jsonify({'success': f'room {data["name"]} updated'})
             else:
@@ -785,7 +790,7 @@ def api_post_item(item_id):
             if (creator_id == world.creator_id):
                 item.item_name = escape(data["name"])
                 item.item_desc = escape(data["description"])
-                item.item_img = escape(data["image"])
+                item.item_img = clean_url(data["image"])
                 db.session.commit()
                 return jsonify({'success': f'item {data["name"]} updated'})
             else:
@@ -815,7 +820,7 @@ def api_post_person(person_id):
             if (creator_id == world.creator_id):
                 person.person_name = escape(data["name"])
                 person.person_desc = escape(data["description"])
-                person.person_img = escape(data["image"])
+                person.person_img = clean_url(data["image"])
                 db.session.commit()
                 return jsonify({'success': f'person {data["name"]} updated'})
             else:
@@ -846,10 +851,10 @@ def api_post_objective(objective_id):
                 objective.objective_name = escape(data["name"])
                 objective.objective_desc = escape(data["description"])
                 objective.difficulty = escape(data["difficulty"])
-                objective.objective_url = escape(data["url"])
+                objective.objective_url = clean_url(data["url"])
                 objective.supported_by = escape(data["supportedby"])
                 objective.requires = escape(data["requires"])
-                objective.objective_img = escape(data["image"])
+                objective.objective_img = clean_url(data["image"])
                 db.session.commit()
                 return jsonify({'success': f'objective {data["name"]} updated'})
             else:
