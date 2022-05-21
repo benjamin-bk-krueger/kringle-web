@@ -5,5 +5,16 @@ use_directory_urls: false
 nav:
     - Home: index.md
     - About: about.md
+    - Account: account.md
+    - Storage: storage.md
+    - Stats: stats.md
+    - Creators: creators.md
+    - Worlds: worlds.md
+    - Rooms: rooms.md
+    - Items: items.md
+    - Persons: persons.md
+    - Objectives: objectives.md
+    - Junctions: junctions.md
+    - REST API: restapi.md
 theme: readthedocs
 favicon: 'img/favicon.ico'
