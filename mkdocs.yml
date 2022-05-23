@@ -18,3 +18,5 @@ nav:
     - REST API: restapi.md
 theme: readthedocs
 favicon: 'img/favicon.ico'
+markdown_extensions:
+  - tables
