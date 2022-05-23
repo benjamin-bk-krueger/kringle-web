@@ -17,11 +17,11 @@ Given the (4) *URL*, you can open the challenge directly.
 The field (5) *Supported by* lists the objective that needs to be solved in order to get more information about this specific challenge.  
 The (6) *Requires* entry indicates the item that is needed before this challenge can be solved.  
 
-![Objectives Detail](./img/ojectives_detail.png)
+![Objectives Detail](./img/objectives_detail.png)
 
 The (1) *Master Quest* section shows the challenge that needs to be solved in order for this *objective* to be completed.  
 The (2) *Public solutions* section displays the solutions that have been submitted for this challenge and have been marked as *public*. You can reach the solution via the (3) link. By clicking on the (4) creator you can reach the detail page for the creator. The number at (5) *votes* indicates how many times this solution has received a "like".  
 By clicking on (6) *Edit master quest* you reach the editor for this quest. This function is only available to the creator of the whole *world*.  
 By clicking on (7) *Edit my solution* you can reach the editor for your solution for this quest. This feature is only available to registered users.  
 
-![Objectives Detail 2](./img/ojectives_detail2.png)
+![Objectives Detail 2](./img/objectives_detail2.png)
