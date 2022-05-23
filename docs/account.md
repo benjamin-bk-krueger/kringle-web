@@ -1,54 +1,40 @@
-# Insania anus publica et
+# Account
 
-## Murra de Copia sanguine urbes et perfida
+## New Account
 
-Lorem markdownum: *qua* poscit **petis quicquid illius** Cybeleius et novae
-consolenturne filia. Ipse herba mittere, cacumina. Oscula cum perdes, sit, fixa
-bello, obstitit senserunt quidem. Responsa *pugnes* est cervice ritus reddite
-tuus videt, iniectos fulgentem.
+You can create a new account by clicking on the (1) *Account* button. This is possible if you are not already logged in.  
 
-Nuper **correptaque fratrem** illum fidelem umero umerumque quam fraternos
-contra, tuae et et ex vel, vulgata nec. Datae qualesque feritate **tactu summa**
-et femina aspera. Bubo curva, aerias murmure ea Pyrois relevasse quartus tenuit,
-aquarum nascentia pede! Et quae alimenta et iunctis **esse**, unca passus
-venerande et. Dum feram et Pallante eadem concussit sagittas *aeterna siccaeque
-anum* totaque; lege?
+The following data is required:  
+| Field            | Description |
+| ---------------- | ----------- |
+| Name             | Your username (used for login and is displayed in the overview of the creators) |
+| E-mail           | Your e-mail address (Not currently used, possibly later for news and announcements, will not be displayed publicly) |
+| Password         | Your password (should be as secure as you see fit) |
+| Invitation Code  | The invitation code is required to create an account |
 
-## Interdum indignave aurum utroque quoque
+![New Account](./img/account_new.png)
 
-Ille monte *adest*. Montisque mille nec esse Sidonida. Aequoris ore fugat ad
-saxa quin alter sitimque sermone propulit motu nostris.
+## Edit Account
 
-Sine uno, caede sedebat terebat velletque fulvis dotibus ambiguum tuum narrare,
-est palato, nostro suos praetendat ferrea. *Sollicita fixum* infelix, ruit
-exsiluit corymbis serpens nitet tantum [ex corpore
-tempusque](http://www.consule-memini.io/mortalem.html) est. Fama vultu:
-Crimisenque et ligatis arvis et numen. Mittor tamen pennis: ora pondere scelus,
-est rota has, recusat vincar, vocat sed. Et dotabere scopulus Cadmeida et
-[exiles](http://consumptaartes.com/), et lintea suos *amat*, cruor, oro altis
-**cunctaque** erat.
+If you are already logged in, you can edit your account by clicking on *Account*.
 
-## Profanus iussit
+### Enter data
 
-**Qua** venit; et Iris parentis, parvoque omnem Est adulterium, et in palmas
-caeleste lenius inventa tollens ait. Victus limosaque ferox feris copia infernum
-illi, si, **ut quodque** simul vocato. Sed crede!
+In the first section, you can enter or change the following information:  
 
-- Traxit inclinata et volandi clamore demum
-- Poscit habitura vim isdem Philemon Oenopiam
-- Causam quam Philomela et eminet quaeque abstinet
-- Sustulit vulgata
-- Elusaque quid vires vestibus
-- Medicamine parantem agentem socias et forem essemus
+| Field  | Description         |  
+| ------ | ------------------- |
+| E-mail | Your e-mail address |
+| Image  | The link to a profile picture (This is displayed in the overview of the creators. You can also use the storage area to upload an image) |
 
-Alta *suis*, et perosa poenam Tmolo, Aonios, meo obliquaque. Cava sub ille
-tollens tenderet; rigorem fugit [est](http://est-fuerit.com/tenebat-tabellis)
-stipite, victoria pedem. **Manus aristas**; vulnera arcum porrexit: regna quid
-sucoque, multa. Contentique omnes a rostrisque, timorem ambae pectora, haec
-iuvenes sola, fuit. Papavera fuso quercum Perrhaebum meritorum contraria cerae,
-ego sibi.
+![Edit Account](./img/account_edit.png)
 
-Herbis in et oscula lassataque erat Mensis [tamen in
-acervos](http://quae.io/mora-lacrimas.php) fluentibus turba. Hanc turba, sit
-deae ferarum digitos nec orbis festas ferrum vinctoque? Ira amnis non fortissime
-mirata, et limosi nunc nigrae remanet sed, ad sceptra semivir, confiteor!
+### Set new password
+
+In the second section, you can change your password.
+
+### Delete account
+
+In the third section, you can delete your user account. Please be aware that all solutions which have been created by this user account will also be deleted!
+
+![Edit Account 2](./img/account_edit2.png)
