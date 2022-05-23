@@ -17,11 +17,11 @@ The following data is required:
 
 ## Edit Account
 
-If you are already logged in, you can edit your account by clicking on *Account*.
+If you are already logged in, you can edit your account by clicking on (1) *Account*.
 
 ### Enter data
 
-In the first section, you can enter or change the following information:  
+In the (2) first section, you can enter or change the following information:  
 
 | Field  | Description         |  
 | ------ | ------------------- |
@@ -32,10 +32,10 @@ In the first section, you can enter or change the following information:
 
 ### Set new password
 
-In the second section, you can change your password.
+In the (3) second section, you can change your password.
 
 ### Delete account
 
-In the third section, you can delete your user account. Please be aware that all solutions which have been created by this user account will also be deleted!
+In the (4) third section, you can delete your user account. Please be aware that all solutions which have been created by this user account will also be deleted!
 
 ![Edit Account 2](./img/account_edit2.png)
