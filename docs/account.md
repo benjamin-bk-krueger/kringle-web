@@ -5,6 +5,7 @@
 You can create a new account by clicking on the (1) *Account* button. This is possible if you are not already logged in.  
 
 The following data is required:  
+
 | Field            | Description         |  
 | ---------------- | ------------------- |
 | Name             | Your username (used for login and is displayed in the overview of the creators) |
