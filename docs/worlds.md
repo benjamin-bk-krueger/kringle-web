@@ -11,8 +11,8 @@ If you click on an (2) entry, you will be taken to the detailed view.
 
 In the detailed view you can inform yourself about the world.  
 When you click on the (1) creator, you can jump directly to the detailed view of the respective creator.  
-The (2) description provides a brief information about this world.  
-The (3) URL shows the address under which the world can be accessed.  
+The (2) *Description* provides a brief information about this world.  
+The (3) *URL* shows the address under which the world can be accessed.  
 The field (4) *Public* indicates whether the world is released and the solutions submitted for it are publicly visible.  
 
 ![World Detail 1](./img/worlds_detail.png)

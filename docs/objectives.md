@@ -1,54 +1,27 @@
-# Insania anus publica et
+# Objectives
 
-## Murra de Copia sanguine urbes et perfida
+## All Objectives
 
-Lorem markdownum: *qua* poscit **petis quicquid illius** Cybeleius et novae
-consolenturne filia. Ipse herba mittere, cacumina. Oscula cum perdes, sit, fixa
-bello, obstitit senserunt quidem. Responsa *pugnes* est cervice ritus reddite
-tuus videt, iniectos fulgentem.
+You can see which objectives are available by clicking on the (1) *Objectives* button.  
+If you click on an (2) entry, you will be taken to the detailed view.  
 
-Nuper **correptaque fratrem** illum fidelem umero umerumque quam fraternos
-contra, tuae et et ex vel, vulgata nec. Datae qualesque feritate **tactu summa**
-et femina aspera. Bubo curva, aerias murmure ea Pyrois relevasse quartus tenuit,
-aquarum nascentia pede! Et quae alimenta et iunctis **esse**, unca passus
-venerande et. Dum feram et Pallante eadem concussit sagittas *aeterna siccaeque
-anum* totaque; lege?
+![All Objectives](./img/objectives_all.png)
 
-## Interdum indignave aurum utroque quoque
+## Detailed View
 
-Ille monte *adest*. Montisque mille nec esse Sidonida. Aequoris ore fugat ad
-saxa quin alter sitimque sermone propulit motu nostris.
+In the detailed view you can inform yourself about the objective.  
+When you click on the (1) room, you can jump directly to the detailed view of the respective room of which this objective is part.  
+The (2) *Description* provides a brief information about this objective.  
+The (3) *Difficulty* indicates how difficult it is to solve the challenge.  
+Given the (4) *URL*, you can open the challenge directly.  
+The field (5) *Supported by* lists the objective that needs to be solved in order to get more information about this specific challenge.  
+The (6) *Requires* entry indicates the item that is needed before this challenge can be solved.  
 
-Sine uno, caede sedebat terebat velletque fulvis dotibus ambiguum tuum narrare,
-est palato, nostro suos praetendat ferrea. *Sollicita fixum* infelix, ruit
-exsiluit corymbis serpens nitet tantum [ex corpore
-tempusque](http://www.consule-memini.io/mortalem.html) est. Fama vultu:
-Crimisenque et ligatis arvis et numen. Mittor tamen pennis: ora pondere scelus,
-est rota has, recusat vincar, vocat sed. Et dotabere scopulus Cadmeida et
-[exiles](http://consumptaartes.com/), et lintea suos *amat*, cruor, oro altis
-**cunctaque** erat.
+![Objectives Detail](./img/bjectives_detail.png)
 
-## Profanus iussit
+The (1) *Master Quest* section shows the challenge that needs to be solved in order for this *objective* to be completed.  
+The (2) *Public solutions* section displays the solutions that have been submitted for this challenge and have been marked as *public*. You can reach the solution via the (3) link. By clicking on the (4) creator you can reach the detail page for the creator. The number at (5) *votes* indicates how many times this solution has received a "like".  
+By clicking on (6) *Edit master quest* you reach the editor for this quest. This function is only available to the creator of the whole *world*.  
+By clicking on (7) *Edit my solution* you can reach the editor for your solution for this quest. This feature is only available to registered users.  
 
-**Qua** venit; et Iris parentis, parvoque omnem Est adulterium, et in palmas
-caeleste lenius inventa tollens ait. Victus limosaque ferox feris copia infernum
-illi, si, **ut quodque** simul vocato. Sed crede!
-
-- Traxit inclinata et volandi clamore demum
-- Poscit habitura vim isdem Philemon Oenopiam
-- Causam quam Philomela et eminet quaeque abstinet
-- Sustulit vulgata
-- Elusaque quid vires vestibus
-- Medicamine parantem agentem socias et forem essemus
-
-Alta *suis*, et perosa poenam Tmolo, Aonios, meo obliquaque. Cava sub ille
-tollens tenderet; rigorem fugit [est](http://est-fuerit.com/tenebat-tabellis)
-stipite, victoria pedem. **Manus aristas**; vulnera arcum porrexit: regna quid
-sucoque, multa. Contentique omnes a rostrisque, timorem ambae pectora, haec
-iuvenes sola, fuit. Papavera fuso quercum Perrhaebum meritorum contraria cerae,
-ego sibi.
-
-Herbis in et oscula lassataque erat Mensis [tamen in
-acervos](http://quae.io/mora-lacrimas.php) fluentibus turba. Hanc turba, sit
-deae ferarum digitos nec orbis festas ferrum vinctoque? Ira amnis non fortissime
-mirata, et limosi nunc nigrae remanet sed, ad sceptra semivir, confiteor!
+![Objectives Detail 2](./img/bjectives_detail2.png)

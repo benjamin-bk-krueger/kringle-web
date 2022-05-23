@@ -11,7 +11,7 @@ If you click on an (2) entry, you will be taken to the detailed view.
 
 In the detailed view you can inform yourself about the item.  
 When you click on the (1) room, you can jump directly to the detailed view of the respective room of which this item is part.  
-The (2) description provides a brief information about this item.  
+The (2) *description* provides a brief information about this item.  
 When you click on (3) *All Items* you will get back to the items overview.  
 
 ![Items Detail](./img/items_detail.png)
