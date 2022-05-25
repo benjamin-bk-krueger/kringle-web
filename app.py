@@ -60,6 +60,7 @@ def load_user(creator_id):
 
 # ORM model classes, Creator table is used for the Login Manager
 # for each REST-enabled element, we add marshmallow schemas
+# enable a REST API to modify the database contents
 class Creator(UserMixin, db.Model):
     __tablename__ = "creator"
     creator_id = db.Column (db.INTEGER, primary_key=True)
@@ -148,6 +149,29 @@ class WorldResource(Resource):
         else:
             return jsonify({'error': 'wrong credentials or permissions'})
 
+class WorldFullListResource(Resource):
+    def post(self):
+        if (request.args.get('world_name') is not None and request.args.get('world_desc') is not None and request.args.get('world_url') is not None and request.args.get('world_img') is not None):
+            creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
+            if (creator.creator_role == 'creator'):
+                world_name = escape(request.args.get('world_name'))
+                world_desc = escape(request.args.get('world_desc'))
+                world_url = clean_url(request.args.get('world_url'))
+                world_img = escape(request.args.get('world_img'))
+
+                record = json.loads(request.data)
+                inputfile = f"{UPLOAD_FOLDER}/{secure_filename(world_name)}.world"
+                objectfile = f"world/{secure_filename(world_name)}.world"
+                with open(inputfile, 'w') as f:
+                    f.write(json.dumps(record, indent=4))
+                upload_file(BUCKET_PRIVATE, objectfile, inputfile)
+                i = init_world(inputfile, request.authorization['username'], world_name, world_desc, world_url, world_img)
+                return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
 class WorldFullResource(Resource):
     def get(self, worldname):
         outputfile = f"{DOWNLOAD_FOLDER}/{secure_filename(worldname)}.world"
@@ -160,6 +184,7 @@ class WorldFullResource(Resource):
 
 api.add_resource(WorldListResource, '/api/worlds')
 api.add_resource(WorldResource, '/api/worlds/<int:world_id>')
+api.add_resource(WorldFullListResource, '/api/fullworlds')
 api.add_resource(WorldFullResource, '/api/fullworlds/<string:worldname>')
 
 class Room(db.Model):
@@ -581,17 +606,15 @@ class Voting(db.Model):
     def __repr__(self):
         return '<Voting %s>' % self.voting_id
 
-# S3 helper functions
+# S3 storage helper functions
 def upload_file(bucket, object_name, file_name):
     s3_client = boto3.client('s3', endpoint_url=S3_ENDPOINT)
     response = s3_client.upload_file(file_name, bucket, object_name)
-
     return response
 
 def download_file(bucket, object_name, file_name):
     s3 = boto3.resource('s3', endpoint_url=S3_ENDPOINT)
     s3.Bucket(bucket).download_file(object_name, file_name)
-
     return file_name
 
 def delete_file(bucket, object_name):
@@ -604,7 +627,6 @@ def list_files(bucket, creator_name):
     for item in s3.list_objects(Bucket=bucket)['Contents']:
         if (item['Key'].startswith(creator_name)):
             contents.append(item)
-
     return contents
 
 # initialize a completely new world using a world template suplied as JSON
@@ -712,16 +734,6 @@ def clean_url(url):
     return (re.sub('[^-A-Za-z0-9+&@#/%?=~_|!:,.;\(\)]', '', url))
 
 # check if the basic authentication is valid, used for API calls
-def is_authenticated(auth):
-    creator_name = auth['username']
-    creator_pass = auth['password']
-    creator = Creator.query.filter_by(creator_name=creator_name).first()
-
-    if not creator or not check_password_hash(creator.creator_pass, creator_pass):
-        return -1
-    else:
-        return creator.creator_id
-
 class AuthChecker():
     def check(self, auth, world_id):
         if (auth):
@@ -831,7 +843,6 @@ def get_stats():
     counts['objective'] = Objective.query.count()
     counts['junction'] = Junction.query.count()
     counts['solution'] = Solution.query.count()
-
     return render_template('stats.html', counts=counts)
 
 @app.route('/web/creators', methods = ['GET'])
@@ -869,7 +880,6 @@ def post_newcreator():
 
             invitation.invitation_taken = 1
             db.session.commit()
-
     return redirect(url_for('get_creators'))
 
 @app.route('/web/mycreator', methods = ['GET'])
@@ -934,7 +944,6 @@ def get_world(world_id):
 def get_delworld(world_id):
     World.query.filter_by(world_id=world_id).filter_by(creator_id=current_user.creator_id).delete()
     db.session.commit()
-
     return redirect(url_for('get_worlds'))
 
 @app.route('/web/switchworld/<int:world_id>', methods=['GET'])
@@ -1162,27 +1171,3 @@ def get_mywalkthrough(world_id):
 
     # return send_file(DOWNLOAD_FOLDER + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
     return send_file(DOWNLOAD_FOLDER + "/walkthrough.md", attachment_filename='walkthrough.md')
-
-# enable a REST API to modify the database contents
-@app.route('/api/world/<string:worldname>', methods=['POST'])
-def api_post_world(worldname):
-    creator_id = is_authenticated(request.authorization)
-    if (creator_id > 0):
-        creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
-        if (creator.creator_role == 'creator'):
-            world_desc = escape(request.args.get('worlddesc'))
-            world_url = clean_url(request.args.get('worldurl'))
-            world_img = escape(request.args.get('worldimg'))
-
-            record = json.loads(request.data)
-            inputfile = f"{UPLOAD_FOLDER}/{secure_filename(worldname)}.world"
-            objectfile = f"world/{secure_filename(worldname)}.world"
-            with open(inputfile, 'w') as f:
-                f.write(json.dumps(record, indent=4))
-            upload_file(BUCKET_PRIVATE, objectfile, inputfile)
-            i = init_world(inputfile, request.authorization['username'], worldname, world_desc, world_url, world_img)
-            return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
-        else:
-            return jsonify({'error': 'insufficient permissions'})
-    else:
-        return jsonify({'error': 'wrong credentials'})

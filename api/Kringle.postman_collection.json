@@ -3,339 +3,881 @@
 		"_postman_id": "4443b5fd-6445-4ac4-bce5-a1ac273c2ece",
 		"name": "Kringle",
 		"description": "Kringle Web API",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20357220"
 	},
 	"item": [
 		{
-			"name": "World",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseurl}}/api/world/KringleCon2021",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"world",
-						"KringleCon2021"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "World",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "{{baseurl}}/api/world/KringleCon2021?worlddesc=Calling Birds&worldurl=https://www.sans.org/mlp/holiday-hack-challenge/&worldimg=https://images.contentstack.io/v3/assets/blt36c2e63521272fdc/blt3df4f4efd480f7ca/61ac2c72c7c3037339ab466a/RANGES_2021_Holiday_740x370_Custom_@2X.jpg",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"world",
-						"KringleCon2021"
-					],
-					"query": [
-						{
-							"key": "worlddesc",
-							"value": "Calling Birds"
-						},
-						{
-							"key": "worldurl",
-							"value": "https://www.sans.org/mlp/holiday-hack-challenge/"
-						},
-						{
-							"key": "worldimg",
-							"value": "https://images.contentstack.io/v3/assets/blt36c2e63521272fdc/blt3df4f4efd480f7ca/61ac2c72c7c3037339ab466a/RANGES_2021_Holiday_740x370_Custom_@2X.jpg"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Room",
-			"event": [
+			"name": "Worlds",
+			"item": [
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
+					"name": "All Worlds",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/worlds",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"worlds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single World",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/worlds/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"worlds",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single World Full",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/fullworlds/KringleCon2021",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"fullworlds",
+								"KringleCon2021"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single World",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
 						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"world_desc\": \"Description\",\n    \"world_img\": \"\",\n    \"world_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/worlds",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"worlds"
+							]
+						}
+					},
+					"response": []
 				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseurl}}/api/room/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"room",
-						"{{num}}"
-					]
+				{
+					"name": "Single World Full",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/fullworlds?world_name=Name&world_desc=Description&world_url=&world_img=",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"fullworlds"
+							],
+							"query": [
+								{
+									"key": "world_name",
+									"value": "Name"
+								},
+								{
+									"key": "world_desc",
+									"value": "Description"
+								},
+								{
+									"key": "world_url",
+									"value": ""
+								},
+								{
+									"key": "world_img",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single World",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"world_desc\": \"Description\",\n    \"world_img\": \"\",\n    \"world_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/worlds/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"worlds",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single World",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"item_id\": 1,\n    \"world_id\": 1,\n    \"item_desc\": \"Description\",\n    \"item_img\": \"\",\n    \"item_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/worlds/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"worlds",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Room",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
+			"name": "Rooms",
+			"item": [
+				{
+					"name": "All Rooms",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/rooms",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"rooms"
+							]
+						}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{baseurl}}/api/room/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"room",
-						"{{num}}"
-					]
+				{
+					"name": "Single Room",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/rooms/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"rooms",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Room",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"world_id\": 1,\n    \"room_name\": \"Name\",\n    \"room_desc\": \"Description\",\n    \"room_img\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/rooms",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Room",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"world_id\": 1,\n    \"room_desc\": \"Description\",\n    \"room_img\": \"\",\n    \"room_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/rooms/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"rooms",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Room",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"item_id\": 1,\n    \"world_id\": 1,\n    \"item_desc\": \"Description\",\n    \"item_img\": \"\",\n    \"item_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/rooms/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"rooms",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Item",
-			"request": {
-				"auth": {
-					"type": "noauth"
+			"name": "Items",
+			"item": [
+				{
+					"name": "All Items",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/items",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"items"
+							]
+						}
+					},
+					"response": []
 				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseurl}}/api/item/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"item",
-						"{{num}}"
-					]
+				{
+					"name": "Single Item",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/items/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"items",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"item_id\": 1,\n    \"world_id\": 1,\n    \"item_desc\": \"Description\",\n    \"item_img\": \"\",\n    \"item_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/items",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Item",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"item_id\": 1,\n    \"world_id\": 1,\n    \"item_desc\": \"Description\",\n    \"item_img\": \"\",\n    \"item_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/items/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"items",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Item",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"item_id\": 1,\n    \"world_id\": 1,\n    \"item_desc\": \"Description\",\n    \"item_img\": \"\",\n    \"item_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/items/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"items",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Item",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
+			"name": "Persons",
+			"item": [
+				{
+					"name": "All Persons",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/persons",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{baseurl}}/api/item/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"item",
-						"{{num}}"
-					]
+				{
+					"name": "Single Person",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/persons/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Person",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"world_id\": 1,\n    \"person_name\": \"Name\",\n    \"person_img\": \"\",\n    \"person_desc\": \"Description\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/persons",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Person",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"person_id\": 1,\n    \"room_id\": 1,\n    \"world_id\": 1,\n    \"person_name\": \"Name\",\n    \"person_img\": \"\",\n    \"person_desc\": \"Description\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/persons/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Person",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"item_id\": 1,\n    \"world_id\": 1,\n    \"item_desc\": \"Description\",\n    \"item_img\": \"\",\n    \"item_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/persons/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Person",
-			"request": {
-				"auth": {
-					"type": "noauth"
+			"name": "Objectives",
+			"item": [
+				{
+					"name": "All Objectives",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/objectives",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"objectives"
+							]
+						}
+					},
+					"response": []
 				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseurl}}/api/person/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"person",
-						"{{num}}"
-					]
+				{
+					"name": "Single Objective",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/objectives/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"objectives",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Objective",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requires\": \"none\",\n    \"objective_name\": \"Name\",\n    \"objective_img\": \"\",\n    \"difficulty\": 1,\n    \"room_id\": 1,\n    \"objective_desc\": \"Description\",\n    \"supported_by\": \"none\",\n    \"world_id\": 1,\n    \"objective_url\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/objectives",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"objectives"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Objective",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requires\": \"none\",\n    \"objective_name\": \"Name\",\n    \"objective_img\": \"\",\n    \"difficulty\": 1,\n    \"room_id\": 1,\n    \"objective_id\": 1,\n    \"objective_desc\": \"Description\",\n    \"supported_by\": \"none\",\n    \"world_id\": 1,\n    \"objective_url\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/objectives/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"objectives",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single Objective",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"item_id\": 1,\n    \"world_id\": 1,\n    \"item_desc\": \"Description\",\n    \"item_img\": \"\",\n    \"item_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/objectives/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"objectives",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Person",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
+			"name": "Junctions",
+			"item": [
+				{
+					"name": "All Junctions",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/junctions",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"junctions"
+							]
+						}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{baseurl}}/api/person/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"person",
-						"{{num}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Objective",
-			"request": {
-				"auth": {
-					"type": "noauth"
+				{
+					"name": "Single Junction",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/api/junctions/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"junctions",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
 				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseurl}}/api/objective/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"objective",
-						"{{num}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Objective",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
+				{
+					"name": "Single Junction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"junction_desc\": \"Description\",\n    \"dest_id\": 2,\n    \"world_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/junctions",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"junctions"
+							]
+						}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{baseurl}}/api/objective/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"objective",
-						"{{num}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Junction",
-			"request": {
-				"auth": {
-					"type": "noauth"
+				{
+					"name": "Single Junction",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"junction_desc\": \"Description\",\n    \"dest_id\": 2,\n    \"world_id\": 1,\n    \"junction_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/junctions/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"junctions",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
 				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseurl}}/api/junction/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"junction",
-						"{{num}}"
-					]
+				{
+					"name": "Single Junction",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_id\": 1,\n    \"item_id\": 1,\n    \"world_id\": 1,\n    \"item_desc\": \"Description\",\n    \"item_img\": \"\",\n    \"item_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseurl}}/api/junctions/{{num}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"junctions",
+								"{{num}}"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "Junction",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "{{baseurl}}/api/junction/{{num}}",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"api",
-						"junction",
-						"{{num}}"
-					]
-				}
-			},
-			"response": []
+			]
 		}
 	],
 	"auth": {
