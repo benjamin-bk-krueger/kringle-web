@@ -89,6 +89,79 @@ class World(db.Model):
     def __repr__(self):
         return '<World %s>' % self.world_name
 
+class WorldSchema(marsh.Schema):
+    class Meta:
+        fields = ("world_id", "creator_id", "world_name", "world_desc", "world_img")
+        model = World
+
+world_schema = WorldSchema()
+worlds_schema = WorldSchema(many=True)
+
+class WorldListResource(Resource):
+    def get(self):
+        worlds = World.query.all()
+        return worlds_schema.dump(worlds)
+
+    def post(self):
+        if all(s in request.json for s in ('world_name', 'world_desc', 'world_img')):
+            creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
+            if (creator.creator_role == 'creator'):
+                new_world = World(
+                    creator_id=creator.creator_id,
+                    world_name=escape(request.json['world_name']),
+                    world_desc=escape(request.json['world_desc']),
+                    world_img=clean_url(request.json['world_img'])
+                )
+                db.session.add(new_world)
+                db.session.commit()
+                return world_schema.dump(new_world)
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
+class WorldResource(Resource):
+    def get(self, world_id):
+        world = World.query.get_or_404(world_id)
+        return world_schema.dump(world)
+
+    def patch(self, world_id):
+        world = World.query.get_or_404(world_id)
+        if all(s in request.json for s in ('world_name', 'world_desc', 'world_img')):
+            if (AuthChecker().check(request.authorization, world.world_id)):
+                world.world_name = escape(request.json['world_name'])
+                world.world_desc = escape(request.json['world_desc'])
+                world.world_img = clean_url(request.json['world_img'])
+                db.session.commit()
+                return world_schema.dump(world)
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
+    def delete(self, world_id):
+        world = World.query.get_or_404(world_id)
+        if (AuthChecker().check(request.authorization, world.world_id)):
+            db.session.delete(world)
+            db.session.commit()
+            return '', 204
+        else:
+            return jsonify({'error': 'wrong credentials or permissions'})
+
+class WorldFullResource(Resource):
+    def get(self, worldname):
+        outputfile = f"{DOWNLOAD_FOLDER}/{secure_filename(worldname)}.world"
+        objectfile = f"world/{secure_filename(worldname)}.world"
+        output = download_file(BUCKET_PRIVATE, objectfile, outputfile)
+        if (output):
+            return send_file(output)
+        else:
+            return jsonify({'error': 'element not found'})
+
+api.add_resource(WorldListResource, '/api/worlds')
+api.add_resource(WorldResource, '/api/worlds/<int:world_id>')
+api.add_resource(WorldFullResource, '/api/fullworlds/<string:worldname>')
+
 class Room(db.Model):
     __tablename__ = "room"
     room_id = db.Column (db.INTEGER, primary_key=True)
@@ -128,7 +201,7 @@ class RoomListResource(Resource):
             else:
                 return jsonify({'error': 'wrong credentials or permissions'})
         else:
-            return jsonify({'error': 'wrong credentials'})
+            return jsonify({'error': 'wrong JSON format'})
 
 class RoomResource(Resource):
     def get(self, room_id):
@@ -203,7 +276,7 @@ class ItemListResource(Resource):
             else:
                 return jsonify({'error': 'wrong credentials or permissions'})
         else:
-            return jsonify({'error': 'wrong credentials'})
+            return jsonify({'error': 'wrong JSON format'})
 
 class ItemResource(Resource):
     def get(self, item_id):
@@ -255,6 +328,78 @@ class Objective(db.Model):
     def __repr__(self):
         return '<Objective %s>' % self.objective_name
 
+class ObjectiveSchema(marsh.Schema):
+    class Meta:
+        fields = ("objective_id", "room_id", "world_id", "objective_name", "objective_desc", "difficulty", "objective_url", "supported_by", "requires", "objective_img")
+        model = Objective
+
+objective_schema = ObjectiveSchema()
+objectives_schema = ObjectiveSchema(many=True)
+
+class ObjectiveListResource(Resource):
+    def get(self):
+        objectives = Objective.query.all()
+        return objectives_schema.dump(objectives)
+
+    def post(self):
+        if all(s in request.json for s in ('room_id', 'world_id', 'objective_name', 'objective_desc', 'difficulty', 'objective_url', 'supported_by', 'requires', 'objective_img')):
+            if (AuthChecker().check(request.authorization, request.json['world_id'])):
+                new_objective = Objective(
+                    room_id=escape(request.json['room_id']),
+                    world_id=escape(request.json['world_id']),
+                    objective_name=escape(request.json['objective_name']),
+                    objective_desc=escape(request.json['objective_desc']),
+                    difficulty=escape(request.json['difficulty']),
+                    objective_url=clean_url(request.json['objective_url']),
+                    supported_by=escape(request.json['supported_by']),
+                    requires=escape(request.json['requires']),
+                    objective_img=clean_url(request.json['objective_img'])
+                )
+                db.session.add(new_objective)
+                db.session.commit()
+                return objective_schema.dump(new_objective)
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
+class ObjectiveResource(Resource):
+    def get(self, objective_id):
+        objective = Objective.query.get_or_404(objective_id)
+        return objective_schema.dump(objective)
+
+    def patch(self, objective_id):
+        objective = Objective.query.get_or_404(objective_id)
+        if all(s in request.json for s in ('room_id', 'world_id', 'objective_name', 'objective_desc', 'difficulty', 'objective_url', 'supported_by', 'requires', 'objective_img')):
+            if (AuthChecker().check(request.authorization, objective.world_id)):
+                objective.room_id=escape(request.json['room_id']),
+                objective.world_id=escape(request.json['world_id']),
+                objective.objective_name=escape(request.json['objective_name']),
+                objective.objective_desc=escape(request.json['objective_desc']),
+                objective.difficulty=escape(request.json['difficulty']),
+                objective.objective_url=clean_url(request.json['objective_url']),
+                objective.supported_by=escape(request.json['supported_by']),
+                objective.requires=escape(request.json['requires']),
+                objective.objective_img=clean_url(request.json['objective_img'])
+                db.session.commit()
+                return objective_schema.dump(objective)
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
+    def delete(self, objective_id):
+        objective = Objective.query.get_or_404(objective_id)
+        if (AuthChecker().check(request.authorization, objective.world_id)):
+            db.session.delete(objective)
+            db.session.commit()
+            return '', 204
+        else:
+            return jsonify({'error': 'wrong credentials or permissions'})
+
+api.add_resource(ObjectiveListResource, '/api/objectives')
+api.add_resource(ObjectiveResource, '/api/objectives/<int:objective_id>')
+
 class Person(db.Model):
     __tablename__ = "person"
     person_id = db.Column (db.INTEGER, primary_key=True)
@@ -267,6 +412,70 @@ class Person(db.Model):
     def __repr__(self):
         return '<Person %s>' % self.person_name
 
+class PersonSchema(marsh.Schema):
+    class Meta:
+        fields = ("person_id", "room_id", "world_id", "person_name", "person_desc", "person_img")
+        model = Person
+
+person_schema = PersonSchema()
+persons_schema = PersonSchema(many=True)
+
+class PersonListResource(Resource):
+    def get(self):
+        persons = Person.query.all()
+        return persons_schema.dump(persons)
+
+    def post(self):
+        if all(s in request.json for s in ('room_id', 'world_id', 'person_name', 'person_desc', 'person_img')):
+            if (AuthChecker().check(request.authorization, request.json['world_id'])):
+                new_person = Person(
+                    room_id=escape(request.json['room_id']),
+                    world_id=escape(request.json['world_id']),
+                    person_name=escape(request.json['person_name']),
+                    person_desc=escape(request.json['person_desc']),
+                    person_img=clean_url(request.json['person_img'])
+                )
+                db.session.add(new_person)
+                db.session.commit()
+                return person_schema.dump(new_person)
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
+class PersonResource(Resource):
+    def get(self, person_id):
+        person = Person.query.get_or_404(person_id)
+        return person_schema.dump(person)
+
+    def patch(self, person_id):
+        person = Person.query.get_or_404(person_id)
+        if all(s in request.json for s in ('room_id', 'world_id', 'person_name', 'person_desc', 'person_img')):
+            if (AuthChecker().check(request.authorization, person.world_id)):
+                person.room_id = escape(request.json['room_id'])
+                person.world_id = escape(request.json['world_id'])
+                person.person_name = escape(request.json['person_name'])
+                person.person_desc = escape(request.json['person_desc'])
+                person.person_img = clean_url(request.json['person_img'])
+                db.session.commit()
+                return person_schema.dump(person)
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
+    def delete(self, person_id):
+        person = Person.query.get_or_404(person_id)
+        if (AuthChecker().check(request.authorization, person.world_id)):
+            db.session.delete(person)
+            db.session.commit()
+            return '', 204
+        else:
+            return jsonify({'error': 'wrong credentials or permissions'})
+
+api.add_resource(PersonListResource, '/api/persons')
+api.add_resource(PersonResource, '/api/persons/<int:person_id>')
+
 class Junction(db.Model):
     __tablename__ = "junction"
     junction_id = db.Column (db.INTEGER, primary_key=True)
@@ -277,6 +486,68 @@ class Junction(db.Model):
 
     def __repr__(self):
         return '<Junction %s>' % self.junction_id
+
+class JunctionSchema(marsh.Schema):
+    class Meta:
+        fields = ("junction_id", "room_id", "world_id", "dest_id", "junction_desc")
+        model = Junction
+
+junction_schema = JunctionSchema()
+junctions_schema = JunctionSchema(many=True)
+
+class JunctionListResource(Resource):
+    def get(self):
+        junctions = Junction.query.all()
+        return junctions_schema.dump(junctions)
+
+    def post(self):
+        if all(s in request.json for s in ('room_id', 'world_id', 'dest_id', 'junction_desc')):
+            if (AuthChecker().check(request.authorization, request.json['world_id'])):
+                new_junction = Junction(
+                    room_id=escape(request.json['room_id']),
+                    world_id=escape(request.json['world_id']),
+                    dest_id=escape(request.json['dest_id']),
+                    junction_desc=escape(request.json['junction_desc'])
+                )
+                db.session.add(new_junction)
+                db.session.commit()
+                return junction_schema.dump(new_junction)
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
+class JunctionResource(Resource):
+    def get(self, junction_id):
+        junction = Junction.query.get_or_404(junction_id)
+        return junction_schema.dump(junction)
+
+    def patch(self, junction_id):
+        junction = Junction.query.get_or_404(junction_id)
+        if all(s in request.json for s in ('room_id', 'world_id', 'dest_id', 'junction_desc')):
+            if (AuthChecker().check(request.authorization, junction.world_id)):
+                junction.room_id = escape(request.json['room_id'])
+                junction.world_id = escape(request.json['world_id'])
+                junction.dest_id = escape(request.json['dest_id'])
+                junction.junction_desc = escape(request.json['junction_desc'])
+                db.session.commit()
+                return junction_schema.dump(junction)
+            else:
+                return jsonify({'error': 'wrong credentials or permissions'})
+        else:
+            return jsonify({'error': 'wrong JSON format'})
+
+    def delete(self, junction_id):
+        junction = Junction.query.get_or_404(junction_id)
+        if (AuthChecker().check(request.authorization, junction.world_id)):
+            db.session.delete(junction)
+            db.session.commit()
+            return '', 204
+        else:
+            return jsonify({'error': 'wrong credentials or permissions'})
+
+api.add_resource(JunctionListResource, '/api/junctions')
+api.add_resource(JunctionResource, '/api/junctions/<int:junction_id>')
 
 class Solution(db.Model):
     __tablename__ = "solution"
@@ -915,106 +1186,3 @@ def api_post_world(worldname):
             return jsonify({'error': 'insufficient permissions'})
     else:
         return jsonify({'error': 'wrong credentials'})
-
-@app.route('/api/world/<string:worldname>', methods=['GET'])
-def api_get_world(worldname):
-    outputfile = f"{DOWNLOAD_FOLDER}/{secure_filename(worldname)}.world"
-    objectfile = f"world/{secure_filename(worldname)}.world"
-    output = download_file(BUCKET_PRIVATE, objectfile, outputfile)
-    if (output):
-        return send_file(output)
-    else:
-        return jsonify({'error': 'element not found'})
-
-@app.route('/api/person/<int:person_id>', methods=['POST'])
-def api_post_person(person_id):
-    creator_id = is_authenticated(request.authorization)
-    if (creator_id > 0):
-        data = json.loads(request.data)
-        person = Person.query.filter_by(person_id=person_id).first()
-        if (person):
-            room = Room.query.filter_by(room_id=person.room_id).first()
-            world = World.query.filter_by(world_id=room.world_id).first()
-            if (creator_id == world.creator_id):
-                person.person_name = escape(data["name"])
-                person.person_desc = escape(data["description"])
-                person.person_img = clean_url(data["image"])
-                db.session.commit()
-                return jsonify({'success': f'person {data["name"]} updated'})
-            else:
-                return jsonify({'error': 'not authorized for object'})
-        else:
-            return jsonify({'error': 'element not found'})
-    else:
-        return jsonify({'error': 'wrong credentials'})
-
-@app.route('/api/person/<int:person_id>', methods=['GET'])
-def api_get_person(person_id):
-    person = Person.query.filter_by(person_id=person_id).first()
-    if (person):
-        return jsonify({'name': person.person_name,  'description': person.person_desc,  'image': person.person_img})
-    else:
-        return jsonify({'error': 'element not found'})
-
-@app.route('/api/objective/<int:objective_id>', methods=['POST'])
-def api_post_objective(objective_id):
-    creator_id = is_authenticated(request.authorization)
-    if (creator_id > 0):
-        data = json.loads(request.data)
-        objective = Objective.query.filter_by(objective_id=objective_id).first()
-        if (objective):
-            room = Room.query.filter_by(room_id=objective.room_id).first()
-            world = World.query.filter_by(world_id=room.world_id).first()
-            if (creator_id == world.creator_id):
-                objective.objective_name = escape(data["name"])
-                objective.objective_desc = escape(data["description"])
-                objective.difficulty = escape(data["difficulty"])
-                objective.objective_url = clean_url(data["url"])
-                objective.supported_by = escape(data["supportedby"])
-                objective.requires = escape(data["requires"])
-                objective.objective_img = clean_url(data["image"])
-                db.session.commit()
-                return jsonify({'success': f'objective {data["name"]} updated'})
-            else:
-                return jsonify({'error': 'not authorized for object'})
-        else:
-            return jsonify({'error': 'element not found'})
-    else:
-        return jsonify({'error': 'wrong credentials'})
-
-@app.route('/api/objective/<int:objective_id>', methods=['GET'])
-def api_get_objective(objective_id):
-    objective = Objective.query.filter_by(objective_id=objective_id).first()
-    if (objective):
-        return jsonify({'name': objective.objective_name,  'description': objective.objective_desc,  'difficulty': objective.difficulty,  'url': objective.objective_url,  'supportedby': objective.supported_by,  'requires': objective.requires,  'image': objective.objective_img})
-    else:
-        return jsonify({'error': 'element not found'})
-
-@app.route('/api/junction/<int:junction_id>', methods=['POST'])
-def api_post_junction(junction_id):
-    creator_id = is_authenticated(request.authorization)
-    if (creator_id > 0):
-        data = json.loads(request.data)
-        junction = Junction.query.filter_by(junction_id=junction_id).first()
-        if (junction):
-            room = Room.query.filter_by(room_id=junction.room_id).first()
-            world = World.query.filter_by(world_id=room.world_id).first()
-            if (creator_id == world.creator_id):
-                junction.dest_id = escape(data["destination"])
-                junction.junction_desc = escape(data["description"])
-                db.session.commit()
-                return jsonify({'success': f'junction {junction_id} updated'})
-            else:
-                return jsonify({'error': 'not authorized for object'})
-        else:
-            return jsonify({'error': 'element not found'})
-    else:
-        return jsonify({'error': 'wrong credentials'})
-
-@app.route('/api/junction/<int:junction_id>', methods=['GET'])
-def api_get_junction(junction_id):
-    junction = Junction.query.filter_by(junction_id=junction_id).first()
-    if (junction):
-        return jsonify({'destination': junction.dest_id,  'description': junction.junction_desc})
-    else:
-        return jsonify({'error': 'element not found'})
