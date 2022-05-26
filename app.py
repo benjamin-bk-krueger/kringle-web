@@ -13,22 +13,26 @@ from werkzeug.security import generate_password_hash, check_password_hash # for 
 from werkzeug.utils import secure_filename # to prevent path traversal attacks
 
 # the app configuration is done via environmental variables
-POSTGRES_URL    = os.environ['POSTGRES_URL']           # DB connection data
-POSTGRES_USER   = os.environ['POSTGRES_USER'] 
-POSTGRES_PW     = os.environ['POSTGRES_PW'] 
-POSTGRES_DB     = os.environ['POSTGRES_DB'] 
-SECRET_KEY      = os.environ['SECRET_KEY']
-S3_ENDPOINT     = os.environ['S3_ENDPOINT']             # where S3 buckets are located
-BUCKET_PUBLIC   = os.environ['BUCKET_PUBLIC']
-BUCKET_PRIVATE  = os.environ['BUCKET_PRIVATE']
-UPLOAD_FOLDER   = os.environ['HOME'] + "/uploads"       # directory for game data
-DOWNLOAD_FOLDER = os.environ['HOME'] + "/downloads"
+POSTGRES_URL        = os.environ['POSTGRES_URL']           # DB connection data
+POSTGRES_USER       = os.environ['POSTGRES_USER'] 
+POSTGRES_PW         = os.environ['POSTGRES_PW'] 
+POSTGRES_DB         = os.environ['POSTGRES_DB'] 
+SECRET_KEY          = os.environ['SECRET_KEY']
+S3_ENDPOINT         = os.environ['S3_ENDPOINT']             # where S3 buckets are located
+BUCKET_PUBLIC       = os.environ['BUCKET_PUBLIC']
+BUCKET_PRIVATE      = os.environ['BUCKET_PRIVATE']
+UPLOAD_FOLDER       = os.environ['HOME'] + "/uploads"       # directory for game data
+DOWNLOAD_FOLDER     = os.environ['HOME'] + "/downloads"
+ALLOWED_EXTENSIONS  = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
             static_url_path='/static', 
             static_folder='static',
             template_folder='templates')
+
+# Limit file uploads to 16MB
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
 # sitemap.xml configuration
 ext = Sitemap(app=app)
@@ -725,13 +729,17 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 db.session.add(junction)
                 db.session.commit()
                 counter_loaded = counter_loaded + 1
-    
     f.close()
     return(counter_loaded)
 
 # URL sanitization
 def clean_url(url):
     return (re.sub('[^-A-Za-z0-9+&@#/%?=~_|!:,.;\(\)]', '', url))
+
+# Path traversal prevention
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # check if the basic authentication is valid, used for API calls
 class AuthChecker():
@@ -783,6 +791,7 @@ def post_login():
         return redirect(url_for('get_login'))
     else:
         login_user(creator, remember=remember)
+
         return redirect(url_for('get_index'))
 
 @app.route('/web/logout', methods = ['GET'])
@@ -800,15 +809,26 @@ def get_storage():
 @app.route("/web/upload", methods=['POST'])
 @login_required
 def post_upload():
-    f = request.files['file']
-    folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
-    local_file = os.path.join(folder_name, secure_filename(f.filename))
-    remote_file = f"{current_user.creator_name}/{secure_filename(f.filename)}"
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
-    f.save(local_file)
-    upload_file(BUCKET_PUBLIC, remote_file, local_file)
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        # flash('No file part')
+        return render_template('error.html')
+    file = request.files['file']
 
+    # If the user does not select a file, the browser submits an
+    # empty file without a filename.
+    if file.filename == '':
+        # flash('No selected file')
+        return render_template('error.html')
+
+    if file and allowed_file(file.filename):
+        folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
+        local_file = os.path.join(folder_name, secure_filename(file.filename))
+        remote_file = f"{current_user.creator_name}/{secure_filename(file.filename)}"
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        file.save(local_file)
+        upload_file(BUCKET_PUBLIC, remote_file, local_file)
     return redirect(url_for('get_storage'))
 
 @app.route("/web/download/<string:creatorname>/<string:filename>", methods=['GET'])
@@ -817,10 +837,11 @@ def get_download(creatorname, filename):
     folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
     local_file = os.path.join(folder_name, secure_filename(filename))
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
+    
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     output = download_file(BUCKET_PUBLIC, remote_file, local_file)
-
+    # return send_from_directory(app.config["UPLOAD_FOLDER"], name)
     return send_file(output, as_attachment=True)
 
 @app.route("/web/delete/<string:creatorname>/<string:filename>", methods=['GET'])
@@ -828,7 +849,6 @@ def get_download(creatorname, filename):
 def get_delete(creatorname, filename):
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
     delete_file(BUCKET_PUBLIC, remote_file)
-
     return redirect(url_for('get_storage'))
 
 # Flask HTML views to read and modify the database contents
@@ -843,6 +863,7 @@ def get_stats():
     counts['objective'] = Objective.query.count()
     counts['junction'] = Junction.query.count()
     counts['solution'] = Solution.query.count()
+    
     return render_template('stats.html', counts=counts)
 
 @app.route('/web/creators', methods = ['GET'])
