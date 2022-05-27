@@ -22,8 +22,6 @@ services:
     container_name: kringle_web
     volumes:
       - ./.aws/:/home/flask/.aws/
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   database:
     image: postgres
