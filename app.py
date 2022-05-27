@@ -21,12 +21,14 @@ POSTGRES_USER       = os.environ['POSTGRES_USER']
 POSTGRES_PW         = os.environ['POSTGRES_PW'] 
 POSTGRES_DB         = os.environ['POSTGRES_DB'] 
 SECRET_KEY          = os.environ['SECRET_KEY']
+MAIL_SERVER         = os.environ['MAIL_SERVER']             # mail host
 S3_ENDPOINT         = os.environ['S3_ENDPOINT']             # where S3 buckets are located
 BUCKET_PUBLIC       = os.environ['BUCKET_PUBLIC']
 BUCKET_PRIVATE      = os.environ['BUCKET_PRIVATE']
 UPLOAD_FOLDER       = os.environ['HOME'] + "/uploads"       # directory for game data
 DOWNLOAD_FOLDER     = os.environ['HOME'] + "/downloads"
 ALLOWED_EXTENSIONS  = {'png', 'jpg', 'jpeg', 'gif'}
+
 
 # Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
@@ -48,6 +50,7 @@ marsh = Marshmallow(app)
 
 # E-Mail configuration
 mail = Mail(app)
+app.config['MAIL_SERVER'] = MAIL_SERVER
 
 # DB configuration
 db = SQLAlchemy()
