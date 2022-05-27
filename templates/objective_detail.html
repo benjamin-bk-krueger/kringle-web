@@ -57,9 +57,11 @@
             <input type="submit" value="Edit Master Quest" />
         </form>
         {% endif %}
+        {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
         <form action="{{ url_for('get_mysolution', objective_id=objective.objective_id)}}">
             <input type="submit" value="Edit My Solution" />
         </form>
+        {% endif %}
     </p>
 
     <p>

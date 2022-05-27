@@ -15,7 +15,7 @@
         {{ mdsolution|safe }}
     </p>
 
-    {% if current_user.creator_id != solution.creator_id %}
+    {% if (current_user.creator_id != solution.creator_id) and (current_user.creator_role == "creator" or current_user.creator_role == "user") %}
     <p>
         <form action="{{ url_for('get_likesolution', solution_id=solution.solution_id) }}" method="GET">
             <input type="submit" value="Like / Unlike">

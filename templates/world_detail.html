@@ -22,11 +22,13 @@
         </form>
     </p>
 
+    {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
     <p>
         <form action="{{ url_for('get_mywalkthrough', world_id=world.world_id) }}" method="GET">
             <input type="submit" value="Walkthrough">
         </form>
     </p>
+    {% endif %}
 
     {% if current_user.creator_id == world.creator_id %}
     <p>
