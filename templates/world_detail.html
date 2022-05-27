@@ -28,17 +28,21 @@
         </form>
     </p>
 
+    {% if current_user.creator_id == world.creator_id %}
     <p>
         <form action="{{ url_for('get_switchworld', world_id=world.world_id) }}" method="GET">
             <input type="submit" value="Switch Visibility">
         </form>
     </p>
+    {% endif %}
 
+    {% if current_user.creator_id == world.creator_id %}
     <p>
         <form action="{{ url_for('get_delworld', world_id=world.world_id) }}" method="GET">
             <input type="submit" value="Delete">
         </form>
     </p>
+    {% endif %}
 
     <p>
         <a href="{{ url_for('get_worlds') }}">All Worlds</a>
