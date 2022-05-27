@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
 from flask_sitemap import Sitemap # to generate sitemap.xml
 from flask_restx import Resource, Api # to enable the REST API, see https://rahmanfadhil.com/flask-rest-api/
 from flask_marshmallow import Marshmallow  # to marshall our objects
+from flask_mail import Mail, Message # to send mails
 from werkzeug.security import generate_password_hash, check_password_hash # for password hashing
 from werkzeug.utils import secure_filename
 
@@ -44,6 +45,9 @@ api = Api(app)
 
 # Marshall configuration
 marsh = Marshmallow(app)
+
+# E-Mail configuration
+mail = Mail(app)
 
 # DB configuration
 db = SQLAlchemy()
@@ -764,6 +768,14 @@ def index():
     yield 'get_creators', {}
     yield 'get_worlds', {}
 
+# Send an e-mail
+def send_mail(recipients, mailheader, mailbody):
+    msg = Message(mailheader,
+                  sender="mail@kringle.info",
+                  recipients=recipients)
+    msg.body = mailbody        
+    mail.send(msg)
+
 # Flask entry pages
 @app.route('/web/', methods = ['GET'])
 def get_index():
@@ -906,9 +918,13 @@ def get_mycreator():
     if (request.method == 'POST'):
         if (creator):
             if (form1.validate_on_submit()):
+                old_mail = creator.creator_mail
                 creator.creator_mail = escape(request.form["email"])
                 creator.creator_img = clean_url(request.form["url"])
                 db.session.commit()
+
+                send_mail([creator.creator_mail], "Notification: E-Mail changed", f"You have changed you e-mail address from {old_mail} to {creator.creator_mail}.")
+
                 return redirect(url_for('get_mycreator'))
 
             if (form2.validate_on_submit()):
