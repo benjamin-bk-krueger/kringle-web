@@ -5,11 +5,27 @@
 
     <p>
         <h4>Please enter data:</h4>
-        <form action="{{ url_for('post_mailcreator') }}" method="POST">
-            <table><tbody>
-            <tr><td width="30%">E-Mail:</td> <td width="70%"><input type="email" name="mail" size="20" maxlength="100" minlength="5" value="{{ creator.creator_mail }}" onkeypress="return event.charCode != 32"></td></tr>
-            <tr><td>Image:</td> <td><input type="text" name="image" size="20" maxlength="200" minlength="5" value="{{ creator.creator_img }}" onkeypress="return event.charCode != 32"></td></tr>
-            </tbody></table>
+        <form action="{{ url_for('get_mycreator') }}" method="POST">
+            {{ form1.csrf_token }}
+            {{ form1.operation }}
+            <p>
+                <table><tbody>
+                <tr><td width="30%">{{ form1.email.label }}</td> <td width="70%">{{ form1.email(size=20) }}</td></tr>
+                <tr><td>{{ form1.url.label }}</td> <td>{{ form1.url(size=20) }}</td></tr>
+                </tbody></table>
+            </p>
+            {% if operation == "mail" %}
+                <ul class="errors">
+                    {% for error in form1.email.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <ul class="errors">
+                    {% for error in form1.url.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
             <input type="submit" value="Update">
         </form>
     </p>
@@ -18,12 +34,22 @@
 
     <p>
         <h4>Set new password:</h4>
-        <form action="{{ url_for('post_passcreator') }}" method="POST" oninput="result.value=!!password2.value&&(password.value==password2.value)?'Password matching.':'Passwords NOT matching!'">
-            <table><tbody>
-            <tr><td width="30%">Password:</td> <td width="70%"><input type="password" name="password" size="20" maxlength="20" minlength="5"></td></tr>
-            <tr><td>Password Verification:</td> <td><input type="password" name="password2" size="20" maxlength="20" minlength="5"></td></tr>
-            <tr><td></td><td><output name="result"></output></td></tr>
-            </tbody></table>
+        <form action="{{ url_for('get_mycreator') }}" method="POST">
+            {{ form2.csrf_token }}
+            {{ form2.operation }}
+            <p>
+                <table><tbody>
+                <tr><td width="30%">{{ form2.password.label }}</td> <td width="70%">{{ form2.password(size=20) }}</td></tr>
+                <tr><td>{{ form2.password2.label }}</td> <td>{{ form2.password2(size=20) }}</td></tr>
+                </tbody></table>
+            </p>
+            {% if operation == "pass" %}
+                <ul class="errors">
+                    {% for error in form2.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
             <input type="submit" value="Set">
         </form>
     </p>
@@ -32,11 +58,21 @@
     
     <p>
         <h4>Delete this user account:</h4>
-        <form action="{{ url_for('post_delcreator') }}" method="POST" oninput="result.value=!!(confirm.value=='delete')?'Click to continue.':'Enter delete.'">
-            <table><tbody>
-            <tr><td width="30%">Confirmation:</td> <td width="70%"><input type="test" name="confirm" size="20" maxlength="20" minlength="5" onkeypress="return event.charCode != 32"></td></tr>
-            <tr><td></td><td><output name="result"></output></td></tr>
-            </tbody></table>
+        <form action="{{ url_for('get_mycreator') }}" method="POST">
+            {{ form3.csrf_token }}
+            {{ form3.operation }}
+            <p>
+                <table><tbody>
+                <tr><td width="30%">{{ form3.confirmation.label }}</td> <td width="70%">{{ form3.confirmation(size=20) }}</td></tr>
+                </tbody></table>
+            </p>
+            {% if operation == "delete" %}
+                <ul class="errors">
+                    {% for error in form3.confirmation.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
             <input type="submit" value="Delete">
         </form>    
     </p>

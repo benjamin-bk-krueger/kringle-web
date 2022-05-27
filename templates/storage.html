@@ -5,9 +5,17 @@
 
     <p>
         <h4>Upload your file here:</h4>
-        <form method="POST" action="{{ url_for('post_upload') }}" enctype=multipart/form-data>
-        <input type=file name=file accept="image/gif, image/jpeg, image/png">
-        <input type=submit value=Upload>
+        <form method="POST" action="{{ url_for('get_storage') }}" enctype=multipart/form-data>
+            {{ form.csrf_token }}
+            <p>
+                {{ form.file }}
+                <input type=submit value=Upload>
+            </p>
+            <ul class="errors">
+                {% for error in form.file.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
         </form>
     </p>
 

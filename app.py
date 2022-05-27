@@ -10,7 +10,9 @@ from flask_sitemap import Sitemap # to generate sitemap.xml
 from flask_restx import Resource, Api # to enable the REST API, see https://rahmanfadhil.com/flask-rest-api/
 from flask_marshmallow import Marshmallow  # to marshall our objects
 from werkzeug.security import generate_password_hash, check_password_hash # for password hashing
-from werkzeug.utils import secure_filename # to prevent path traversal attacks
+from werkzeug.utils import secure_filename
+
+from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, UploadForm # to prevent path traversal attacks
 
 # the app configuration is done via environmental variables
 POSTGRES_URL        = os.environ['POSTGRES_URL']           # DB connection data
@@ -776,23 +778,22 @@ def get_error():
 def get_logged():
     return redirect(url_for('get_index'))
 
-@app.route('/web/login', methods = ['GET'])
+@app.route('/web/login', methods = ['GET', 'POST'])
 def get_login():
-    return render_template('login.html')
+    form = LoginForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        creator_name = request.form["creator"]
+        creator_pass = request.form["password"]
+        remember = True if request.form.get('remember') else False
+        creator = Creator.query.filter_by(creator_name=creator_name).first()
 
-@app.route('/web/login', methods = ['POST'])
-def post_login():
-    creator_name = request.form["creator"]
-    creator_pass = request.form["password"]
-    remember = True if request.form.get('remember') else False
-    creator = Creator.query.filter_by(creator_name=creator_name).first()
-
-    if not creator or not check_password_hash(creator.creator_pass, creator_pass):
-        return redirect(url_for('get_login'))
+        if not creator or not check_password_hash(creator.creator_pass, creator_pass):
+            return redirect(url_for('get_login'))
+        else:
+            login_user(creator, remember=remember)
+            return redirect(url_for('get_index'))
     else:
-        login_user(creator, remember=remember)
-
-        return redirect(url_for('get_index'))
+        return render_template('login.html', form=form)
 
 @app.route('/web/logout', methods = ['GET'])
 def get_logout():
@@ -800,36 +801,25 @@ def get_logout():
     return redirect(url_for('get_index'))
 
 # S3 storage pages
-@app.route("/web/storage", methods=['GET'])
+@app.route("/web/storage", methods=['GET', 'POST'])
 @login_required
 def get_storage():
-    contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
-    return render_template('storage.html', contents=contents)
+    form = UploadForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        filename = secure_filename(form.file.data.filename)
 
-@app.route("/web/upload", methods=['POST'])
-@login_required
-def post_upload():
-    # check if the post request has the file part
-    if 'file' not in request.files:
-        # flash('No file part')
-        return render_template('error.html')
-    file = request.files['file']
-
-    # If the user does not select a file, the browser submits an
-    # empty file without a filename.
-    if file.filename == '':
-        # flash('No selected file')
-        return render_template('error.html')
-
-    if file and allowed_file(file.filename):
-        folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
-        local_file = os.path.join(folder_name, secure_filename(file.filename))
-        remote_file = f"{current_user.creator_name}/{secure_filename(file.filename)}"
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
-        file.save(local_file)
-        upload_file(BUCKET_PUBLIC, remote_file, local_file)
-    return redirect(url_for('get_storage'))
+        if allowed_file(filename):
+            folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
+            local_file = os.path.join(folder_name, filename)
+            remote_file = f"{current_user.creator_name}/{filename}"
+            if not os.path.exists(folder_name):
+                os.makedirs(folder_name)
+            form.file.data.save(local_file)
+            upload_file(BUCKET_PUBLIC, remote_file, local_file)
+        return redirect(url_for('get_storage'))
+    else:
+        contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
+        return render_template('storage.html', contents=contents, form=form)
 
 @app.route("/web/download/<string:creatorname>/<string:filename>", methods=['GET'])
 @login_required
@@ -863,7 +853,6 @@ def get_stats():
     counts['objective'] = Objective.query.count()
     counts['junction'] = Junction.query.count()
     counts['solution'] = Solution.query.count()
-    
     return render_template('stats.html', counts=counts)
 
 @app.route('/web/creators', methods = ['GET'])
@@ -879,73 +868,68 @@ def get_creator(creator_id):
     else:
         return render_template('error.html')
 
-@app.route('/web/newcreator', methods = ['GET'])
+@app.route('/web/newcreator', methods = ['GET', 'POST'])
 def get_newcreator():
-    return render_template('account.html')
+    form = AccountForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        code = request.form["invitation"]
+        invitation  = Invitation.query.filter_by(invitation_code=code).first()
 
-@app.route('/web/newcreator', methods=['POST'])
-def post_newcreator():
-    code = request.form["invitation"]
-    invitation  = Invitation.query.filter_by(invitation_code=code).first()
+        if (invitation):
+            if (invitation.invitation_forever == 1 or invitation.invitation_taken == 0):
+                creator = Creator()
+                creator.creator_name = escape(request.form["creator"])
+                creator.creator_mail = escape(request.form["email"])
+                creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
+                creator.creator_role = invitation.invitation_role
+                creator.creator_img = ""
+                db.session.add(creator)
+                db.session.commit()
 
-    if (invitation):
-        if (invitation.invitation_forever == 1 or invitation.invitation_taken == 0):
-            creator = Creator()
-            creator.creator_name = escape(request.form["creator"])
-            creator.creator_mail = escape(request.form["mail"])
-            creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
-            creator.creator_role = invitation.invitation_role
-            creator.creator_img = ""
-            db.session.add(creator)
-            db.session.commit()
+                invitation.invitation_taken = 1
+                db.session.commit()
+        return redirect(url_for('get_creators'))
+    else:
+        return render_template('account.html', form=form)
 
-            invitation.invitation_taken = 1
-            db.session.commit()
-    return redirect(url_for('get_creators'))
-
-@app.route('/web/mycreator', methods = ['GET'])
+@app.route('/web/mycreator', methods = ['GET', 'POST'])
 @login_required
 def get_mycreator():
+    form1 = MailCreatorForm()
+    form2 = PassCreatorForm()
+    form3 = DelCreatorForm()
     creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
-    if (creator):
-        return render_template('account_detail.html', creator=creator)
+    if "operation" in request.form:
+        operation = request.form["operation"]
     else:
-        return render_template('error.html')
+        operation = "none"
+    if (request.method == 'POST'):
+        if (creator):
+            if (form1.validate_on_submit()):
+                creator.creator_mail = escape(request.form["email"])
+                creator.creator_img = clean_url(request.form["url"])
+                db.session.commit()
+                return redirect(url_for('get_mycreator'))
 
-@app.route('/web/mailcreator', methods=['POST'])
-@login_required
-def post_mailcreator():
-    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
-    if (creator):
-        creator.creator_mail = escape(request.form["mail"])
-        creator.creator_img = clean_url(request.form["image"])
-        db.session.commit()
-        
-        return redirect(url_for('get_mycreator'))
-    else:
-        return render_template('error.html')
+            if (form2.validate_on_submit()):
+                creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
+                db.session.commit()
+                return redirect(url_for('get_mycreator'))
 
-@app.route('/web/passcreator', methods=['POST'])
-@login_required
-def post_passcreator():
-    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
-    if (creator):
-        creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
-        db.session.commit()
+            if (form3.validate_on_submit()):
+                confirmation = request.form["confirmation"]
+                if (confirmation == "delete"):
+                    Creator.query.filter_by(creator_id=current_user.creator_id).delete()
+                    db.session.commit()
+                    logout_user()
+                return redirect(url_for('get_index'))
+        else:
+            return render_template('error.html')
 
-        return redirect(url_for('get_mycreator'))
-    else:
-        return render_template('error.html')
-
-@app.route('/web/delcreator', methods=['POST'])
-@login_required
-def post_delcreator():
-    confirmation = request.form["confirm"]
-    if (confirmation == "delete"):
-        Creator.query.filter_by(creator_id=current_user.creator_id).delete()
-        db.session.commit()
-        logout_user()
-    return redirect(url_for('get_index'))
+    form1.email.default = creator.creator_mail
+    form1.url.default = creator.creator_img
+    form1.process()
+    return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3, operation=operation)
 
 @app.route('/web/worlds', methods = ['GET'])
 def get_worlds():
@@ -1063,38 +1047,36 @@ def get_junction(junction_id):
     else:
         return render_template('error.html')
 
-@app.route('/web/quest/<int:objective_id>', methods=['POST'])
-@login_required
-def post_quest(objective_id):
-    objective = Objective.query.filter_by(objective_id=objective_id).first()
-    if (objective):
-        room = Room.query.filter_by(room_id=objective.room_id).first()
-        world = World.query.filter_by(world_id=room.world_id).first()
-
-        if (world.creator_id == current_user.creator_id):
-            objective.quest = request.form["quest"].encode()
-            db.session.commit()
-        return redirect(url_for('get_objective', objective_id=objective.objective_id))
-    else:
-        return render_template('error.html')
-
-@app.route('/web/quest/<int:objective_id>', methods=['GET'])
+@app.route('/web/quest/<int:objective_id>', methods=['GET', 'POST'])
 @login_required
 def get_quest(objective_id):
-    objective = Objective.query.filter_by(objective_id=objective_id).first()
-    if (objective):
-        room = Room.query.filter_by(room_id=objective.room_id).first()
-        world = World.query.filter_by(world_id=room.world_id).first()
+    if request.method == 'POST':
+        objective = Objective.query.filter_by(objective_id=objective_id).first()
+        if (objective):
+            room = Room.query.filter_by(room_id=objective.room_id).first()
+            world = World.query.filter_by(world_id=room.world_id).first()
 
-        if (world.creator_id == current_user.creator_id):
-            if (objective.quest != None):
-                return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'), objective_id=objective_id, world_id=objective.world_id)
-            else:
-                return render_template('quest_detail.html', quest="", objective_id=objective_id, world_id=objective.world_id)
-        else:
+            if (world.creator_id == current_user.creator_id):
+                objective.quest = request.form["quest"].encode()
+                db.session.commit()
             return redirect(url_for('get_objective', objective_id=objective.objective_id))
+        else:
+            return render_template('error.html')
     else:
-        return render_template('error.html')
+        objective = Objective.query.filter_by(objective_id=objective_id).first()
+        if (objective):
+            room = Room.query.filter_by(room_id=objective.room_id).first()
+            world = World.query.filter_by(world_id=room.world_id).first()
+
+            if (world.creator_id == current_user.creator_id):
+                if (objective.quest != None):
+                    return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'), objective_id=objective_id, world_id=objective.world_id)
+                else:
+                    return render_template('quest_detail.html', quest="", objective_id=objective_id, world_id=objective.world_id)
+            else:
+                return redirect(url_for('get_objective', objective_id=objective.objective_id))
+        else:
+            return render_template('error.html')
 
 @app.route('/web/solution/<int:solution_id>', methods=['GET'])
 @login_required
@@ -1141,46 +1123,44 @@ def get_likesolution(solution_id):
     else:
         return render_template('error.html')
 
-@app.route('/web/mysolution/<int:objective_id>', methods=['POST'])
-@login_required
-def post_mysolution(objective_id):
-    objective = Objective.query.filter_by(objective_id=objective_id).first()
-    if (objective):
-        solution = Solution.query.filter_by(objective_id=objective_id).filter_by(creator_id=current_user.creator_id).first()
-        if solution is not None:
-            db.session.delete(solution)
-            db.session.commit()
-
-        solution_new = Solution()
-        solution_new.objective_id = objective_id
-        solution_new.creator_id = current_user.creator_id
-        solution_new.solution_text = request.form["solution"].encode()
-        if ('visible' in request.form):
-            solution_new.visible = 1
-        db.session.add(solution_new)
-        db.session.commit()
-
-        return redirect(url_for('get_objective', objective_id=objective.objective_id))
-    else:
-        return render_template('error.html')
-
-@app.route('/web/mysolution/<int:objective_id>', methods=['GET'])
+@app.route('/web/mysolution/<int:objective_id>', methods=['GET', 'POST'])
 @login_required
 def get_mysolution(objective_id):
-    objective = Objective.query.filter_by(objective_id=objective_id).first()
-    if (objective):
-        if (objective.quest != None):
-            mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
-        else:
-            mdquest = ""
+    if request.method == 'POST':
+        objective = Objective.query.filter_by(objective_id=objective_id).first()
+        if (objective):
+            solution = Solution.query.filter_by(objective_id=objective_id).filter_by(creator_id=current_user.creator_id).first()
+            if solution is not None:
+                db.session.delete(solution)
+                db.session.commit()
 
-        solution = Solution.query.filter_by(objective_id=objective_id).filter_by(creator_id=current_user.creator_id).first()
-        if (solution != None):
-            return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), visible=solution.visible, mdquest=mdquest, objective_id=objective_id, world_id=objective.world_id)
+            solution_new = Solution()
+            solution_new.objective_id = objective_id
+            solution_new.creator_id = current_user.creator_id
+            solution_new.solution_text = request.form["solution"].encode()
+            if ('visible' in request.form):
+                solution_new.visible = 1
+            db.session.add(solution_new)
+            db.session.commit()
+
+            return redirect(url_for('get_objective', objective_id=objective.objective_id))
         else:
-            return render_template('solution_my_detail.html', solution="", visible=0, mdquest=mdquest, objective_id=objective_id, world_id=objective.world_id)
+            return render_template('error.html')
     else:
-        return render_template('error.html')
+        objective = Objective.query.filter_by(objective_id=objective_id).first()
+        if (objective):
+            if (objective.quest != None):
+                mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+            else:
+                mdquest = ""
+
+            solution = Solution.query.filter_by(objective_id=objective_id).filter_by(creator_id=current_user.creator_id).first()
+            if (solution != None):
+                return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'), visible=solution.visible, mdquest=mdquest, objective_id=objective_id, world_id=objective.world_id)
+            else:
+                return render_template('solution_my_detail.html', solution="", visible=0, mdquest=mdquest, objective_id=objective_id, world_id=objective.world_id)
+        else:
+            return render_template('error.html')
 
 @app.route('/web/mywalkthrough/<int:world_id>', methods=['GET'])
 @login_required

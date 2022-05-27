@@ -19,7 +19,7 @@
     <br><hr><br>
 
     <p>
-        <form action="{{ url_for('post_mysolution', objective_id=objective_id)}}" method="POST">
+        <form action="{{ url_for('get_mysolution', objective_id=objective_id)}}" method="POST">
             <textarea name="solution" cols="50" rows="10">{{ solution }}</textarea><br>
             <script>
                 const easyMDE = new EasyMDE();

@@ -5,15 +5,37 @@
 
     <p>
         <h4>Please enter data:</h4>
-        <form action="{{ url_for('post_newcreator') }}" method="POST" oninput="result.value=!!password2.value&&(password.value==password2.value)?'Password matching.':'Passwords NOT matching!'">
+        <form action="{{ url_for('get_newcreator') }}" method="POST">
+            {{ form.csrf_token }}
+            <p>
             <table><tbody>
-            <tr><td width="30%">Name:</td> <td width="70%"><input type="text" name="creator" size="20" maxlength="20" minlength="5" onkeypress="return event.charCode != 32"></td></tr>
-            <tr><td>E-Mail:</td> <td><input type="email" name="mail" size="20" maxlength="100" minlength="5" onkeypress="return event.charCode != 32"></td></tr>
-            <tr><td>Password:</td> <td><input type="password" name="password" size="20" maxlength="20" minlength="5"></td></tr>
-            <tr><td>Password Verification:</td> <td><input type="password" name="password2" size="20" maxlength="20" minlength="5"></td></tr>
-            <tr><td></td><td><output name="result"></output></td></tr>
-            <tr><td>Invitation Code:</td> <td><input type="text" name="invitation" size="20" maxlength="20"></td></tr>
-            </tbody></table>
+                <tr><td width="30%">{{ form.creator.label }}</td> <td width="70%">{{ form.creator(size=20) }}</td></tr>
+                <tr><td>{{ form.email.label }}</td> <td>{{ form.email(size=20) }}</td></tr>
+                <tr><td>{{ form.password.label }}</td> <td>{{ form.password(size=20) }}</td></tr>
+                <tr><td>{{ form.password2.label }}</td> <td>{{ form.password2(size=20) }}</td></tr>
+                <tr><td>{{ form.invitation.label }}</td> <td>{{ form.invitation(size=20) }}</td></tr>
+                </tbody></table>
+            </p>
+            <ul class="errors">
+                {% for error in form.creator.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <ul class="errors">
+                {% for error in form.email.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <ul class="errors">
+                {% for error in form.password.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <ul class="errors">
+                {% for error in form.invitation.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
             <input type="submit" value="Create">
         </form>    
     </p>
