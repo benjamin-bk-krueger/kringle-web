@@ -14,7 +14,8 @@ services:
       - S3_ENDPOINT=https://s3.hidrive.strato.com
       - BUCKET_PUBLIC=kringle-public
       - BUCKET_PRIVATE=kringle-private
-      - MAIL_SERVER=host.docker.internal
+      - MAIL_ENABLE=0
+      - MAIL_SERVER=localhost
     command: /home/flask/flask.sh
     user: flask
     ports:

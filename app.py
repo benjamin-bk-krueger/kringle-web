@@ -22,6 +22,7 @@ POSTGRES_PW         = os.environ['POSTGRES_PW']
 POSTGRES_DB         = os.environ['POSTGRES_DB'] 
 SECRET_KEY          = os.environ['SECRET_KEY']
 MAIL_SERVER         = os.environ['MAIL_SERVER']             # mail host
+MAIL_ENABLE         = os.environ['MAIL_ENABLE'] 
 S3_ENDPOINT         = os.environ['S3_ENDPOINT']             # where S3 buckets are located
 BUCKET_PUBLIC       = os.environ['BUCKET_PUBLIC']
 BUCKET_PRIVATE      = os.environ['BUCKET_PRIVATE']
@@ -773,11 +774,12 @@ def index():
 
 # Send an e-mail
 def send_mail(recipients, mailheader, mailbody):
-    msg = Message(mailheader,
-                  sender="mail@kringle.info",
-                  recipients=recipients)
-    msg.body = mailbody        
-    mail.send(msg)
+    if (MAIL_ENABLE == 1):
+        msg = Message(mailheader,
+                    sender="mail@kringle.info",
+                    recipients=recipients)
+        msg.body = mailbody        
+        mail.send(msg)
 
 # Flask entry pages
 @app.route('/web/', methods = ['GET'])
