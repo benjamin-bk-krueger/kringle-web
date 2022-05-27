@@ -1090,9 +1090,9 @@ def get_solution(solution_id):
             if (solution.solution_text != None):
                 mdsolution = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'), extras=['fenced-code-blocks'])
 
-                return render_template('solution_detail.html', mdsolution=mdsolution, solution_id=solution_id, world_id=objective.world_id)
+                return render_template('solution_detail.html', mdsolution=mdsolution, solution=solution, world_id=objective.world_id)
             else:
-                return render_template('solution_detail.html', mdsolution="", solution_id=solution_id, world_id=objective.world_id)
+                return render_template('solution_detail.html', mdsolution="", solution=solution, world_id=objective.world_id)
         else:
             return redirect(url_for('get_objective', objective_id=objective.objective_id))
     else:

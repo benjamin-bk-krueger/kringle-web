@@ -97,7 +97,7 @@ ON junction ( room_id, dest_id, world_id );
 CREATE TABLE solution (
     solution_id SERIAL PRIMARY KEY,
     objective_id INT REFERENCES objective ( objective_id ),
-    creator_id INT REFERENCES creator ( creator_id ),
+    creator_id INT REFERENCES creator ( creator_id ) ON DELETE CASCADE,
     solution_text BYTEA,
     visible INT default 0,
     created timestamp default current_timestamp,
