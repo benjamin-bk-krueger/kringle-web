@@ -53,6 +53,7 @@ CREATE TABLE objective (
     room_id INT REFERENCES room ( room_id ) ON DELETE CASCADE,
     world_id INT REFERENCES world ( world_id ) ON DELETE CASCADE,
     objective_name VARCHAR ( 100 ),
+    objective_title VARCHAR ( 100 ),
     objective_desc VARCHAR ( 1024 ),
     difficulty INT,
     objective_url VARCHAR ( 256 ),

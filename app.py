@@ -356,6 +356,7 @@ class Objective(db.Model):
     room_id = db.Column (db.INTEGER, db.ForeignKey("room.room_id"))
     world_id = db.Column (db.INTEGER, db.ForeignKey("world.world_id"))
     objective_name = db.Column (db.VARCHAR(100))
+    objective_title = db.Column (db.VARCHAR(100))
     objective_desc = db.Column (db.VARCHAR(1024))
     difficulty = db.Column (db.INTEGER)
     objective_url = db.Column (db.VARCHAR(256))
@@ -369,7 +370,7 @@ class Objective(db.Model):
 
 class ObjectiveSchema(marsh.Schema):
     class Meta:
-        fields = ("objective_id", "room_id", "world_id", "objective_name", "objective_desc", "difficulty", "objective_url", "supported_by", "requires", "objective_img")
+        fields = ("objective_id", "room_id", "world_id", "objective_name", "objective_title", "objective_desc", "difficulty", "objective_url", "supported_by", "requires", "objective_img")
         model = Objective
 
 objective_schema = ObjectiveSchema()
@@ -381,12 +382,13 @@ class ObjectiveListResource(Resource):
         return objectives_schema.dump(objectives)
 
     def post(self):
-        if all(s in request.json for s in ('room_id', 'world_id', 'objective_name', 'objective_desc', 'difficulty', 'objective_url', 'supported_by', 'requires', 'objective_img')):
+        if all(s in request.json for s in ('room_id', 'world_id', 'objective_name', 'objective_title', 'objective_desc', 'difficulty', 'objective_url', 'supported_by', 'requires', 'objective_img')):
             if (AuthChecker().check(request.authorization, request.json['world_id'])):
                 new_objective = Objective(
                     room_id=escape(request.json['room_id']),
                     world_id=escape(request.json['world_id']),
                     objective_name=escape(request.json['objective_name']),
+                    objective_title=escape(request.json['objective_title']),
                     objective_desc=escape(request.json['objective_desc']),
                     difficulty=escape(request.json['difficulty']),
                     objective_url=clean_url(request.json['objective_url']),
@@ -409,11 +411,12 @@ class ObjectiveResource(Resource):
 
     def patch(self, objective_id):
         objective = Objective.query.get_or_404(objective_id)
-        if all(s in request.json for s in ('room_id', 'world_id', 'objective_name', 'objective_desc', 'difficulty', 'objective_url', 'supported_by', 'requires', 'objective_img')):
+        if all(s in request.json for s in ('room_id', 'world_id', 'objective_name', 'objective_title', 'objective_desc', 'difficulty', 'objective_url', 'supported_by', 'requires', 'objective_img')):
             if (AuthChecker().check(request.authorization, objective.world_id)):
                 objective.room_id=escape(request.json['room_id']),
                 objective.world_id=escape(request.json['world_id']),
                 objective.objective_name=escape(request.json['objective_name']),
+                objective.objective_title=escape(request.json['objective_title']),
                 objective.objective_desc=escape(request.json['objective_desc']),
                 objective.difficulty=escape(request.json['difficulty']),
                 objective.objective_url=clean_url(request.json['objective_url']),
@@ -716,6 +719,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 objective.room_id = room.room_id
                 objective.world_id = world.world_id
                 objective.objective_name = escape(j["name"])
+                objective.objective_title = escape(j["title"])
                 objective.objective_desc = escape(j["description"])
                 objective.difficulty = escape(j["difficulty"])
                 objective.objective_url = clean_url(j["url"])
@@ -1186,10 +1190,29 @@ def get_mysolution(objective_id):
 @app.route('/web/mywalkthrough/<int:world_id>', methods=['GET'])
 @login_required
 def get_mywalkthrough(world_id):
-    # objective = Objective.query.filter_by(objective_id=objective_id).first()
+    world = World.query.filter_by(world_id=world_id).first()
+    rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
+    objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_id.asc())
+    items = Item.query.filter_by(world_id=world_id).order_by(Item.item_id.asc())
+    mdquests = dict()
+    mdsolutions = dict()
+    for objective in objectives:
+        if (objective.quest != None):
+            mdquests[objective.objective_id] = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+        else:
+            mdquests[objective.objective_id] = ""
 
-    with open(DOWNLOAD_FOLDER + "/walkthrough.md", 'w') as f:
-        f.write("Markdown")
+        solution = Solution.query.filter_by(objective_id=objective.objective_id).filter_by(creator_id=current_user.creator_id).first()
+        if (solution != None):
+            mdsolutions[objective.objective_id] = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'), extras=['fenced-code-blocks'])
+        else:
+            mdsolutions[objective.objective_id] = ""
 
-    # return send_file(DOWNLOAD_FOLDER + "/walkthrough.md", attachment_filename='walkthrough.md',  as_attachment=True)
-    return send_file(DOWNLOAD_FOLDER + "/walkthrough.md", attachment_filename='walkthrough.md')
+    folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
+    local_file = os.path.join(folder_name, "walkthrough.md")
+    
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    with open(local_file, 'w') as f:
+        f.write(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items, mdquests=mdquests, mdsolutions=mdsolutions))
+    return send_file(local_file, attachment_filename='walkthrough.md',  as_attachment=True)

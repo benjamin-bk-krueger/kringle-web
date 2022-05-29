@@ -670,7 +670,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requires\": \"none\",\n    \"objective_name\": \"Name\",\n    \"objective_img\": \"\",\n    \"difficulty\": 1,\n    \"room_id\": 1,\n    \"objective_desc\": \"Description\",\n    \"supported_by\": \"none\",\n    \"world_id\": 1,\n    \"objective_url\": \"\"\n}"
+							"raw": "{\n    \"requires\": \"none\",\n    \"objective_name\": \"Name\",\n    \"objective_title\": \"Title\",\n    \"objective_img\": \"\",\n    \"difficulty\": 1,\n    \"room_id\": 1,\n    \"objective_desc\": \"Description\",\n    \"supported_by\": \"none\",\n    \"world_id\": 1,\n    \"objective_url\": \"\"\n}"
 						},
 						"url": {
 							"raw": "{{baseurl}}/api/objectives",
