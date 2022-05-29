@@ -30,6 +30,8 @@ BUCKET_PRIVATE      = os.environ['BUCKET_PRIVATE']
 UPLOAD_FOLDER       = os.environ['HOME'] + "/uploads"       # directory for game data
 DOWNLOAD_FOLDER     = os.environ['HOME'] + "/downloads"
 ALLOWED_EXTENSIONS  = {'png', 'jpg', 'jpeg', 'gif'}
+APP_VERSION         = os.environ['APP_VERSION']   
+APP_PREFIX          = os.environ['APP_PREFIX']   
 
 
 # Flask app configuration containing static (css, img) path and template directory
@@ -37,6 +39,11 @@ app = Flask(__name__,
             static_url_path='/static', 
             static_folder='static',
             template_folder='templates')
+
+# global variables
+@app.context_processor
+def inject_version_and_prefix():
+    return dict(version=APP_VERSION, prefix=APP_PREFIX)
 
 # Limit file uploads to 16MB
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000

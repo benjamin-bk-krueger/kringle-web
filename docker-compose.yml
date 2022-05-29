@@ -16,6 +16,8 @@ services:
       - BUCKET_PRIVATE=kringle-private
       - MAIL_ENABLE=0
       - MAIL_SERVER=localhost
+      - APP_VERSION=0.96_alpha
+      - APP_PREFIX=
     command: /home/flask/flask.sh
     user: flask
     ports:
