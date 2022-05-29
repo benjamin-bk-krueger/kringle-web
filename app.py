@@ -205,10 +205,10 @@ class WorldFullResource(Resource):
         else:
             return jsonify({'error': 'element not found'})
 
-api.add_resource(WorldListResource, '/api/worlds')
-api.add_resource(WorldResource, '/api/worlds/<int:world_id>')
-api.add_resource(WorldFullListResource, '/api/fullworlds')
-api.add_resource(WorldFullResource, '/api/fullworlds/<string:worldname>')
+api.add_resource(WorldListResource, APP_PREFIX + '/api/worlds')
+api.add_resource(WorldResource, APP_PREFIX + '/api/worlds/<int:world_id>')
+api.add_resource(WorldFullListResource, APP_PREFIX + '/api/fullworlds')
+api.add_resource(WorldFullResource, APP_PREFIX + '/api/fullworlds/<string:worldname>')
 
 class Room(db.Model):
     __tablename__ = "room"
@@ -280,8 +280,8 @@ class RoomResource(Resource):
         else:
             return jsonify({'error': 'wrong credentials or permissions'})
 
-api.add_resource(RoomListResource, '/api/rooms')
-api.add_resource(RoomResource, '/api/rooms/<int:room_id>')
+api.add_resource(RoomListResource, APP_PREFIX + '/api/rooms')
+api.add_resource(RoomResource, APP_PREFIX + '/api/rooms/<int:room_id>')
 
 class Item(db.Model):
     __tablename__ = "item"
@@ -356,8 +356,8 @@ class ItemResource(Resource):
         else:
             return jsonify({'error': 'wrong credentials or permissions'})
 
-api.add_resource(ItemListResource, '/api/items')
-api.add_resource(ItemResource, '/api/items/<int:item_id>')
+api.add_resource(ItemListResource, APP_PREFIX + '/api/items')
+api.add_resource(ItemResource, APP_PREFIX + '/api/items/<int:item_id>')
 
 class Objective(db.Model):
     __tablename__ = "objective"
@@ -448,8 +448,8 @@ class ObjectiveResource(Resource):
         else:
             return jsonify({'error': 'wrong credentials or permissions'})
 
-api.add_resource(ObjectiveListResource, '/api/objectives')
-api.add_resource(ObjectiveResource, '/api/objectives/<int:objective_id>')
+api.add_resource(ObjectiveListResource, APP_PREFIX + '/api/objectives')
+api.add_resource(ObjectiveResource, APP_PREFIX + '/api/objectives/<int:objective_id>')
 
 class Person(db.Model):
     __tablename__ = "person"
@@ -524,8 +524,8 @@ class PersonResource(Resource):
         else:
             return jsonify({'error': 'wrong credentials or permissions'})
 
-api.add_resource(PersonListResource, '/api/persons')
-api.add_resource(PersonResource, '/api/persons/<int:person_id>')
+api.add_resource(PersonListResource, APP_PREFIX + '/api/persons')
+api.add_resource(PersonResource, APP_PREFIX + '/api/persons/<int:person_id>')
 
 class Junction(db.Model):
     __tablename__ = "junction"
@@ -597,8 +597,8 @@ class JunctionResource(Resource):
         else:
             return jsonify({'error': 'wrong credentials or permissions'})
 
-api.add_resource(JunctionListResource, '/api/junctions')
-api.add_resource(JunctionResource, '/api/junctions/<int:junction_id>')
+api.add_resource(JunctionListResource, APP_PREFIX + '/api/junctions')
+api.add_resource(JunctionResource, APP_PREFIX + '/api/junctions/<int:junction_id>')
 
 class Solution(db.Model):
     __tablename__ = "solution"
