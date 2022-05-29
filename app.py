@@ -36,7 +36,7 @@ APP_PREFIX          = os.environ['APP_PREFIX']
 
 # Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
-            static_url_path='/static', 
+            static_url_path=APP_PREFIX + '/static', 
             static_folder='static',
             template_folder='templates')
 
