@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>Kringle Info - {% block title %} {% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/simple.css">
-    <link rel="icon" type="image/png" href="/static/kringle_logo_s.png" />
+    <link rel="stylesheet" href="{{ prefix }}/static/simple.css">
+    <link rel="icon" type="image/png" href="{{ prefix }}/static/kringle_logo_s.png" />
 </head>
 <body>
   <header>
@@ -23,7 +23,7 @@
 
     <a href="{{ url_for('get_mycreator') if (current_user.is_authenticated) else url_for('get_newcreator') }}"><b>Account</b></a>
     <a href="{{ url_for('get_storage') }}"><b>Storage</b></a>
-    <a href="/static/doc/index.html"><b>Documentation</b></a>
+    <a href="{{ prefix }}/static/doc/index.html"><b>Documentation</b></a>
   </nav>
 
   <main>
