@@ -6,3 +6,4 @@ createdb flask
 su - flask -s /bin/bash 
 psql
 ALTER USER flask PASSWORD 'password';
+\q
