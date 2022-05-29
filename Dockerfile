@@ -5,8 +5,9 @@ LABEL maintainer="Ben Krueger <sayhello@blk8.de>"
 
 RUN apt-get update
 RUN apt-get install -y python3 python3-pip python3-psycopg2
+RUN DEBIAN_FRONTEND=noninteractive  apt-get install -y wkhtmltopdf
 
-RUN pip3 install flask flask-sqlalchemy flask-login Flask-WTF email_validator flask_wtf flask-sitemap Flask-Mail flask-restx flask-marshmallow marshmallow-sqlalchemy markdown2 boto3 mkdocs
+RUN pip3 install flask flask-sqlalchemy flask-login Flask-WTF email_validator flask_wtf flask-sitemap Flask-Mail flask-restx flask-marshmallow marshmallow-sqlalchemy markdown2 boto3 mkdocs pdfkit
 
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm # integration with WTForms, data validation and CSRF protection
-from wtforms import StringField, PasswordField, BooleanField, HiddenField, FileField
+from wtforms import StringField, PasswordField, BooleanField, HiddenField, FileField, TextAreaField
 from wtforms.validators import InputRequired, NoneOf, EqualTo, Email, URL, Length, Regexp
 from flask_wtf.file import FileRequired, FileAllowed
 
@@ -17,7 +17,9 @@ class AccountForm(FlaskForm):
 
 class MailCreatorForm(FlaskForm):
     email = StringField('E-Mail', validators=[InputRequired(), Email()])
-    url = StringField('URL', validators=[InputRequired(), URL()])
+    description = TextAreaField('Description', validators=[Length(max=1024)])
+    # url = StringField('URL', validators=[InputRequired(), URL()])
+    url = StringField('URL')
     operation = HiddenField(default='mail')
 
 class PassCreatorForm(FlaskForm):

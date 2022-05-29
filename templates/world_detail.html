@@ -24,8 +24,16 @@
 
     {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
     <p>
-        <form action="{{ url_for('get_mywalkthrough', world_id=world.world_id) }}" method="GET">
-            <input type="submit" value="Walkthrough">
+        <form action="{{ url_for('get_mywalkthrough', world_id=world.world_id, format='markdown') }}" method="GET">
+            <input type="submit" value="Walkthrough (Markdown)">
+        </form>
+    </p>
+    {% endif %}
+
+    {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
+    <p>
+        <form action="{{ url_for('get_mywalkthrough', world_id=world.world_id, format='pdf') }}" method="GET">
+            <input type="submit" value="Walkthrough (PDF)">
         </form>
     </p>
     {% endif %}

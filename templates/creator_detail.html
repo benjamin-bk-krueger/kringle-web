@@ -4,6 +4,12 @@
     <h2>{% block title %} {{ creator.creator_name }} (#{{ creator.creator_id }}) {% endblock %}</h2>
 
     <p>
+        <table><tbody>
+            <tr><td width="100%">{{ creator.creator_desc }}</td></tr>
+        </tbody></table>
+    </p>
+
+    <p>
         <img src="{{ creator.creator_img if (creator.creator_img!='') else '/static/not_found.jpg' }}" alt="Creator Image" width="33%" height="33%">
     </p>
 

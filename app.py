@@ -3,6 +3,7 @@ import os                       # for direct file system and environment access
 import markdown2                # for markdown parsing
 import re                       # for regular expressions
 import boto3                    # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
+import pdfkit                   # for PDF generation
 from flask import Flask, request, render_template, jsonify, send_file, escape, redirect, url_for # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
@@ -80,6 +81,7 @@ class Creator(UserMixin, db.Model):
     creator_id = db.Column (db.INTEGER, primary_key=True)
     creator_name = db.Column (db.VARCHAR(100), unique=True)
     creator_mail = db.Column (db.VARCHAR(100), unique=True)
+    creator_desc = db.Column (db.VARCHAR(1024))
     creator_pass = db.Column (db.VARCHAR(256))
     creator_img = db.Column (db.VARCHAR(384))
     creator_role = db.Column (db.VARCHAR(20))
@@ -901,6 +903,7 @@ def get_newcreator():
                 creator = Creator()
                 creator.creator_name = escape(request.form["creator"])
                 creator.creator_mail = escape(request.form["email"])
+                creator.creator_desc = ""
                 creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=16)
                 creator.creator_role = invitation.invitation_role
                 creator.creator_img = ""
@@ -929,6 +932,7 @@ def get_mycreator():
             if (form1.validate_on_submit()):
                 old_mail = creator.creator_mail
                 creator.creator_mail = escape(request.form["email"])
+                creator.creator_desc = escape(request.form["description"])
                 creator.creator_img = clean_url(request.form["url"])
                 db.session.commit()
 
@@ -952,6 +956,7 @@ def get_mycreator():
             return render_template('error.html')
 
     form1.email.default = creator.creator_mail
+    form1.description.default = creator.creator_desc
     form1.url.default = creator.creator_img
     form1.process()
     return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3, operation=operation)
@@ -1187,10 +1192,11 @@ def get_mysolution(objective_id):
         else:
             return render_template('error.html')
 
-@app.route('/web/mywalkthrough/<int:world_id>', methods=['GET'])
+@app.route('/web/mywalkthrough/<string:format><int:world_id>', methods=['GET'])
 @login_required
-def get_mywalkthrough(world_id):
+def get_mywalkthrough(world_id, format):
     world = World.query.filter_by(world_id=world_id).first()
+    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
     rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
     objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_id.asc())
     items = Item.query.filter_by(world_id=world_id).order_by(Item.item_id.asc())
@@ -1209,10 +1215,20 @@ def get_mywalkthrough(world_id):
             mdsolutions[objective.objective_id] = ""
 
     folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
-    local_file = os.path.join(folder_name, "walkthrough.md")
-    
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
-    with open(local_file, 'w') as f:
-        f.write(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items, mdquests=mdquests, mdsolutions=mdsolutions))
-    return send_file(local_file, attachment_filename='walkthrough.md',  as_attachment=True)
+
+    if (format == "markdown"):
+        local_file = os.path.join(folder_name, "walkthrough.md")
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        with open(local_file, 'w') as f:
+            f.write(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items, mdquests=mdquests, mdsolutions=mdsolutions, creator=creator))
+        return send_file(local_file, attachment_filename='walkthrough.md',  as_attachment=True)
+    else:
+        local_file_html = os.path.join(folder_name, "walkthrough.html")
+        local_file_pdf = os.path.join(folder_name, "walkthrough.pdf")
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        with open(local_file_html, 'w') as f:
+            f.write(markdown2.markdown(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items, mdquests=mdquests, mdsolutions=mdsolutions, creator=creator), extras=['fenced-code-blocks']))
+        pdfkit.from_file(local_file_html, local_file_pdf)
+        return send_file(local_file_pdf, attachment_filename='walkthrough.pdf',  as_attachment=True)        
