@@ -27,12 +27,12 @@ jobs:
           push: true
           # tags: ${{ github.repository }}:${{ steps.vars.outputs.tag }}
           tags: ${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          script: |
-            ${{ secrets.VPS_CMD }}
+#      - name: Deploy to VPS
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.VPS_HOST }}
+#          username: ${{ secrets.VPS_USERNAME }}
+#          key: ${{ secrets.VPS_KEY }}
+#          port: ${{ secrets.VPS_PORT }}
+#          script: |
+#            ${{ secrets.VPS_CMD }}
