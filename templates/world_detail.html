@@ -33,7 +33,7 @@
     {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
     <p>
         <form action="{{ url_for('get_mywalkthrough', world_id=world.world_id, format='pdf') }}" method="GET">
-            <input type="submit" value="Walkthrough (PDF)">
+            <input type="submit" value="Walkthrough (HTML)">
         </form>
     </p>
     {% endif %}

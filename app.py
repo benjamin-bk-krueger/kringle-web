@@ -1211,13 +1211,13 @@ def get_mywalkthrough(world_id, format):
     mdsolutions = dict()
     for objective in objectives:
         if (objective.quest != None):
-            mdquests[objective.objective_id] = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+            mdquests[objective.objective_id] = str(bytes(objective.quest), 'utf-8')
         else:
             mdquests[objective.objective_id] = ""
 
         solution = Solution.query.filter_by(objective_id=objective.objective_id).filter_by(creator_id=current_user.creator_id).first()
         if (solution != None):
-            mdsolutions[objective.objective_id] = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'), extras=['fenced-code-blocks'])
+            mdsolutions[objective.objective_id] = str(bytes(solution.solution_text), 'utf-8')
         else:
             mdsolutions[objective.objective_id] = ""
 
@@ -1231,11 +1231,5 @@ def get_mywalkthrough(world_id, format):
             f.write(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items, mdquests=mdquests, mdsolutions=mdsolutions, creator=creator))
         return send_file(local_file, attachment_filename='walkthrough.md',  as_attachment=True)
     else:
-        local_file_html = os.path.join(folder_name, "walkthrough.html")
-        local_file_pdf = os.path.join(folder_name, "walkthrough.pdf")
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
-        with open(local_file_html, 'w') as f:
-            f.write(markdown2.markdown(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items, mdquests=mdquests, mdsolutions=mdsolutions, creator=creator), extras=['fenced-code-blocks']))
-        pdfkit.from_file(local_file_html, local_file_pdf)
-        return send_file(local_file_pdf, attachment_filename='walkthrough.pdf',  as_attachment=True)        
+        mdwalkthrough = markdown2.markdown(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items, mdquests=mdquests, mdsolutions=mdsolutions, creator=creator), extras=['fenced-code-blocks'])
+        return re.sub('<h2>(.*?)</h2>', '<h2 id="\\1">\\1</h2>', re.sub('<h1>(.*?)</h1>', '<h1 id="\\1">\\1</h1>', mdwalkthrough))

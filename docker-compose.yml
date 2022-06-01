@@ -5,13 +5,13 @@ services:
     image : benjaminkrueger/kringle-web
     environment:
       - POSTGRES_URL=kringle_database:5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PW=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_USER=kringle
+      - POSTGRES_PW=kringle
+      - POSTGRES_DB=kringle
       - SECRET_KEY=secret-key-goes-here
       - FLASK_ENV=development
       - FLASK_DEBUG=1
-      - S3_ENDPOINT=https://s3.hidrive.strato.com
+      - S3_ENDPOINT=https://eu2.contabostorage.com
       - BUCKET_PUBLIC=kringle-public
       - BUCKET_PRIVATE=kringle-private
       - MAIL_ENABLE=0
@@ -29,14 +29,15 @@ services:
   database:
     image: postgres
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=kringle
+      - POSTGRES_PASSWORD=kringle
     ports:
       - 127.0.0.1:5432:5432
     container_name: kringle_database
     volumes:
       - db:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+#      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./db/kringle.dump:/tmp/kringle.dump 
 
 volumes:
   db:

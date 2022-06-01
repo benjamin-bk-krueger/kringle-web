@@ -53,7 +53,7 @@ Hint: Not all destinations are reachable when you start your adventure. You migh
 You can reach a destination by moving your virtual character to the given area. after you have unlocked that area and it's visible in the menu it's much faster to "teleport" by clicking on the matching entry.
 
 {% for room in rooms %}
-**{{ room.room_name.replace(" ", "_") }}**
+**{{ room.room_name.replace(" ", "-") }}**
 
 {% for objective in objectives %}{% if objective.room_id == room.room_id %}
 * {{ objective.objective_title }}: **{{ objective.objective_name }}**
@@ -71,19 +71,19 @@ You can reach a destination by moving your virtual character to the given area. 
 [Go back](#Document-structure)
 
 {% for objective in objectives %}{% if objective.difficulty > 0 %}
-* [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "_") }}) **{{ objective.objective_name }}** 
+* [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "-") }}) **{{ objective.objective_name }}** 
 {% endif %}{% endfor %}
 
 [Go back](#Document-structure)
 <br>
 
 {% for objective in objectives %}{% if objective.difficulty > 0 %}
-## {{ objective.objective_title.replace(" ", "_") }}
+## {{ objective.objective_title.replace(" ", "-") }}
 
 [Go back](#Objectives)
 
 **Overview**
-Requested by {{ objective.objective_name }}, {{ objective.objective_desc }}, found in {{ rooms[objective.room_id].room_name }}
+Requested by {{ objective.objective_name }}, {{ objective.objective_desc }}, {% for room in rooms %}{% if room.room_id == objective.room_id %}found in {{ room.room_name }}{% endif %}{% endfor %}
 <br>
 Difficulty: ({{ objective.difficulty }}/5)
 Task Name: {{ objective.objective_title }}
@@ -106,19 +106,19 @@ Quest:
 [Go back](#Document-structure)
 
 {% for objective in objectives %}{% if objective.difficulty == 0 %}
-* [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "_") }}) **{{ objective.objective_name }}** 
+* [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "-") }}) **{{ objective.objective_name }}** 
 {% endif %}{% endfor %}
 
 [Go back](#Document-structure)
 <br>
 
 {% for objective in objectives %}{% if objective.difficulty == 0 %}
-## {{ objective.objective_title.replace(" ", "_") }}
+## {{ objective.objective_title.replace(" ", "-") }}
 
 [Go back](#Hints)
 
 **Overview**
-Requested by {{ objective.objective_name }}, {{ objective.objective_desc }}, found in {{ rooms[objective.room_id].room_name }}
+Requested by {{ objective.objective_name }}, {{ objective.objective_desc }}, {% for room in rooms %}{% if room.room_id == objective.room_id %}found in {{ room.room_name }}{% endif %}{% endfor %}
 <br>
 Task Name: {{ objective.objective_title }}
 Quest: 
@@ -142,8 +142,8 @@ Quest:
 {% for item in items %}
 * **{{ item.item_name }}**, {{ item.item_desc }}
 
-Can be found in {{ rooms[item.room_id].room_name }}
-{% for objective in objectives %}{% if objective.requires == item.item_name %}Can be used to solve the objective [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "_") }}){% endif %}{% endfor %}
+Can be found in {% for room in rooms %}{% if room.room_id == item.room_id %}{{ room.room_name }}{% endif %}{% endfor %}
+{% for objective in objectives %}{% if objective.requires == item.item_name %}Can be used to solve the objective [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "-") }}){% endif %}{% endfor %}
 {% if item.item_img != "" %}<img src="{{ item.item_img }}" alt="{{ item.item_name }}" style="zoom: 33%;" />{% endif %}
 <br>
 {% endfor %}
