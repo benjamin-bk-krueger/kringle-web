@@ -18,13 +18,13 @@ services:
       - MAIL_SERVER=localhost
       - APP_VERSION=0.96_alpha
       - APP_PREFIX=
-    command: /home/flask/flask.sh
-    user: flask
+    command: /home/kringle/flask.sh
+    user: kringle
     ports:
       - 127.0.0.1:5010:5010
     container_name: kringle_web
     volumes:
-      - ./.aws/:/home/flask/.aws/
+      - ./.aws/:/home/kringle/.aws/
 
   database:
     image: postgres

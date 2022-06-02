@@ -11,19 +11,19 @@ RUN pip3 install flask flask-sqlalchemy flask-login Flask-WTF email_validator fl
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
-RUN useradd -m -s /bin/false flask
+RUN useradd -m -s /bin/false kringle
 
 EXPOSE 5010
 
-USER flask
+USER kringle
 
-RUN mkdir /home/flask/templates /home/flask/static /home/flask/uploads /home/flask/downloads /home/flask/.aws
+RUN mkdir /home/kringle/templates /home/kringle/static /home/kringle/uploads /home/kringle/downloads /home/kringle/.aws
 
-COPY *.py *.sh *.yml /home/flask/
-COPY templates/ /home/flask/templates/
-COPY static/ /home/flask/static/
-COPY docs/ /home/flask/docs/
+COPY *.py *.sh *.yml /home/kringle/
+COPY templates/ /home/kringle/templates/
+COPY static/ /home/kringle/static/
+COPY docs/ /home/kringle/docs/
 
-RUN cd /home/flask && mkdocs build
+RUN cd /home/kringle && mkdocs build
 
-CMD ["/home/flask/flask.sh"]  
+CMD ["/home/kringle/flask.sh"]  
