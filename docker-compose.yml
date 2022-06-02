@@ -36,8 +36,8 @@ services:
     container_name: kringle_database
     volumes:
       - db:/var/lib/postgresql/data
-#      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
-      - ./db/kringle.dump:/tmp/kringle.dump 
+      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+#      - ./db/kringle.dump:/tmp/kringle.dump 
 
 volumes:
   db:
