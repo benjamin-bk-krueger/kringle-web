@@ -23,7 +23,8 @@
 
     <a href="{{ url_for('get_mycreator') if (current_user.is_authenticated) else url_for('get_newcreator') }}"><b>Account</b></a>
     <a href="{{ url_for('get_storage') }}"><b>Storage</b></a>
-    <a href="{{ prefix }}/static/doc/index.html"><b>Documentation</b></a>
+    <a href="{{ prefix }}/static/doc/index.html"><b>Docs</b></a>
+    <a href="{{ prefix }}/swagger"><b>API</b></a>
   </nav>
 
   <main>
