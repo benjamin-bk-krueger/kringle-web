@@ -148,6 +148,6 @@ CREATE TRIGGER update_person_modtime BEFORE UPDATE ON person FOR EACH ROW EXECUT
 CREATE TRIGGER update_junction_modtime BEFORE UPDATE ON junction FOR EACH ROW EXECUTE PROCEDURE  update_modified_column();
 CREATE TRIGGER update_solution_modtime BEFORE UPDATE ON solution FOR EACH ROW EXECUTE PROCEDURE  update_modified_column();
 
--- To be removed at a later stage
+-- Default credentials, need to be changed on production stage
 INSERT INTO invitation(invitation_code, invitation_role, invitation_forever) VALUES ('heureka', 'creator', 0);
 INSERT INTO invitation(invitation_code, invitation_role, invitation_forever) VALUES ('sunshine', 'user', 1);

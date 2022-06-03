@@ -15,6 +15,7 @@
         <i>Found in <a href="{{ url_for('get_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i></br>
         <table><tbody>
             <tr><td width="20%">ID</td> <td width="80%">{{ objective.objective_id }}</td></tr>
+            <tr><td>Title</td> <td>{{ objective.objective_title }}</td></tr>
             <tr><td>Difficulty</td> <td>{{ objective.difficulty }}</td></tr>
             <tr><td>URL</td> <td>{{ objective.objective_url }}</td></tr>
             <tr><td>Supported by</td> <td>{{ objective.supported_by }}</td></tr>

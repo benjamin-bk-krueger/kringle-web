@@ -13,7 +13,6 @@ from flask_marshmallow import Marshmallow  # to marshall our objects
 from flask_mail import Mail, Message # to send mails
 from werkzeug.security import generate_password_hash, check_password_hash # for password hashing
 from werkzeug.utils import secure_filename
-
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, UploadForm # to prevent path traversal attacks
 
 # the app configuration is done via environmental variables
@@ -23,6 +22,7 @@ POSTGRES_PW         = os.environ['POSTGRES_PW']
 POSTGRES_DB         = os.environ['POSTGRES_DB'] 
 SECRET_KEY          = os.environ['SECRET_KEY']
 MAIL_SERVER         = os.environ['MAIL_SERVER']             # mail host
+MAIL_SENDER         = os.environ['MAIL_SENDER']
 MAIL_ENABLE         = int(os.environ['MAIL_ENABLE'])
 S3_ENDPOINT         = os.environ['S3_ENDPOINT']             # where S3 buckets are located
 BUCKET_PUBLIC       = os.environ['BUCKET_PUBLIC']
@@ -32,7 +32,6 @@ DOWNLOAD_FOLDER     = os.environ['HOME'] + "/downloads"
 ALLOWED_EXTENSIONS  = {'png', 'jpg', 'jpeg', 'gif'}
 APP_VERSION         = os.environ['APP_VERSION']   
 APP_PREFIX          = os.environ['APP_PREFIX']   
-
 
 # Flask app configuration containing static (css, img) path and template directory
 app = Flask(__name__,
@@ -789,7 +788,7 @@ def index():
 def send_mail(recipients, mailheader, mailbody):
     if (MAIL_ENABLE == 1):
         msg = Message(mailheader,
-                    sender="mail@kringle.info",
+                    sender=MAIL_SENDER,
                     recipients=recipients)
         msg.body = mailbody        
         mail.send(msg)
@@ -1240,3 +1239,4 @@ def get_mywalkthrough(world_id, format):
     else:
         mdwalkthrough = markdown2.markdown(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items, mdquests=mdquests, mdsolutions=mdsolutions, creator=creator), extras=['fenced-code-blocks'])
         return re.sub('<h2>(.*?)</h2>', '<h2 id="\\1">\\1</h2>', re.sub('<h1>(.*?)</h1>', '<h1 id="\\1">\\1</h1>', mdwalkthrough))
+        

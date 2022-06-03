@@ -16,6 +16,7 @@ services:
       - BUCKET_PRIVATE=kringle-private
       - MAIL_ENABLE=0
       - MAIL_SERVER=localhost
+      - MAIL_SENDER=mail@kringle.info
       - APP_VERSION=0.96_alpha
       - APP_PREFIX=
     command: /home/kringle/flask.sh
