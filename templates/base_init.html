@@ -5,18 +5,29 @@
     <title>Kringle Info - {% block title %} {% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ prefix }}/static/simple.css">
+    <script>
+      function CopyToClipboard(id)
+      {
+      var r = document.createRange();
+      r.selectNode(document.getElementById(id));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(r);
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
+      }
+      </script>
     <link rel="icon" type="image/png" href="{{ prefix }}/static/kringle_logo_s.png" />
 </head>
 <body>
   <header>
-    <h1>Kringle Web</h1>
-    <p>Creators and Worlds</p>
+    <h1>Kringle.info</h1>
+    <p>&lt; Creators and Worlds &gt;</p>
   </header>
 
   <div id="pagestart"></div>
 
   <nav>
-    <a href="{{ url_for('get_index') }}">Index</a>
+    <a href="{{ url_for('get_index') }}">Home</a>
     <a href="{{ url_for('get_creators') }}">Creators</a>
     <a href="{{ url_for('get_worlds') }}">Worlds</a>
     <a href="{{ url_for('get_stats') }}">Stats</a>
@@ -32,7 +43,12 @@
   </main>
 
   <footer>
-    <p><a href="{{ url_for('get_logged') }}">Log in</a>, {{ 'Logged in as ' + current_user.creator_name + ', ' if (current_user.is_authenticated) }}<a href="{{ url_for('get_logout') }}">Log out</a></p>
+    {% if current_user.is_authenticated %}
+    <p>Logged in as {{ current_user.creator_name }}, <a href="{{ url_for('get_logout') }}">Log out</a></p>
+    {% endif %}
+    {% if not current_user.is_authenticated %}
+    <p><a href="{{ url_for('get_logged') }}">Log in</a></p>
+    {% endif %}
     <p>Version: {{ version }}</p>
     <p><a href="#pagestart">Go to top of page</a></p>
   </footer>

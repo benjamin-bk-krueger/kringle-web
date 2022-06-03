@@ -19,7 +19,7 @@ class MailCreatorForm(FlaskForm):
     email = StringField('E-Mail', validators=[InputRequired(), Email()])
     description = TextAreaField('Description', validators=[Length(max=1024)])
     # url = StringField('URL', validators=[InputRequired(), URL()])
-    url = StringField('URL')
+    url = StringField('Image URL')
     operation = HiddenField(default='mail')
 
 class PassCreatorForm(FlaskForm):

@@ -17,7 +17,7 @@
         {% endif %}
         <ul>
             {% for item in items %}
-            <li><a href="{{ url_for('get_item', item_id=item.item_id)}}">{{ item.item_name }} (#{{ item.item_id }})</a></li>
+            <li><a href="{{ url_for('get_item', item_id=item.item_id)}}">{{ item.item_name }}</a></li>
             {% endfor %}
         </ul>
     </p>

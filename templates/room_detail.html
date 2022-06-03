@@ -9,12 +9,13 @@
 {% endblock %}
 
 {% block content %}
-    <h2>{% block title %} {{ room.room_name }} (#{{ room.room_id }}) {% endblock %}</h2>
+    <h2>{% block title %} {{ room.room_name }} {% endblock %}</h2>
         
     <p>
-        <i>Found in <a href="{{ url_for('get_world', world_id=room.world_id)}}">World #{{ room.world_id }}</a></i></br>
+        <i>Found in <a href="{{ url_for('get_world', world_id=world.world_id)}}">{{ world.world_name }}</a></i></br>
         <table><tbody>
-            <tr><td width="30%">Description:</td> <td width="70%">{{ room.room_desc }}</td></tr>
+            <tr><td width="20%">ID</td> <td width="80%">{{ room.room_id }}</td></tr>
+            <tr><td colspan="2">{{ room.room_desc }}</td></tr>
         </tbody></table>
     </p>
 

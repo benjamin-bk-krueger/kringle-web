@@ -9,16 +9,17 @@
 {% endblock %}
 
 {% block content %}
-    <h2>{% block title %} {{ objective.objective_name }} (#{{ objective.objective_id }}) {% endblock %}</h2>
+    <h2>{% block title %} {{ objective.objective_name }} {% endblock %}</h2>
 
     <p>
-        <i>Found in <a href="{{ url_for('get_room', room_id=objective.room_id)}}">Room ID #{{ objective.room_id }}</a></i></br>
+        <i>Found in <a href="{{ url_for('get_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i></br>
         <table><tbody>
-            <tr><td width="30%">Description:</td> <td width="70%">{{ objective.objective_desc }}</td></tr>
-            <tr><td>Difficulty:</td> <td>{{ objective.difficulty }}</td></tr>
-            <tr><td>URL:</td> <td>{{ objective.objective_url }}</td></tr>
-            <tr><td>Supported by:</td> <td>{{ objective.supported_by }}</td></tr>
-            <tr><td>Requires:</td> <td>{{ objective.requires }}</td></tr>
+            <tr><td width="20%">ID</td> <td width="80%">{{ objective.objective_id }}</td></tr>
+            <tr><td>Difficulty</td> <td>{{ objective.difficulty }}</td></tr>
+            <tr><td>URL</td> <td>{{ objective.objective_url }}</td></tr>
+            <tr><td>Supported by</td> <td>{{ objective.supported_by }}</td></tr>
+            <tr><td>Requires</td> <td>{{ objective.requires }}</td></tr>
+            <tr><td colspan="2">{{ objective.objective_desc }}</td></tr>
         </tbody></table>
     </p>
 
@@ -40,7 +41,7 @@
         <ul>
             {% if world.visible == 1 %}
                 {% for solution in solutions %}
-                <li><a href="{{ url_for('get_solution', solution_id=solution.solution_id)}}">Solution (#{{ solution.solution_id  }})</a>, created by <a href="{{ url_for('get_creator', creator_id=solution.creator_id)}}">Creator (#{{ solution.creator_id  }})</a> - {{ creatorall[solution.solution_id] }}, votes: {{ votingall[solution.solution_id] }}</li>
+                <li><a href="{{ url_for('get_solution', solution_id=solution.solution_id)}}">Solution</a> created by <a href="{{ url_for('get_creator', creator_id=solution.creator_id)}}">{{ creatorall[solution.solution_id] }}</a>, votes: {{ votingall[solution.solution_id] }}</li>
                 {% endfor %}
             {% else %}
                 Solutions are not visible as this world is not public currently.

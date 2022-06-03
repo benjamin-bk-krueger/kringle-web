@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <a href="{{ url_for('get_rooms', world_id=world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_items', world_id=world_id) }}">Items</a>
-    <a href="{{ url_for('get_persons', world_id=world_id) }}">Persons</a>
-    <a href="{{ url_for('get_objectives', world_id=world_id) }}">Objectives</a>
-    <a href="{{ url_for('get_junctions', world_id=world_id) }}">Junctions</a>
+    <a href="{{ url_for('get_rooms', world_id=objective.world_id) }}">Rooms</a>
+    <a href="{{ url_for('get_items', world_id=objective.world_id) }}">Items</a>
+    <!--<a href="{{ url_for('get_persons', world_id=objective.world_id) }}">Persons</a>-->
+    <a href="{{ url_for('get_objectives', world_id=objective.world_id) }}">Objectives</a>
+    <!--<a href="{{ url_for('get_junctions', world_id=objective.world_id) }}">Junctions</a>-->
 {% endblock %}
 
 {% block content %}
@@ -24,6 +24,6 @@
     {% endif %}
 
     <p>
-        <a href="{{ url_for('get_objectives', world_id=world_id) }}">All Objectives</a>
+        <a href="{{ url_for('get_objective', objective_id=objective.objective_id) }}">Back to Objective</a>
     </p>
 {% endblock %}

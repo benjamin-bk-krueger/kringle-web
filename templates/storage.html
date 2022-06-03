@@ -23,14 +23,17 @@
     
     <p>
         <h4>These are your uploaded files:</h4>
-        Click on the options to download or delete them.<br>Below are the markdown snippets.
+        Click on the options to download or delete them.<br>
+        If you click on <i>copy markdown link</i> the link to that image which you can use in your markdown snippets will be copied to your clipboard.<br>
         <ul>
         {% for item in contents %}
             <li>
-                <b>{{ item.Key }}</b>: [<a href="{{ url_for('get_download', creatorname='.', filename=item.Key) }}">download</a>, <a href="{{ url_for('get_delete', creatorname='.', filename=item.Key) }}">delete</a>]<br>
-                ![{{ item.Key }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }})
+                <b>{{ item.Key }}</b></div>: [<a href="{{ url_for('get_download', creatorname='.', filename=item.Key) }}">download</a>, <a href="{{ url_for('get_delete', creatorname='.', filename=item.Key) }}">delete</a>, <a href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;">copy markdown link</a>]<br>
             </li>
         {% endfor %}
         </ul>
+        {% for item in contents %}
+        <div id="{{ item.Key }}" style="font-size:0;">![{{ item.Key }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }})</div>
+        {% endfor %}
     </p>
 {% endblock %}

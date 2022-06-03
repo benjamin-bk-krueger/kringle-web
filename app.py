@@ -977,7 +977,8 @@ def get_worlds():
 def get_world(world_id):
     world = World.query.filter_by(world_id=world_id).first()
     if (world):
-        return render_template('world_detail.html', world=world)
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        return render_template('world_detail.html', world=world, creator=creator)
     else:
         return render_template('error.html')
 
@@ -1012,7 +1013,8 @@ def get_rooms(world_id):
 def get_room(room_id):
     room = Room.query.filter_by(room_id=room_id).first()
     if (room):
-        return render_template('room_detail.html', room=room)
+        world = World.query.filter_by(world_id=room.world_id).first()
+        return render_template('room_detail.html', room=room, world=world)
     else:
         return render_template('error.html')
 
@@ -1025,7 +1027,8 @@ def get_items(world_id):
 def get_item(item_id):
     item = Item.query.filter_by(item_id=item_id).first()
     if (item):
-        return render_template('item_detail.html', item=item)
+        room = Room.query.filter_by(room_id=item.room_id).first()
+        return render_template('item_detail.html', item=item, room=room)
     else:
         return render_template('error.html')
 
@@ -1038,7 +1041,8 @@ def get_persons(world_id):
 def get_person(person_id):
     person = Person.query.filter_by(person_id=person_id).first()
     if (person):
-        return render_template('person_detail.html', person=person)
+        room = Room.query.filter_by(room_id=person.room_id).first()
+        return render_template('person_detail.html', person=person, room=room)
     else:
         return render_template('error.html')
 
@@ -1051,6 +1055,7 @@ def get_objectives(world_id):
 def get_objective(objective_id):
     objective = Objective.query.filter_by(objective_id=objective_id).first()
     if (objective):
+        room = Room.query.filter_by(room_id=objective.room_id).first()
         solutions = Solution.query.filter_by(objective_id=objective_id).filter_by(visible=1).order_by(Solution.solution_id.asc())
         world = World.query.filter_by(world_id=objective.world_id).first()
         
@@ -1067,7 +1072,7 @@ def get_objective(objective_id):
         else:
             mdquest = ""
 
-        return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions, world=world, votingall=votingall, creatorall=creatorall)
+        return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions, world=world, votingall=votingall, creatorall=creatorall, room=room)
     else:
         return render_template('error.html')
 
@@ -1080,7 +1085,9 @@ def get_junctions(world_id):
 def get_junction(junction_id):
     junction = Junction.query.filter_by(junction_id=junction_id).first()
     if (junction):
-        return render_template('junction_detail.html', junction=junction)
+        room_source = Room.query.filter_by(room_id=junction.room_id).first()
+        room_dest = Room.query.filter_by(room_id=junction.dest_id).first()
+        return render_template('junction_detail.html', junction=junction, room_source=room_source, room_dest=room_dest)
     else:
         return render_template('error.html')
 
@@ -1127,9 +1134,9 @@ def get_solution(solution_id):
             if (solution.solution_text != None):
                 mdsolution = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'), extras=['fenced-code-blocks'])
 
-                return render_template('solution_detail.html', mdsolution=mdsolution, solution=solution, world_id=objective.world_id)
+                return render_template('solution_detail.html', mdsolution=mdsolution, solution=solution, objective=objective)
             else:
-                return render_template('solution_detail.html', mdsolution="", solution=solution, world_id=objective.world_id)
+                return render_template('solution_detail.html', mdsolution="", solution=solution, objective=objective)
         else:
             return redirect(url_for('get_objective', objective_id=objective.objective_id))
     else:

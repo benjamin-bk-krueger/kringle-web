@@ -9,12 +9,15 @@
             {{ form.csrf_token }}
             <p>
             <table><tbody>
-                <tr><td width="30%">{{ form.creator.label }}</td> <td width="70%">{{ form.creator(size=20) }}</td></tr>
-                <tr><td>{{ form.email.label }}</td> <td>{{ form.email(size=20) }}</td></tr>
+                <tr><td width="20%">{{ form.creator.label }}¹</td> <td width="80%">{{ form.creator(size=20) }}</td></tr>
+                <tr><td>{{ form.email.label }}²</td> <td>{{ form.email(size=20) }}</td></tr>
                 <tr><td>{{ form.password.label }}</td> <td>{{ form.password(size=20) }}</td></tr>
                 <tr><td>{{ form.password2.label }}</td> <td>{{ form.password2(size=20) }}</td></tr>
-                <tr><td>{{ form.invitation.label }}</td> <td>{{ form.invitation(size=20) }}</td></tr>
-                </tbody></table>
+                <tr><td>{{ form.invitation.label }}³</td> <td>{{ form.invitation(size=20) }}</td></tr>
+            </tbody></table>
+            ¹ Also used as your login, may not contain spaces<br>
+            ² Only used to send notifications about account changes like e-mail address changes<br>
+            ³ Currently you need an invitiation code. Just <a href="{{ url_for('get_index')}}">get in contact with me</a> to get one
             </p>
             <ul class="errors">
                 {% for error in form.creator.errors %}

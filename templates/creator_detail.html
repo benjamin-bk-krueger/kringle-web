@@ -1,11 +1,13 @@
 {% extends 'base_init.html' %}
 
 {% block content %}
-    <h2>{% block title %} {{ creator.creator_name }} (#{{ creator.creator_id }}) {% endblock %}</h2>
+    <h2>{% block title %} {{ creator.creator_name }} {% endblock %}</h2>
 
     <p>
         <table><tbody>
-            <tr><td width="100%">{{ creator.creator_desc }}</td></tr>
+            <tr><td width="20%">ID</td> <td width="80%">{{ creator.creator_id }}</td></tr>
+            <tr><td>Role</td> <td>{{ creator.creator_role }}</td></tr>
+            <tr><td colspan="2">{{ creator.creator_desc }}</td></tr>
         </tbody></table>
     </p>
 
