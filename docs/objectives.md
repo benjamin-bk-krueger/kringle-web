@@ -27,3 +27,7 @@ By clicking on *Edit master quest* you reach the editor for this quest. This fun
 By clicking on *Edit my solution* you can reach the editor for your solution for this quest. This feature is only available to registered users (user role "user" or "creator" necessary).  
 
 ![Objectives Detail 2](./img/objectives_detail2.png)
+
+Both editing the master quest as well as a solution happens in Markdown.  
+
+![Objectives Detail 2](./img/objectives_detail3.png)

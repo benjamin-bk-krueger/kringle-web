@@ -4,7 +4,7 @@ site_dir: ./static/doc
 use_directory_urls: false
 nav:
     - Home: index.md
-    - About: about.md
+    - Navigation: navigation.md
     - Account: account.md
     - Storage: storage.md
     - Stats: stats.md

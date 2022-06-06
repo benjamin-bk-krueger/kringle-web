@@ -1,6 +1,6 @@
 # Stats
 
-## Simple View
+## Stats
 
 This page just displays some statistics concerning the number of stored elements. You can reach the statistics by clicking on *Stats*. 
 
