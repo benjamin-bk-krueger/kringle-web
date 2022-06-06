@@ -2,7 +2,7 @@
 
 ## S3 Storage
 
-If you are already logged in, you can use the included S3 Storage to store image files. To do this, click on (1) *Storage*.  
+If you are already logged in, you can use the included S3 Storage to store image files. To do this, click on *Storage* (user role "user" or "creator" necessary).  
 
 In the first section, you can upload image files. First select the respective file and then click *Upload*.  
 

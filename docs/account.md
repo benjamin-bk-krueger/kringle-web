@@ -2,7 +2,7 @@
 
 ## New Account
 
-You can create a new account by clicking on (1) *Account*. This is only possible if you are not already logged in.  
+You can create a new account by clicking on *Account*. This is only possible if you are not already logged in.  
 
 The following data is required:  
 
@@ -17,7 +17,7 @@ The following data is required:
 
 ## Edit Account
 
-If you are already logged in, you can edit your existing account by clicking on (1) *Account*.
+If you are already logged in, you can edit your existing account by clicking on *Account* (user role "user" or "creator" necessary).
 
 ### Enter data
 
