@@ -12,9 +12,7 @@ nav:
     - Worlds: worlds.md
     - Rooms: rooms.md
     - Items: items.md
-    - Persons: persons.md
     - Objectives: objectives.md
-    - Junctions: junctions.md
     - REST API: restapi.md
 theme: readthedocs
 favicon: 'img/favicon.ico'
