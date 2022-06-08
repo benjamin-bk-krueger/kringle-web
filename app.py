@@ -4,7 +4,7 @@ import markdown2                # for markdown parsing
 import re                       # for regular expressions
 import boto3                    # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
 #import pdfkit                   # for PDF generation
-from flask import Flask, request, render_template, jsonify, send_file, escape, redirect, url_for # most important Flask modules
+from flask import Flask, request, render_template, jsonify, send_file, escape, redirect, url_for, session # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user # to manage user sessions
 from flask_sqlalchemy import SQLAlchemy # object-relational mapper (ORM)
 from flask_sitemap import Sitemap # to generate sitemap.xml
@@ -796,6 +796,7 @@ def send_mail(recipients, mailheader, mailbody):
 # Flask entry pages
 @app.route(APP_PREFIX + '/web/', methods = ['GET'])
 def get_index():
+    session['world_id'] = None
     return render_template('index.html')
 
 @app.route(APP_PREFIX + '/web/error', methods = ['GET'])
@@ -1047,6 +1048,7 @@ def get_person(person_id):
 
 @app.route(APP_PREFIX + '/web/objectives/<int:world_id>', methods = ['GET'])
 def get_objectives(world_id):
+    session['world_id'] = world_id
     objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=world_id)
 
@@ -1122,7 +1124,6 @@ def get_quest(objective_id):
             return render_template('error.html')
 
 @app.route(APP_PREFIX + '/web/solution/<int:solution_id>', methods=['GET'])
-@login_required
 def get_solution(solution_id):
     solution = Solution.query.filter_by(solution_id=solution_id).first()
     if (solution):

@@ -1,13 +1,5 @@
 {% extends 'base.html' %}
 
-{% block links %}
-    <a href="{{ url_for('get_rooms', world_id=world_id) }}">Rooms</a>
-    <a href="{{ url_for('get_items', world_id=world_id) }}">Items</a>
-    <!--<a href="{{ url_for('get_persons', world_id=world_id) }}">Persons</a>-->
-    <a href="{{ url_for('get_objectives', world_id=world_id ) }}">Objectives</a>
-    <!--<a href="{{ url_for('get_junctions', world_id=world_id) }}">Junctions</a>-->
-{% endblock %}
-
 {% block content %}
     <h2>{% block title %} All Items {% endblock %}</h2>
 

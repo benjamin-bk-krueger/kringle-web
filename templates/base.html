@@ -1,23 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Kringle Info - {% block title %} {% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ prefix }}/static/simple.css">
-    <link rel="icon" type="image/png" href="{{ prefix }}/static/kringle_logo_s.png" />
+  <meta charset="UTF-8">
+  <title>Kringle Info - {% block title %} {% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ prefix }}/static/simple.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+  <link rel="icon" type="image/png" href="{{ prefix }}/static/kringle_logo_s.png" />
+  <style>
+    .editor-toolbar .easymde-dropdown, .editor-toolbar button {
+      background: var(--accent);
+    }
+  </style>
+  <script>
+      function CopyToClipboard(id)
+      {
+      var r = document.createRange();
+      r.selectNode(document.getElementById(id));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(r);
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
+      }
+    </script>
 </head>
+
 <body>
   <header>
     <h1>Kringle.info</h1>
+    {% if session['world_id'] %}
     <p>&lt; Rooms and Objectives &gt;</p>
+    {% else %}
+    <p>&lt; Worlds and Creators &gt;</p>
+    {% endif %}
   </header>
 
   <div id="pagestart"></div>
 
   <nav>
+    {% if not session['world_id'] %}
+    <a href="{{ url_for('get_index') }}">Home</a>
+    <a href="{{ url_for('get_creators') }}">Creators</a>
+    <a href="{{ url_for('get_worlds') }}">Worlds</a>
+    <a href="{{ url_for('get_stats') }}">Stats</a>
+    {% else %}
     <a href="{{ url_for('get_index') }}"><i>Back</i></a>
-    {% block links %} {% endblock %}
+    <a href="{{ url_for('get_rooms', world_id=session['world_id']) }}">Rooms</a>
+    <a href="{{ url_for('get_items', world_id=session['world_id']) }}">Items</a>
+    <!--<a href="{{ url_for('get_persons', world_id=session['world_id']) }}">Persons</a>-->
+    <a href="{{ url_for('get_objectives', world_id=session['world_id']) }}">Objectives</a>
+    <!--<a href="{{ url_for('get_junctions', world_id=session['world_id']) }}">Junctions</a>-->
+    {% endif %}
 
     <a href="{{ url_for('get_mycreator') if (current_user.is_authenticated) else url_for('get_newcreator') }}"><b>Account</b></a>
     <a href="{{ url_for('get_storage') }}"><b>Storage</b></a>
@@ -32,8 +66,7 @@
   <footer>
     {% if current_user.is_authenticated %}
     <p>Logged in as {{ current_user.creator_name }}, <a href="{{ url_for('get_logout') }}">Log out</a></p>
-    {% endif %}
-    {% if not current_user.is_authenticated %}
+    {% else %}
     <p><a href="{{ url_for('get_logged') }}">Log in</a></p>
     {% endif %}
     <p>Version: {{ version }}</p>
