@@ -7,23 +7,9 @@
   <link rel="stylesheet" href="{{ prefix }}/static/simple.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
   <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+  <script src="{{ prefix }}/static/helper_func.js"></script>
+  <link rel="stylesheet" href="{{ prefix }}/static/easymde.min.override.css">
   <link rel="icon" type="image/png" href="{{ prefix }}/static/kringle_logo_s.png" />
-  <style>
-    .editor-toolbar .easymde-dropdown, .editor-toolbar button {
-      background: var(--accent);
-    }
-  </style>
-  <script>
-      function CopyToClipboard(id)
-      {
-      var r = document.createRange();
-      r.selectNode(document.getElementById(id));
-      window.getSelection().removeAllRanges();
-      window.getSelection().addRange(r);
-      document.execCommand('copy');
-      window.getSelection().removeAllRanges();
-      }
-    </script>
 </head>
 
 <body>
