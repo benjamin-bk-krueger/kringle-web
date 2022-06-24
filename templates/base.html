@@ -26,21 +26,21 @@
 
   <nav>
     {% if not session['world_id'] %}
-    <a href="{{ url_for('get_index') }}">Home</a>
-    <a href="{{ url_for('get_creators') }}">Creators</a>
-    <a href="{{ url_for('get_worlds') }}">Worlds</a>
-    <a href="{{ url_for('get_stats') }}">Stats</a>
+    <a href="{{ url_for('show_index') }}">Home</a>
+    <a href="{{ url_for('show_creators') }}">Creators</a>
+    <a href="{{ url_for('show_worlds') }}">Worlds</a>
+    <a href="{{ url_for('show_stats') }}">Stats</a>
     {% else %}
-    <a href="{{ url_for('get_index') }}"><i>Back</i></a>
-    <a href="{{ url_for('get_rooms', world_id=session['world_id']) }}">Rooms</a>
-    <a href="{{ url_for('get_items', world_id=session['world_id']) }}">Items</a>
-    <!--<a href="{{ url_for('get_persons', world_id=session['world_id']) }}">Persons</a>-->
-    <a href="{{ url_for('get_objectives', world_id=session['world_id']) }}">Objectives</a>
-    <!--<a href="{{ url_for('get_junctions', world_id=session['world_id']) }}">Junctions</a>-->
+    <a href="{{ url_for('show_index') }}"><i>Back</i></a>
+    <a href="{{ url_for('show_rooms', world_id=session['world_id']) }}">Rooms</a>
+    <a href="{{ url_for('show_items', world_id=session['world_id']) }}">Items</a>
+    <!--<a href="{{ url_for('show_persons', world_id=session['world_id']) }}">Persons</a>-->
+    <a href="{{ url_for('show_objectives', world_id=session['world_id']) }}">Objectives</a>
+    <!--<a href="{{ url_for('show_junctions', world_id=session['world_id']) }}">Junctions</a>-->
     {% endif %}
 
-    <a href="{{ url_for('get_mycreator') if (current_user.is_authenticated) else url_for('get_newcreator') }}"><b>Account</b></a>
-    <a href="{{ url_for('get_storage') }}"><b>Storage</b></a>
+    <a href="{{ url_for('show_my_creator') if (current_user.is_authenticated) else url_for('show_new_creator') }}"><b>Account</b></a>
+    <a href="{{ url_for('show_storage') }}"><b>Storage</b></a>
     <a href="{{ prefix }}/static/doc/index.html"><b>Docs</b></a>
     <a href="{{ prefix }}/swagger"><b>API</b></a>
   </nav>
@@ -51,9 +51,9 @@
 
   <footer>
     {% if current_user.is_authenticated %}
-    <p>Logged in as {{ current_user.creator_name }}, <a href="{{ url_for('get_logout') }}">Log out</a></p>
+    <p>Logged in as {{ current_user.creator_name }}, <a href="{{ url_for('show_logout') }}">Log out</a></p>
     {% else %}
-    <p><a href="{{ url_for('get_logged') }}">Log in</a></p>
+    <p><a href="{{ url_for('show_logged') }}">Log in</a></p>
     {% endif %}
     <p>Version: {{ version }}</p>
     <p><a href="#pagestart">Go to top of page</a></p>

@@ -9,7 +9,7 @@
         {% endif %}
         <ul>
             {% for creator in creators %}
-            <li><a href="{{ url_for('get_creator', creator_id=creator.creator_id)}}">{{ creator.creator_name }}</a></li>
+            <li><a href="{{ url_for('show_creator', creator_id=creator.creator_id)}}">{{ creator.creator_name }}</a></li>
             {% endfor %}
         </ul>
     </p>    

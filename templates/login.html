@@ -5,7 +5,7 @@
     
     <p>
         <h4>Enter your login data:</h4>
-        <form action="{{ url_for('get_login') }}" method="POST">
+        <form action="{{ url_for('show_login') }}" method="POST">
             {{ form.csrf_token }}
             <p>
                 <table><tbody>

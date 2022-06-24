@@ -5,7 +5,7 @@
 
     <p>
         <h4>Upload your file here:</h4>
-        <form method="POST" action="{{ url_for('get_storage') }}" enctype=multipart/form-data>
+        <form method="POST" action="{{ url_for('show_storage') }}" enctype=multipart/form-data>
             {{ form.csrf_token }}
             <p>
                 {{ form.file }}
@@ -28,7 +28,7 @@
         <ul>
         {% for item in contents %}
             <li>
-                <b>{{ item.Key }}</b></div>: [<a href="{{ url_for('get_download', creatorname='.', filename=item.Key) }}">download</a>, <a href="{{ url_for('get_delete', creatorname='.', filename=item.Key) }}">delete</a>, <a href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;">copy markdown link</a>]<br>
+                <b>{{ item.Key }}</b></div>: [<a href="{{ url_for('do_download', creatorname='.', filename=item.Key) }}">download</a>, <a href="{{ url_for('do_delete', creatorname='.', filename=item.Key) }}">delete</a>, <a href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;">copy markdown link</a>]<br>
             </li>
         {% endfor %}
         </ul>

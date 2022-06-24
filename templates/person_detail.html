@@ -4,7 +4,7 @@
     <h2>{% block title %} {{ person.person_name }} {% endblock %}</h2>
     
     <p>
-        <i>Found in <a href="{{ url_for('get_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i></br>
+        <i>Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i></br>
         <table><tbody>
             <tr><td width="20%">ID</td> <td width="80%">{{ person.person_id }}</td></tr>
             <tr><td colspan="2">{{ person.person_desc }}</td></tr>
@@ -16,6 +16,6 @@
     </p>
 
     <p>
-        <a href="{{ url_for('get_persons', world_id=person.world_id) }}">All Persons</a>
+        <a href="{{ url_for('show_persons', world_id=person.world_id) }}">All Persons</a>
     </p>
 {% endblock %}

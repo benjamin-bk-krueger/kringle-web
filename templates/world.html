@@ -9,7 +9,7 @@
         {% endif %}
         <ul>
             {% for world in worlds %}
-            <li><a href="{{ url_for('get_world', world_id=world.world_id)}}">{{ world.world_name }}</a></li>
+            <li><a href="{{ url_for('show_world', world_id=world.world_id)}}">{{ world.world_name }}</a></li>
             {% endfor %}
         </ul>
     </p>    

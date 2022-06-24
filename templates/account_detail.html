@@ -5,7 +5,7 @@
 
     <p>
         <h4>Please enter data:</h4>
-        <form action="{{ url_for('get_mycreator') }}" method="POST">
+        <form action="{{ url_for('show_my_creator') }}" method="POST">
             {{ form1.csrf_token }}
             {{ form1.operation }}
             <p>
@@ -35,7 +35,7 @@
 
     <p>
         <h4>Set new password:</h4>
-        <form action="{{ url_for('get_mycreator') }}" method="POST">
+        <form action="{{ url_for('show_my_creator') }}" method="POST">
             {{ form2.csrf_token }}
             {{ form2.operation }}
             <p>
@@ -59,7 +59,7 @@
     
     <p>
         <h4>Delete this user account:</h4>
-        <form action="{{ url_for('get_mycreator') }}" method="POST">
+        <form action="{{ url_for('show_my_creator') }}" method="POST">
             {{ form3.csrf_token }}
             {{ form3.operation }}
             <p>

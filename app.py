@@ -899,24 +899,24 @@ def send_mail(recipients, mailheader, mailbody):
 
 # Flask entry pages
 @app.route(APP_PREFIX + '/web/', methods=['GET'])
-def get_index():
+def show_index():
     session['world_id'] = None
     return render_template('index.html')
 
 
 @app.route(APP_PREFIX + '/web/error', methods=['GET'])
-def get_error():
+def show_error():
     return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/logged', methods=['GET'])
 @login_required
-def get_logged():
-    return redirect(url_for('get_index'))
+def show_logged():
+    return redirect(url_for('show_index'))
 
 
 @app.route(APP_PREFIX + '/web/login', methods=['GET', 'POST'])
-def get_login():
+def show_login():
     form = LoginForm()
     if request.method == 'POST' and form.validate_on_submit():
         creator_name = request.form["creator"]
@@ -925,24 +925,24 @@ def get_login():
         creator = Creator.query.filter_by(creator_name=creator_name).first()
 
         if not creator or not check_password_hash(creator.creator_pass, creator_pass):
-            return redirect(url_for('get_login'))
+            return redirect(url_for('show_login'))
         else:
             login_user(creator, remember=remember)
-            return redirect(url_for('get_index'))
+            return redirect(url_for('show_index'))
     else:
         return render_template('login.html', form=form)
 
 
 @app.route(APP_PREFIX + '/web/logout', methods=['GET'])
-def get_logout():
+def show_logout():
     logout_user()
-    return redirect(url_for('get_index'))
+    return redirect(url_for('show_index'))
 
 
 # S3 storage pages
 @app.route(APP_PREFIX + "/web/storage", methods=['GET', 'POST'])
 @login_required
-def get_storage():
+def show_storage():
     form = UploadForm()
     if request.method == 'POST' and form.validate_on_submit():
         filename = secure_filename(form.file.data.filename)
@@ -955,7 +955,7 @@ def get_storage():
                 os.makedirs(folder_name)
             form.file.data.save(local_file)
             upload_file(BUCKET_PUBLIC, remote_file, local_file)
-        return redirect(url_for('get_storage'))
+        return redirect(url_for('show_storage'))
     else:
         contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
         return render_template('storage.html', contents=contents, form=form)
@@ -963,7 +963,7 @@ def get_storage():
 
 @app.route(APP_PREFIX + "/web/download/<string:creatorname>/<string:filename>", methods=['GET'])
 @login_required
-def get_download(creatorname, filename):
+def do_download(creatorname, filename):
     folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
     local_file = os.path.join(folder_name, secure_filename(filename))
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
@@ -977,15 +977,15 @@ def get_download(creatorname, filename):
 
 @app.route(APP_PREFIX + "/web/delete/<string:creatorname>/<string:filename>", methods=['GET'])
 @login_required
-def get_delete(creatorname, filename):
+def do_delete(creatorname, filename):
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
     delete_file(BUCKET_PUBLIC, remote_file)
-    return redirect(url_for('get_storage'))
+    return redirect(url_for('show_storage'))
 
 
 # Flask HTML views to read and modify the database contents
 @app.route(APP_PREFIX + '/web/stats', methods=['GET'])
-def get_stats():
+def show_stats():
     counts = dict()
     counts['creator'] = Creator.query.count()
     counts['world'] = World.query.count()
@@ -999,13 +999,13 @@ def get_stats():
 
 
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])
-def get_creators():
+def show_creators():
     creators = Creator.query.order_by(Creator.creator_id.asc())
     return render_template('creator.html', creators=creators)
 
 
 @app.route(APP_PREFIX + '/web/creator/<int:creator_id>', methods=['GET'])
-def get_creator(creator_id):
+def show_creator(creator_id):
     creator = Creator.query.filter_by(creator_id=creator_id).first()
     if creator:
         return render_template('creator_detail.html', creator=creator)
@@ -1013,8 +1013,8 @@ def get_creator(creator_id):
         return render_template('error.html')
 
 
-@app.route(APP_PREFIX + '/web/newcreator', methods=['GET', 'POST'])
-def get_newcreator():
+@app.route(APP_PREFIX + '/web/new_creator', methods=['GET', 'POST'])
+def show_new_creator():
     form = AccountForm()
     if request.method == 'POST' and form.validate_on_submit():
         code = request.form["invitation"]
@@ -1035,14 +1035,14 @@ def get_newcreator():
 
                 invitation.invitation_taken = 1
                 db.session.commit()
-        return redirect(url_for('get_creators'))
+        return redirect(url_for('show_creators'))
     else:
         return render_template('account.html', form=form)
 
 
-@app.route(APP_PREFIX + '/web/mycreator', methods=['GET', 'POST'])
+@app.route(APP_PREFIX + '/web/my_creator', methods=['GET', 'POST'])
 @login_required
-def get_mycreator():
+def show_my_creator():
     form1 = MailCreatorForm()
     form2 = PassCreatorForm()
     form3 = DelCreatorForm()
@@ -1063,13 +1063,13 @@ def get_mycreator():
                 send_mail([creator.creator_mail], "Notification: E-Mail changed",
                           f"You have changed you e-mail address from {old_mail} to {creator.creator_mail}.")
 
-                return redirect(url_for('get_mycreator'))
+                return redirect(url_for('show_my_creator'))
 
             if form2.validate_on_submit():
                 creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
                                                               salt_length=16)
                 db.session.commit()
-                return redirect(url_for('get_mycreator'))
+                return redirect(url_for('show_my_creator'))
 
             if form3.validate_on_submit():
                 confirmation = request.form["confirmation"]
@@ -1077,7 +1077,7 @@ def get_mycreator():
                     Creator.query.filter_by(creator_id=current_user.creator_id).delete()
                     db.session.commit()
                     logout_user()
-                return redirect(url_for('get_index'))
+                return redirect(url_for('show_index'))
         else:
             return render_template('error.html')
 
@@ -1090,13 +1090,13 @@ def get_mycreator():
 
 
 @app.route(APP_PREFIX + '/web/worlds', methods=['GET'])
-def get_worlds():
+def show_worlds():
     worlds = World.query.order_by(World.world_id.asc())
     return render_template('world.html', worlds=worlds)
 
 
 @app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['GET'])
-def get_world(world_id):
+def show_world(world_id):
     world = World.query.filter_by(world_id=world_id).first()
     if world:
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
@@ -1105,17 +1105,17 @@ def get_world(world_id):
         return render_template('error.html')
 
 
-@app.route(APP_PREFIX + '/web/delworld/<int:world_id>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/deleted_world/<int:world_id>', methods=['GET'])
 @login_required
-def get_delworld(world_id):
+def show_deleted_world(world_id):
     World.query.filter_by(world_id=world_id).filter_by(creator_id=current_user.creator_id).delete()
     db.session.commit()
-    return redirect(url_for('get_worlds'))
+    return redirect(url_for('show_worlds'))
 
 
-@app.route(APP_PREFIX + '/web/switchworld/<int:world_id>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/switched_world/<int:world_id>', methods=['GET'])
 @login_required
-def get_switchworld(world_id):
+def show_switched_world(world_id):
     world = World.query.filter_by(world_id=world_id).filter_by(creator_id=current_user.creator_id).first()
     if world:
         if world.visible == 1:
@@ -1124,19 +1124,19 @@ def get_switchworld(world_id):
             world.visible = 1
         db.session.commit()
 
-        return redirect(url_for('get_world', world_id=world_id))
+        return redirect(url_for('show_world', world_id=world_id))
     else:
         return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/rooms/<int:world_id>', methods=['GET'])
-def get_rooms(world_id):
+def show_rooms(world_id):
     rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
     return render_template('room.html', rooms=rooms, world_id=world_id)
 
 
 @app.route(APP_PREFIX + '/web/room/<int:room_id>', methods=['GET'])
-def get_room(room_id):
+def show_room(room_id):
     room = Room.query.filter_by(room_id=room_id).first()
     if room:
         world = World.query.filter_by(world_id=room.world_id).first()
@@ -1146,13 +1146,13 @@ def get_room(room_id):
 
 
 @app.route(APP_PREFIX + '/web/items/<int:world_id>', methods=['GET'])
-def get_items(world_id):
+def show_items(world_id):
     items = Item.query.filter_by(world_id=world_id).order_by(Item.item_id.asc())
     return render_template('item.html', items=items, world_id=world_id)
 
 
 @app.route(APP_PREFIX + '/web/item/<int:item_id>', methods=['GET'])
-def get_item(item_id):
+def show_item(item_id):
     item = Item.query.filter_by(item_id=item_id).first()
     if item:
         room = Room.query.filter_by(room_id=item.room_id).first()
@@ -1162,13 +1162,13 @@ def get_item(item_id):
 
 
 @app.route(APP_PREFIX + '/web/persons/<int:world_id>', methods=['GET'])
-def get_persons(world_id):
+def show_persons(world_id):
     persons = Person.query.filter_by(world_id=world_id).order_by(Person.person_id.asc())
     return render_template('person.html', persons=persons, world_id=world_id)
 
 
 @app.route(APP_PREFIX + '/web/person/<int:person_id>', methods=['GET'])
-def get_person(person_id):
+def show_person(person_id):
     person = Person.query.filter_by(person_id=person_id).first()
     if person:
         room = Room.query.filter_by(room_id=person.room_id).first()
@@ -1178,14 +1178,14 @@ def get_person(person_id):
 
 
 @app.route(APP_PREFIX + '/web/objectives/<int:world_id>', methods=['GET'])
-def get_objectives(world_id):
+def show_objectives(world_id):
     session['world_id'] = world_id
     objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_id.asc())
     return render_template('objective.html', objectives=objectives, world_id=world_id)
 
 
 @app.route(APP_PREFIX + '/web/objective/<int:objective_id>', methods=['GET'])
-def get_objective(objective_id):
+def show_objective(objective_id):
     objective = Objective.query.filter_by(objective_id=objective_id).first()
     if objective:
         room = Room.query.filter_by(room_id=objective.room_id).first()
@@ -1213,13 +1213,13 @@ def get_objective(objective_id):
 
 
 @app.route(APP_PREFIX + '/web/junctions/<int:world_id>', methods=['GET'])
-def get_junctions(world_id):
+def show_junctions(world_id):
     junctions = Junction.query.filter_by(world_id=world_id).order_by(Junction.junction_id.asc())
     return render_template('junction.html', junctions=junctions, world_id=world_id)
 
 
 @app.route(APP_PREFIX + '/web/junction/<int:junction_id>', methods=['GET'])
-def get_junction(junction_id):
+def show_junction(junction_id):
     junction = Junction.query.filter_by(junction_id=junction_id).first()
     if junction:
         room_source = Room.query.filter_by(room_id=junction.room_id).first()
@@ -1231,7 +1231,7 @@ def get_junction(junction_id):
 
 @app.route(APP_PREFIX + '/web/quest/<int:objective_id>', methods=['GET', 'POST'])
 @login_required
-def get_quest(objective_id):
+def show_quest(objective_id):
     if request.method == 'POST':
         objective = Objective.query.filter_by(objective_id=objective_id).first()
         if objective:
@@ -1241,7 +1241,7 @@ def get_quest(objective_id):
             if world.creator_id == current_user.creator_id:
                 objective.quest = request.form["quest"].encode()
                 db.session.commit()
-            return redirect(url_for('get_objective', objective_id=objective.objective_id))
+            return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
             return render_template('error.html')
     else:
@@ -1258,13 +1258,13 @@ def get_quest(objective_id):
                     return render_template('quest_detail.html', quest="", objective_id=objective_id,
                                            world_id=objective.world_id)
             else:
-                return redirect(url_for('get_objective', objective_id=objective.objective_id))
+                return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
             return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/solution/<int:solution_id>', methods=['GET'])
-def get_solution(solution_id):
+def show_solution(solution_id):
     solution = Solution.query.filter_by(solution_id=solution_id).first()
     if solution:
         objective = Objective.query.filter_by(objective_id=solution.objective_id).first()
@@ -1280,14 +1280,14 @@ def get_solution(solution_id):
             else:
                 return render_template('solution_detail.html', mdsolution="", solution=solution, objective=objective)
         else:
-            return redirect(url_for('get_objective', objective_id=objective.objective_id))
+            return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
 
 
-@app.route(APP_PREFIX + '/web/likesolution/<int:solution_id>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/liked_solution/<int:solution_id>', methods=['GET'])
 @login_required
-def get_likesolution(solution_id):
+def show_liked_solution(solution_id):
     voting = Voting.query.filter_by(solution_id=solution_id).filter_by(creator_id=current_user.creator_id).first()
     solution = Solution.query.filter_by(solution_id=solution_id).first()
     if solution:
@@ -1306,14 +1306,14 @@ def get_likesolution(solution_id):
             db.session.add(voting)
             db.session.commit()
 
-        return redirect(url_for('get_objective', objective_id=objective.objective_id))
+        return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
 
 
-@app.route(APP_PREFIX + '/web/mysolution/<int:objective_id>', methods=['GET', 'POST'])
+@app.route(APP_PREFIX + '/web/my_solution/<int:objective_id>', methods=['GET', 'POST'])
 @login_required
-def get_mysolution(objective_id):
+def show_my_solution(objective_id):
     if request.method == 'POST':
         objective = Objective.query.filter_by(objective_id=objective_id).first()
         if objective:
@@ -1332,7 +1332,7 @@ def get_mysolution(objective_id):
             db.session.add(solution_new)
             db.session.commit()
 
-            return redirect(url_for('get_objective', objective_id=objective.objective_id))
+            return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
             return render_template('error.html')
     else:
@@ -1356,9 +1356,9 @@ def get_mysolution(objective_id):
             return render_template('error.html')
 
 
-@app.route(APP_PREFIX + '/web/mywalkthrough/<string:format><int:world_id>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/walkthrough/<string:format_type>/<int:world_id>', methods=['GET'])
 @login_required
-def get_mywalkthrough(world_id, format_type):
+def show_walkthrough(world_id, format_type):
     world = World.query.filter_by(world_id=world_id).first()
     creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
     rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())

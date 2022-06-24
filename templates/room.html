@@ -9,7 +9,7 @@
         {% endif %}
         <ul>
             {% for room in rooms %}
-            <li><a href="{{ url_for('get_room', room_id=room.room_id)}}">{{ room.room_name }}</a></li>
+            <li><a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></li>
             {% endfor %}
         </ul>
     </p>

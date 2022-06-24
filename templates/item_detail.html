@@ -4,7 +4,7 @@
     <h2>{% block title %} {{ item.item_name }} (#{{ item.item_id }}) {% endblock %}</h2>
 
     <p>
-        <i>Found in <a href="{{ url_for('get_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i></br>
+        <i>Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i></br>
         <table><tbody>
             <tr><td width="20%">ID</td> <td width="80%">{{ item.item_id }}</td></tr>
             <tr><td colspan="2">{{ item.item_desc }}</td></tr>
@@ -16,6 +16,6 @@
     </p>
 
     <p>
-        <a href="{{ url_for('get_items', world_id=item.world_id) }}">All Items</a>
+        <a href="{{ url_for('show_items', world_id=item.world_id) }}">All Items</a>
     </p>
 {% endblock %}

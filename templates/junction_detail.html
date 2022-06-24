@@ -4,8 +4,8 @@
     <h2>{% block title %} #{{ junction.junction_id }} {% endblock %}</h2>
     
     <p>
-        <i>Found in <a href="{{ url_for('get_room', room_id=room_source.room_id)}}">{{ room_source.room_name }}</a></i></br>
-        <i>Targeting <a href="{{ url_for('get_room', room_id=room_dest.room_id)}}">{{ room_dest.room_name }}</a></i></br>
+        <i>Found in <a href="{{ url_for('show_room', room_id=room_source.room_id)}}">{{ room_source.room_name }}</a></i></br>
+        <i>Targeting <a href="{{ url_for('show_room', room_id=room_dest.room_id)}}">{{ room_dest.room_name }}</a></i></br>
         <table><tbody>
             <tr><td width="20%">ID</td> <td width="80%">{{ junction.junction_id }}</td></tr>
             <tr><td colspan="2">{{ junction.junction_desc }}</td></tr>
@@ -13,6 +13,6 @@
     </p>
 
     <p>
-        <a href="{{ url_for('get_junctions', world_id=junction.world_id) }}">All Junctions</a>
+        <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}">All Junctions</a>
     </p>
 {% endblock %}

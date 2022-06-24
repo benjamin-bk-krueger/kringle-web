@@ -9,7 +9,7 @@
         {% endif %}
         <ul>
             {% for junction in junctions %}
-            <li><a href="{{ url_for('get_junction', junction_id=junction.junction_id)}}">Junction #{{ junction.junction_id }}</a></li>
+            <li><a href="{{ url_for('show_junction', junction_id=junction.junction_id)}}">Junction #{{ junction.junction_id }}</a></li>
             {% endfor %}
         </ul>
     </p>
