@@ -22,7 +22,7 @@ services:
     command: /home/kringle/flask.sh
     user: kringle
     ports:
-      - 127.0.0.1:5010:5010
+      - "127.0.0.1:5010:5010"
     container_name: kringle_web
     volumes:
       - ./.aws/:/home/kringle/.aws/
@@ -33,7 +33,7 @@ services:
       - POSTGRES_USER=kringle
       - POSTGRES_PASSWORD=kringle
     ports:
-      - 127.0.0.1:5432:5432
+      - "127.0.0.1:5432:5432"
     container_name: kringle_database
     volumes:
       - db:/var/lib/postgresql/data
