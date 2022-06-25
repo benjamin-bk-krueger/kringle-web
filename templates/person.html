@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} All Persons {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} All Persons {% endblock %}
+        </h2>
+    </div>
 
-    <p>
+    <div class="container-fluid">
         {% if persons.count() == 0 %}
-        No entries found.
+            No entries found.
+        {% else %}
+            <div class="list-group">
+                {% for person in persons %}
+                    <a href="{{ url_for('show_person', person_id=person.person_id)}}" class="list-group-item">{{ person.person_name }}</a>
+                {% endfor %}
+            </div>
         {% endif %}
-        <ul>
-            {% for person in persons %}
-            <li><a href="{{ url_for('show_person', person_id=person.person_id)}}">{{ person.person_name }}</a></li>
-            {% endfor %}
-        </ul>
-    </p>
+    </div>
 {% endblock %}

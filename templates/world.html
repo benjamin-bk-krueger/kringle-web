@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} All Worlds {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} All Worlds {% endblock %}
+        </h2>
+    </div>
 
-    <p>
+    <div class="container-fluid">
         {% if worlds.count() == 0 %}
-        No entries found.
+            No entries found.
+        {% else %}
+            <div class="list-group">
+                {% for world in worlds %}
+                    <a href="{{ url_for('show_world', world_id=world.world_id)}}" class="list-group-item">{{ world.world_name }}</a>
+                {% endfor %}
+            </div>
         {% endif %}
-        <ul>
-            {% for world in worlds %}
-            <li><a href="{{ url_for('show_world', world_id=world.world_id)}}">{{ world.world_name }}</a></li>
-            {% endfor %}
-        </ul>
-    </p>    
+    </div>
 {% endblock %}

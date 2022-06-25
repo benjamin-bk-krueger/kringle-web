@@ -1,18 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} Stats {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} Stats {% endblock %}
+        </h2>
+    </div>
 
-    <p>
-        <ul>
-            <li>Creators: {{ counts['creator'] }}</li>
-            <li>Worlds: {{ counts['world'] }}</li>
-            <li>Rooms: {{ counts['room'] }}</li>
-            <li>Items: {{ counts['item'] }}</li>
-            <li>Persons: {{ counts['person'] }}</li>
-            <li>Objectives: {{ counts['objective'] }}</li>
-            <li>Junctions: {{ counts['junction'] }}</li>
-            <li>Solutions: {{ counts['solution'] }}</li>
+    <div class="container-fluid">
+        <ul class="list-group">
+            <li class="list-group-item">Creators: {{ counts['creator'] }}</li>
+            <li class="list-group-item">Worlds: {{ counts['world'] }}</li>
+            <li class="list-group-item">Rooms: {{ counts['room'] }}</li>
+            <li class="list-group-item">Items: {{ counts['item'] }}</li>
+            <li class="list-group-item">Persons: {{ counts['person'] }}</li>
+            <li class="list-group-item">Objectives: {{ counts['objective'] }}</li>
+            <li class="list-group-item">Junctions: {{ counts['junction'] }}</li>
+            <li class="list-group-item">Solutions: {{ counts['solution'] }}</li>
         </ul>
-    </p>    
+    </div>
 {% endblock %}

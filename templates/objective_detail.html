@@ -1,64 +1,60 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} {{ objective.objective_name }} {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} {{ objective.objective_name }} {% endblock %}
+        </h2>
+    </div>
 
-    <p>
-        <i>Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i></br>
-        <table><tbody>
-            <tr><td width="20%">ID</td> <td width="80%">{{ objective.objective_id }}</td></tr>
-            <tr><td>Title</td> <td>{{ objective.objective_title }}</td></tr>
-            <tr><td>Difficulty</td> <td>{{ objective.difficulty }}</td></tr>
-            <tr><td>URL</td> <td>{{ objective.objective_url }}</td></tr>
-            <tr><td>Supported by</td> <td>{{ objective.supported_by }}</td></tr>
-            <tr><td>Requires</td> <td>{{ objective.requires }}</td></tr>
+    <div class="container-fluid">
+        <i>Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i>
+        <br><br>
+
+        <table class="table">
+            <tr><td class="w-5">ID</td> <td>{{ objective.objective_id }}</td></tr>
+            <tr><td class="w-5">Title</td> <td>{{ objective.objective_title }}</td></tr>
+            <tr><td class="w-5">Difficulty</td> <td>{{ objective.difficulty }}</td></tr>
+            <tr><td class="w-5">URL</td> <td>{{ objective.objective_url }}</td></tr>
+            <tr><td class="w-5">Supported_by</td> <td>{{ objective.supported_by }}</td></tr>
+            <tr><td class="w-5">Requires</td> <td>{{ objective.requires }}</td></tr>
             <tr><td colspan="2">{{ objective.objective_desc }}</td></tr>
-        </tbody></table>
-    </p>
+        </table>
+        <br><br>
 
-    <p>
         <img src="{{ objective.objective_img if (objective.objective_img!='') else '/static/not_found.jpg' }}" alt="Objective Image" width="33%" height="33%">
-    </p>
+        <br><br>
 
-    <br><hr><br>
-
-    <p>
         <h4>Master Quest</h4>
         {{ mdquest|safe }}
-    </p>
+        <br><br>
 
-    <br><hr><br>
-
-    <p>
         <h4>Public Solutions</h4>
-        <ul>
-            {% if world.visible == 1 %}
+        {% if world.visible == 1 %}
+            <div class="list-group">
                 {% for solution in solutions %}
-                <li><a href="{{ url_for('show_solution', solution_id=solution.solution_id)}}">Solution</a> created by <a href="{{ url_for('show_creator', creator_id=solution.creator_id)}}">{{ creatorall[solution.solution_id] }}</a>, votes: {{ votingall[solution.solution_id] }}</li>
+                    <a href="{{ url_for('show_solution', solution_id=solution.solution_id)}}" class="list-group-item">Solution created by {{ creatorall[solution.solution_id] }}, votes: {{ votingall[solution.solution_id] }}</a>
                 {% endfor %}
-            {% else %}
-                Solutions are not visible as this world is not public currently.
-            {% endif %}
-        </ul>
-    </p>
+            </div>
+        {% else %}
+            Solutions are not visible as this world is not public currently.
+        {% endif %}
+        <br><br>
 
-    <br><hr><br>
-
-    <p>
         <h4>Edit Data</h4>
         {% if current_user.creator_id == world.creator_id %}
-        <form action="{{ url_for('show_quest', objective_id=objective.objective_id)}}">
-            <input type="submit" value="Edit Master Quest" />
-        </form>
+            <form action="{{ url_for('show_quest', objective_id=objective.objective_id)}}">
+                <button type="submit" class="btn btn-default">Edit Master Quest</button>
+            </form>
         {% endif %}
+        <br>
         {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-        <form action="{{ url_for('show_my_solution', objective_id=objective.objective_id)}}">
-            <input type="submit" value="Edit My Solution" />
-        </form>
+            <form action="{{ url_for('show_my_solution', objective_id=objective.objective_id)}}">
+                <button type="submit" class="btn btn-default">Edit My Solution</button>
+            </form>
         {% endif %}
-    </p>
+        <br><br>
 
-    <p>
         <a href="{{ url_for('show_objectives', world_id=objective.world_id) }}">All Objectives</a>
-    </p>
+    </div>
 {% endblock %}

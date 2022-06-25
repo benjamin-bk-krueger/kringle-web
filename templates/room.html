@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} All Rooms {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} All Rooms {% endblock %}
+        </h2>
+    </div>
 
-    <p>
+    <div class="container-fluid">
         {% if rooms.count() == 0 %}
-        No entries found.
+            No entries found.
+        {% else %}
+            <div class="list-group">
+                {% for room in rooms %}
+                    <a href="{{ url_for('show_room', room_id=room.room_id)}}" class="list-group-item">{{ room.room_name }}</a>
+                {% endfor %}
+            </div>
         {% endif %}
-        <ul>
-            {% for room in rooms %}
-            <li><a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></li>
-            {% endfor %}
-        </ul>
-    </p>
+    </div>
 {% endblock %}

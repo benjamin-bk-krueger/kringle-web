@@ -1,23 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} Single Solution {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} Single Solution {% endblock %}
+        </h2>
+    </div>
 
-    <p>
+    <div class="container-fluid">
         <h4>For following quest:</h4>
         {{ mdquest|safe }}
-    </p>
+        <br><br>
 
-    <br><hr><br>
-
-    <p>
         <form action="{{ url_for('show_my_solution', objective_id=objective_id)}}" method="POST">
-            <textarea name="solution" cols="50" rows="10">{{ solution }}</textarea><br>
+            <div class="form-group">
+                <label for="solution">Solution:</label>
+                <textarea name="solution" cols="50" rows="10" id="solution" class="form-control">{{ solution }}</textarea>
+            </div>
             <script>
                 const easyMDE = new EasyMDE();
             </script>
-            <input type="checkbox" id="visible" name="visible" value="1" {{ 'checked' if (visible==1) }}> <label for="visible">Make solution public</label><br>
-            <input type="submit" value="Submit">
+            <div class="checkbox">
+                <label><input type="checkbox" id="visible" name="visible" value="1" {{ 'checked' if (visible==1) }}> Make solution public</label>
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
         </form>
-    </p>
+    </div>
 {% endblock %}

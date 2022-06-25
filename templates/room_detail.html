@@ -1,21 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} {{ room.room_name }} {% endblock %}</h2>
-        
-    <p>
-        <i>Found in <a href="{{ url_for('show_world', world_id=world.world_id)}}">{{ world.world_name }}</a></i></br>
-        <table><tbody>
-            <tr><td width="20%">ID</td> <td width="80%">{{ room.room_id }}</td></tr>
+    <div class = "page-header">
+        <h2>
+            {% block title %} {{ room.room_name }} {% endblock %}
+        </h2>
+    </div>
+
+    <div class="container-fluid">
+        <i>Found in <a href="{{ url_for('show_world', world_id=world.world_id)}}">{{ world.world_name }}</a></i>
+        <br><br>
+
+        <table class="table">
+            <tr><td class="w-5">ID</td> <td>{{ room.room_id }}</td></tr>
             <tr><td colspan="2">{{ room.room_desc }}</td></tr>
-        </tbody></table>
-    </p>
+        </table>
+        <br><br>
 
-    <p>
         <img src="{{ room.room_img if (room.room_img!='') else '/static/not_found.jpg' }}" alt="Room Image" width="33%" height="33%">
-    </p>
+        <br><br>
 
-    <p>
         <a href="{{ url_for('show_rooms', world_id=room.world_id) }}">All Rooms</a>
-    </p>
+    </div>
 {% endblock %}

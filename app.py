@@ -76,7 +76,7 @@ db.init_app(app)
 # Login Manager configuration See https://www.digitalocean.com/community/tutorials/how-to-add-authentication-to-your
 # -app-with-flask-login#step-2-creating-the-main-app-file
 login_manager = LoginManager()
-login_manager.login_view = 'get_login'  # show this page if a login is required
+login_manager.login_view = 'show_login'  # show this page if a login is required
 login_manager.init_app(app)
 
 

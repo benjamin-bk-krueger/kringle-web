@@ -1,62 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Kringle Info - {% block title %} {% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="{{ prefix }}/static/simple.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
-  <script src="{{ prefix }}/static/helper_func.js"></script>
-  <link rel="stylesheet" href="{{ prefix }}/static/easymde.min.override.css">
-  <link rel="icon" type="image/png" href="{{ prefix }}/static/kringle_logo_s.png" />
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Kringle Info - {% block title %} {% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<body>
-  <header>
-    <h1>Kringle.info</h1>
-    {% if session['world_id'] %}
-    <p>&lt; Rooms and Objectives &gt;</p>
-    {% else %}
-    <p>&lt; Worlds and Creators &gt;</p>
-    {% endif %}
-  </header>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
-  <div id="pagestart"></div>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
 
-  <nav>
-    {% if not session['world_id'] %}
-    <a href="{{ url_for('show_index') }}">Home</a>
-    <a href="{{ url_for('show_creators') }}">Creators</a>
-    <a href="{{ url_for('show_worlds') }}">Worlds</a>
-    <a href="{{ url_for('show_stats') }}">Stats</a>
-    {% else %}
-    <a href="{{ url_for('show_index') }}"><i>Back</i></a>
-    <a href="{{ url_for('show_rooms', world_id=session['world_id']) }}">Rooms</a>
-    <a href="{{ url_for('show_items', world_id=session['world_id']) }}">Items</a>
-    <!--<a href="{{ url_for('show_persons', world_id=session['world_id']) }}">Persons</a>-->
-    <a href="{{ url_for('show_objectives', world_id=session['world_id']) }}">Objectives</a>
-    <!--<a href="{{ url_for('show_junctions', world_id=session['world_id']) }}">Junctions</a>-->
-    {% endif %}
+        <script src="{{ prefix }}/static/helper_func.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{ prefix }}/static/main.css">
+        <link rel="icon" type="image/png" href="{{ prefix }}/static/kringle_logo_s.png">
+    </head>
 
-    <a href="{{ url_for('show_my_creator') if (current_user.is_authenticated) else url_for('show_new_creator') }}"><b>Account</b></a>
-    <a href="{{ url_for('show_storage') }}"><b>Storage</b></a>
-    <a href="{{ prefix }}/static/doc/index.html"><b>Docs</b></a>
-    <a href="{{ prefix }}/swagger"><b>API</b></a>
-  </nav>
+    <body>
+        <div id="page-start"></div>
 
-  <main>
-    {% block content %} {% endblock %}
-  </main>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="{{ url_for('show_index') }}">Kringle.info</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('show_creators') }}">Creators</a></li>
+                    <li><a href="{{ url_for('show_stats') }}">Stats</a></li>
+                    <li><a href="{{ url_for('show_worlds') }}">Worlds</a></li>
 
-  <footer>
-    {% if current_user.is_authenticated %}
-    <p>Logged in as {{ current_user.creator_name }}, <a href="{{ url_for('show_logout') }}">Log out</a></p>
-    {% else %}
-    <p><a href="{{ url_for('show_logged') }}">Log in</a></p>
-    {% endif %}
-    <p>Version: {{ version }}</p>
-    <p><a href="#pagestart">Go to top of page</a></p>
-  </footer>
-</body>
+                    {% if session['world_id'] %}
+                        <li><a href="{{ url_for('show_rooms', world_id=session['world_id']) }}">Rooms</a></li>
+                        <li><a href="{{ url_for('show_items', world_id=session['world_id']) }}">Items</a></li>
+                        <!--<li><a href="{{ url_for('show_persons', world_id=session['world_id']) }}">Persons</a></li>-->
+                        <li><a href="{{ url_for('show_objectives', world_id=session['world_id']) }}">Objectives</a></li>
+                        <!--<li><a href="{{ url_for('show_junctions', world_id=session['world_id']) }}">Junctions</a></li>-->
+                    {% endif %}
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('show_storage') }}"><span class="glyphicon glyphicon-hdd"></span> Storage</a></li>
+                        <li><a href="{{ url_for('show_my_creator') }}"><span class="glyphicon glyphicon-user"></span> My Account</a></li>
+                        <li><a href="{{ url_for('show_logout') }}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('show_new_creator') }}"><span class="glyphicon glyphicon-user"></span> New Account</a></li>
+                        <li><a href="{{ url_for('show_logged') }}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+        {% block content %} {% endblock %}
+
+        <br><hr class="solid"><br>
+
+        <footer class="page-footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-8 col-md-8 col-sm-12">
+                        <h6 class="text-uppercase font-weight-bold">
+                            {% if current_user.is_authenticated %}
+                                Logged in as {{ current_user.creator_name }}.
+                            {% else %}
+                                Not logged in.
+                            {% endif %}
+                            Version: {{ version }}
+                        </h6>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <h6 class="text-uppercase font-weight-bold">
+                            <a href="{{ prefix }}/static/doc/index.html">Docs</a>,
+                            <a href="{{ prefix }}/swagger">API</a>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-copyright text-center"><a href="#page-start">Go to top of page</a></div>
+        </footer>
+        <br>
+    </body>
 </html>

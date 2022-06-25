@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} All Junctions {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} All Junctions {% endblock %}
+        </h2>
+    </div>
 
-    <p>
+    <div class="container-fluid">
         {% if junctions.count() == 0 %}
-        No entries found.
+            No entries found.
+        {% else %}
+            <div class="list-group">
+                {% for junction in junctions %}
+                    <a href="{{ url_for('show_junction', junction_id=junction.junction_id)}}" class="list-group-item">Junction #{{ junction.junction_id }}</a>
+                {% endfor %}
+            </div>
         {% endif %}
-        <ul>
-            {% for junction in junctions %}
-            <li><a href="{{ url_for('show_junction', junction_id=junction.junction_id)}}">Junction #{{ junction.junction_id }}</a></li>
-            {% endfor %}
-        </ul>
-    </p>
+    </div>
 {% endblock %}

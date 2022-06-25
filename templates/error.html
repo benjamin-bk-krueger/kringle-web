@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} Error {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} Error {% endblock %}
+        </h2>
+    </div>
 
-    <p>
+    <div class="container-fluid">
         <b>Oops</b>, you have found a crack in the matrix.
-    </p>
+    </div>
 {% endblock %}

@@ -1,61 +1,57 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>{% block title %} {{ world.world_name }} {% endblock %}</h2>
+    <div class = "page-header">
+        <h2>
+            {% block title %} {{ world.world_name }} {% endblock %}
+        </h2>
+    </div>
 
-    <p>
-        <i>Created by <a href="{{ url_for('show_creator', creator_id=creator.creator_id)}}">{{ creator.creator_name }}</a></i></br>
-        <table><tbody>
-            <tr><td width="20%">ID</td> <td width="80%">{{ world.world_id }}</td></tr>
-            <tr><td>URL</td> <td>{{ world.world_url }}</td></tr>
-            <tr><td>Public</td> <td>{{ 'Yes' if (world.visible == 1) else 'No' }}</td></tr>
+    <div class="container-fluid">
+        <i>Created by <a href="{{ url_for('show_creator', creator_id=creator.creator_id)}}">{{ creator.creator_name }}</a></i>
+        <br><br>
+
+        <table class="table">
+            <tr><td class="w-5">ID</td> <td>{{ world.world_id }}</td></tr>
+            <tr><td class="w-5">URL</td> <td>{{ world.world_url }}</td></tr>
+            <tr><td class="w-5">Public</td> <td>{{ 'Yes' if (world.visible == 1) else 'No' }}</td></tr>
             <tr><td colspan="2">{{ world.world_desc }}</td></tr>
-        </tbody></table>
-    </p>
+        </table>
+        <br><br>
 
-    <p>
         <img src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Image" width="33%" height="33%">
-    </p>
+        <br><br>
 
-    <p>
-        <form action="{{ url_for('show_objectives', world_id=world.world_id) }}" method="GET">
-            <input type="submit" value="Select World" style="font-weight: bold;">
+        <h4>World Actions</h4>
+        <form action="{{ url_for('show_objectives', world_id=world.world_id) }}">
+            <button type="submit" class="btn btn-default">Select World</button>
         </form>
-    </p>
+        <br>
+        {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
+            <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='markdown') }}">
+                <button type="submit" class="btn btn-default">Create Walkthrough (Markdown)</button>
+            </form>
+        {% endif %}
+        <br>
+        {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
+            <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='pdf') }}">
+                <button type="submit" class="btn btn-default">Create Walkthrough (HTML)</button>
+            </form>
+        {% endif %}
+        <br>
+        {% if current_user.creator_id == world.creator_id %}
+            <form action="{{ url_for('show_switched_world', world_id=world.world_id) }}">
+                <button type="submit" class="btn btn-default">Switch Visibility</button>
+            </form>
+        {% endif %}
+        <br>
+        {% if current_user.creator_id == world.creator_id %}
+            <form action="{{ url_for('show_deleted_world', world_id=world.world_id) }}">
+                <button type="submit" class="btn btn-default">Delete World</button>
+            </form>
+        {% endif %}
+        <br><br>
 
-    {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-    <p>
-        <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='markdown') }}" method="GET">
-            <input type="submit" value="Create Walkthrough (Markdown)">
-        </form>
-    </p>
-    {% endif %}
-
-    {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-    <p>
-        <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='pdf') }}" method="GET">
-            <input type="submit" value="Create Walkthrough (HTML)">
-        </form>
-    </p>
-    {% endif %}
-
-    {% if current_user.creator_id == world.creator_id %}
-    <p>
-        <form action="{{ url_for('show_switched_world', world_id=world.world_id) }}" method="GET">
-            <input type="submit" value="Switch Visibility">
-        </form>
-    </p>
-    {% endif %}
-
-    {% if current_user.creator_id == world.creator_id %}
-    <p>
-        <form action="{{ url_for('show_deleted_world', world_id=world.world_id) }}" method="GET">
-            <input type="submit" value="Delete World">
-        </form>
-    </p>
-    {% endif %}
-
-    <p>
         <a href="{{ url_for('show_worlds') }}">All Worlds</a>
-    </p>
+    </div>
 {% endblock %}
