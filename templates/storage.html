@@ -8,7 +8,7 @@
     </div>
 
     <div class="container-fluid">
-        <h4>Upload your file here:</h4>
+        <h4>Upload your file here</h4>
         <form action="{{ url_for('show_storage') }}" method="POST" enctype=multipart/form-data>
             {{ form.csrf_token }}
             <div class="form-group">
@@ -21,15 +21,17 @@
                 {% endfor %}
             </ul>
         </form>
-        <br><br>
 
-        <h4>These are your uploaded files:</h4>
+        <br><hr class="little"><br>
+
+        <h4>These are your uploaded files</h4>
         Click on the options to download or delete them.<br>
-        If you click on <i>copy markdown link</i> the link to that image which you can use in your markdown snippets will be copied to your clipboard.<br>
-        <ul>
+        If you click on <i>copy markdown link</i> the link to that image which you can use in your markdown snippets will be copied to your clipboard.
+        <br><br>
+        <ul class="list-group">
         {% for item in contents %}
-            <li>
-                <b>{{ item.Key }}</b>: [<a href="{{ url_for('do_download', creatorname='.', filename=item.Key) }}">download</a>, <a href="{{ url_for('do_delete', creatorname='.', filename=item.Key) }}">delete</a>, <a href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;">copy markdown link</a>]
+            <li class="list-group-item">
+                <a href="{{ url_for('do_download', creatorname='.', filename=item.Key) }}"><span class="glyphicon glyphicon-download"></span></a> - <a href="{{ url_for('do_delete', creatorname='.', filename=item.Key) }}"><span class="glyphicon glyphicon-trash"></span></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;"><span class="glyphicon glyphicon-link"></span></a> {{ item.Key }}
             </li>
         {% endfor %}
         </ul>

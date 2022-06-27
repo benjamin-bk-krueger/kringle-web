@@ -3,19 +3,17 @@
 {% block content %}
     <div class = "page-header">
         <h2>
-            {% block title %} {{ creator.creator_name }} {% endblock %}
+            {% block title %} {{ creator.creator_name }} {% endblock %} ({% if creator.creator_role == "creator" %}<span class="glyphicon glyphicon-king"></span> World Creator{% else %}User{% endif %})
         </h2>
     </div>
 
     <div class="container-fluid">
-        <table class="table">
-            <tr><td class="w-5">ID</td> <td>{{ creator.creator_id }}</td></tr>
-            <tr><td class="w-5">Role</td> <td>{{ creator.creator_role }}</td></tr>
-            <tr><td colspan="2">{{ creator.creator_desc }}</td></tr>
-        </table>
+        <img src="{{ creator.creator_img if (creator.creator_img!='') else '/static/not_found.jpg' }}" alt="Creator Image" width="33%" height="33%">
         <br><br>
 
-        <img src="{{ creator.creator_img if (creator.creator_img!='') else '/static/not_found.jpg' }}" alt="Creator Image" width="33%" height="33%">
+        <div class="panel panel-default">
+            <div class="panel-body">{{ creator.creator_desc }}</div>
+        </div>
         <br><br>
 
         <a href="{{ url_for('show_creators') }}">All Creators</a>

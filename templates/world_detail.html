@@ -3,7 +3,7 @@
 {% block content %}
     <div class = "page-header">
         <h2>
-            {% block title %} {{ world.world_name }} {% endblock %}
+            {% block title %} {{ world.world_name }} {% endblock %} ({% if world.visible == 1 %}<span class="glyphicon glyphicon-globe"></span> Public{% else %}Closed{% endif %})
         </h2>
     </div>
 
@@ -11,17 +11,63 @@
         <i>Created by <a href="{{ url_for('show_creator', creator_id=creator.creator_id)}}">{{ creator.creator_name }}</a></i>
         <br><br>
 
-        <table class="table">
-            <tr><td class="w-5">ID</td> <td>{{ world.world_id }}</td></tr>
-            <tr><td class="w-5">URL</td> <td>{{ world.world_url }}</td></tr>
-            <tr><td class="w-5">Public</td> <td>{{ 'Yes' if (world.visible == 1) else 'No' }}</td></tr>
-            <tr><td colspan="2">{{ world.world_desc }}</td></tr>
-        </table>
-        <br><br>
-
         <img src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Image" width="33%" height="33%">
         <br><br>
 
+        <div class="panel panel-default">
+            <div class="panel-heading">{{ world.world_url }}</div>
+            <div class="panel-body">{{ world.world_desc }}</div>
+        </div>
+
+        {% if current_user.creator_id == world.world_id %}
+            <br><hr class="little"><br>
+            <button data-toggle="collapse" data-target="#create">Edit world</button>
+            <br><br>
+            <div class="container-fluid collapse" id="create">
+                <form action="{{ url_for('show_world', world_id=world.world_id) }}" method="POST">
+                    {{ form.csrf_token }}
+                    <div class="form-group">
+                        <label for="name">{{ form.name.label }}</label>
+                        {{ form.name(size=20, class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label for="url">{{ form.url.label }}</label>
+                        {{ form.url(size=20, class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label for="description">{{ form.description.label }}</label>
+                        {{ form.description(size=40, class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label for="image">{{ form.image.label }}</label>
+                        {{ form.image(size=20, class="form-control") }}
+                    </div>
+                    <ul class="errors">
+                        {% for error in form.name.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="errors">
+                        {% for error in form.url.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="errors">
+                        {% for error in form.description.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="errors">
+                        {% for error in form.image.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    <button type="submit" class="btn btn-default">Update</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <br><hr class="little"><br>
         <h4>World Actions</h4>
         <form action="{{ url_for('show_objectives', world_id=world.world_id) }}">
             <button type="submit" class="btn btn-default">Select World</button>
@@ -31,26 +77,27 @@
             <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='markdown') }}">
                 <button type="submit" class="btn btn-default">Create Walkthrough (Markdown)</button>
             </form>
+            <br>
         {% endif %}
-        <br>
         {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
             <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='pdf') }}">
                 <button type="submit" class="btn btn-default">Create Walkthrough (HTML)</button>
             </form>
+            <br>
         {% endif %}
-        <br>
         {% if current_user.creator_id == world.creator_id %}
             <form action="{{ url_for('show_switched_world', world_id=world.world_id) }}">
                 <button type="submit" class="btn btn-default">Switch Visibility</button>
             </form>
+            <br>
         {% endif %}
-        <br>
         {% if current_user.creator_id == world.creator_id %}
             <form action="{{ url_for('show_deleted_world', world_id=world.world_id) }}">
                 <button type="submit" class="btn btn-default">Delete World</button>
             </form>
+            <br>
         {% endif %}
-        <br><br>
+        <br>
 
         <a href="{{ url_for('show_worlds') }}">All Worlds</a>
     </div>

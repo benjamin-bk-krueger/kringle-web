@@ -62,7 +62,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-8 col-md-8 col-sm-12">
-                        <h6 class="text-uppercase font-weight-bold">
+                        <h6 class="font-weight-bold">
                             {% if current_user.is_authenticated %}
                                 Logged in as {{ current_user.creator_name }}.
                             {% else %}
@@ -72,9 +72,9 @@
                         </h6>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-12">
-                        <h6 class="text-uppercase font-weight-bold">
-                            <a href="{{ prefix }}/static/doc/index.html">Docs</a>,
-                            <a href="{{ prefix }}/swagger">API</a>
+                        <h6 class="font-weight-bold">
+                            <a href="{{ prefix }}/static/doc/index.html">Read Docs</a>,
+                            <a href="{{ prefix }}/swagger">Show API</a>
                         </h6>
                     </div>
                 </div>

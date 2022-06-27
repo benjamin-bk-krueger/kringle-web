@@ -12,6 +12,10 @@ hr.solid {
     border-top: 2px solid #999;
 }
 
+hr.little {
+    border-top: 1px solid #c9c9c9;
+}
+
 table .w-5 { width:5%; }
 table .w-10 { width:10%; }
 table .w-30 { width:30%; }

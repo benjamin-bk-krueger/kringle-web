@@ -17,7 +17,7 @@ from werkzeug.security import generate_password_hash, check_password_hash  # for
 from werkzeug.utils import secure_filename
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
-    UploadForm  # to prevent path traversal attacks
+    UploadForm, WorldForm  # to prevent path traversal attacks
 
 # the app configuration is done via environmental variables
 POSTGRES_URL = os.environ['POSTGRES_URL']  # DB connection data
@@ -1002,7 +1002,7 @@ def show_stats():
 
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])
 def show_creators():
-    creators = Creator.query.order_by(Creator.creator_id.asc())
+    creators = Creator.query.order_by(Creator.creator_name.asc())
     return render_template('creator.html', creators=creators)
 
 
@@ -1091,18 +1091,49 @@ def show_my_creator():
                            operation=operation)
 
 
-@app.route(APP_PREFIX + '/web/worlds', methods=['GET'])
+@app.route(APP_PREFIX + '/web/worlds', methods=['GET', 'POST'])
 def show_worlds():
-    worlds = World.query.order_by(World.world_id.asc())
-    return render_template('world.html', worlds=worlds)
+    form = WorldForm()
+    if request.method == 'POST' and form.validate_on_submit() and current_user.creator_id:
+        world_name = request.form["name"]
+        world = World.query.filter_by(world_name=world_name).first()
+
+        if not world:
+            world = World()
+            world.world_name = world_name
+            world.world_url = clean_url(request.form["url"])
+            world.world_desc = escape(request.form["description"])
+            world.world_img = clean_url(request.form["image"])
+            world.creator_id = current_user.creator_id
+            db.session.add(world)
+            db.session.commit()
+        return redirect(url_for('show_worlds'))
+    else:
+        worlds = World.query.order_by(World.world_name.asc())
+        return render_template('world.html', worlds=worlds, form=form)
 
 
-@app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['GET', 'POST'])
 def show_world(world_id):
+    form = WorldForm()
     world = World.query.filter_by(world_id=world_id).first()
     if world:
-        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
-        return render_template('world_detail.html', world=world, creator=creator)
+        if request.method == 'POST' and form.validate_on_submit() and current_user.creator_id:
+            world.world_name = clean_url(request.form["name"])
+            world.world_url = clean_url(request.form["url"])
+            world.world_desc = escape(request.form["description"])
+            world.world_img = clean_url(request.form["image"])
+            db.session.commit()
+            return redirect(url_for('show_world', world_id=world_id))
+        else:
+            creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+
+            form.name.default = world.world_name
+            form.url.default = world.world_url
+            form.description.default = world.world_desc
+            form.image.default = world.world_img
+            form.process()
+            return render_template('world_detail.html', world=world, creator=creator, form=form)
     else:
         return render_template('error.html')
 

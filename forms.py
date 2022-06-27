@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm  # integration with WTForms, data validation and CSRF protection
 from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, HiddenField, FileField, TextAreaField
-from wtforms.validators import InputRequired, NoneOf, EqualTo, Email, Length, Regexp
+from wtforms.validators import InputRequired, NoneOf, EqualTo, Email, Length, Regexp, URL
 
 
 class LoginForm(FlaskForm):
@@ -43,3 +43,11 @@ class DelCreatorForm(FlaskForm):
 
 class UploadForm(FlaskForm):
     file = FileField(validators=[FileRequired(), FileAllowed(['jpg', 'png', 'gif'], 'Images only!')])
+
+
+class WorldForm(FlaskForm):
+    name = StringField('Name',
+                       validators=[InputRequired(), Length(min=5, max=20), NoneOf([' '], message='No spaces allowed')])
+    url = StringField('URL', validators=[InputRequired(), URL()])
+    description = TextAreaField('Description', validators=[Length(max=1024)])
+    image = StringField('Image URL')
