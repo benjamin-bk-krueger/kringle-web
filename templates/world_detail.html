@@ -19,7 +19,7 @@
             <div class="panel-body">{{ world.world_desc }}</div>
         </div>
 
-        {% if current_user.creator_id == world.world_id %}
+        {% if current_user.creator_id == world.creator_id %}
             <br><hr class="little"><br>
             <button data-toggle="collapse" data-target="#create">Edit world</button>
             <br><br>
