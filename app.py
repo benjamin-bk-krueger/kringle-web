@@ -1,19 +1,21 @@
 import json  # for JSON file handling and parsing
 import os  # for direct file system and environment access
-import markdown2  # for markdown parsing
 import re  # for regular expressions
+
 import boto3  # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
+import markdown2  # for markdown parsing
 from flask import Flask, request, render_template, jsonify, send_file, escape, redirect, url_for, \
     session  # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, \
     current_user  # to manage user sessions
-from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
-from flask_sitemap import Sitemap  # to generate sitemap.xml
-from flask_restx import Resource, Api  # to enable the REST API, see https://rahmanfadhil.com/flask-rest-api/
-from flask_marshmallow import Marshmallow  # to marshall our objects
 from flask_mail import Mail, Message  # to send mails
+from flask_marshmallow import Marshmallow  # to marshall our objects
+from flask_restx import Resource, Api  # to enable the REST API, see https://rahmanfadhil.com/flask-rest-api/
+from flask_sitemap import Sitemap  # to generate sitemap.xml
+from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
 from werkzeug.utils import secure_filename
+
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
     UploadForm  # to prevent path traversal attacks
 
