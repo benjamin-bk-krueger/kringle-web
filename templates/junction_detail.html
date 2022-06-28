@@ -12,11 +12,9 @@
         <i>Targeting <a href="{{ url_for('show_room', room_id=room_dest.room_id)}}">{{ room_dest.room_name }}</a></i>
         <br><br>
 
-        <table class="table">
-            <tr><td class="w-5">ID</td> <td>{{ junction.junction_id }}</td></tr>
-            <tr><td colspan="2">{{ junction.junction_desc }}</td></tr>
-        </table>
-        <br><br>
+        <div class="panel panel-default">
+            <div class="panel-body">{{ junction.junction_desc }}</div>
+        </div>
 
         <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}">All Junctions</a>
     </div>

@@ -3,7 +3,7 @@
 {% block content %}
     <div class = "page-header">
         <h2>
-            {% block title %} {{ objective.objective_name }} {% endblock %}
+            {% block title %} {{ objective.objective_title }} {% endblock %}
         </h2>
     </div>
 
@@ -11,23 +11,112 @@
         <i>Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i>
         <br><br>
 
+        <img src="{{ objective.objective_img if (objective.objective_img!='') else '/static/not_found.jpg' }}" alt="Objective Image" width="33%" height="33%">
+        <br><br>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">{{ objective.objective_name }}</div>
+            <div class="panel-body">{{ objective.objective_desc }}</div>
+        </div>
+
         <table class="table">
-            <tr><td class="w-5">ID</td> <td>{{ objective.objective_id }}</td></tr>
-            <tr><td class="w-5">Title</td> <td>{{ objective.objective_title }}</td></tr>
             <tr><td class="w-5">Difficulty</td> <td>{{ objective.difficulty }}</td></tr>
             <tr><td class="w-5">URL</td> <td>{{ objective.objective_url }}</td></tr>
             <tr><td class="w-5">Supported_by</td> <td>{{ objective.supported_by }}</td></tr>
             <tr><td class="w-5">Requires</td> <td>{{ objective.requires }}</td></tr>
-            <tr><td colspan="2">{{ objective.objective_desc }}</td></tr>
         </table>
         <br><br>
 
-        <img src="{{ objective.objective_img if (objective.objective_img!='') else '/static/not_found.jpg' }}" alt="Objective Image" width="33%" height="33%">
-        <br><br>
+        {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+            <br><hr class="little"><br>
+            <button data-toggle="collapse" data-target="#create">Edit objective</button>
+            <br><br>
+            <div class="container-fluid collapse" id="create">
+                <form action="{{ url_for('show_objective_p', objective_id=objective.objective_id) }}" method="POST">
+                    {{ form.csrf_token }}
+                    <div class="form-group">
+                    <label for="name">{{ form.name.label }}</label>
+                    {{ form.name(size=20, class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label for="title">{{ form.title.label }}</label>
+                    {{ form.title(size=20, class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label for="difficulty">{{ form.difficulty.label }}</label>
+                    {{ form.difficulty(size=1, class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label for="url">{{ form.url.label }}</label>
+                    {{ form.url(size=20, class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label for="supported">{{ form.supported.label }}</label>
+                    {{ form.supported(size=40, class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label for="requires">{{ form.requires.label }}</label>
+                    {{ form.requires(size=40, class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label for="description">{{ form.description.label }}</label>
+                    {{ form.description(size=40, class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label for="image">{{ form.image.label }}</label>
+                    {{ form.image(size=20, class="form-control") }}
+                </div>
+                <ul class="errors">
+                    {% for error in form.name.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <ul class="errors">
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <ul class="errors">
+                    {% for error in form.difficulty.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <ul class="errors">
+                    {% for error in form.url.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <ul class="errors">
+                    {% for error in form.supported.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <ul class="errors">
+                    {% for error in form.requires.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <ul class="errors">
+                    {% for error in form.description.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <ul class="errors">
+                    {% for error in form.image.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                    <button type="submit" class="btn btn-default">Update</button>
+                </form>
+            </div>
+            <br><hr class="little"><br>
+        {% endif %}
 
         <h4>Master Quest</h4>
         {{ mdquest|safe }}
-        <br><br>
+
+
+        <br><hr class="little"><br>
 
         <h4>Public Solutions</h4>
         {% if world.visible == 1 %}
@@ -39,7 +128,8 @@
         {% else %}
             Solutions are not visible as this world is not public currently.
         {% endif %}
-        <br><br>
+
+        <br><hr class="little"><br>
 
         <h4>Edit Data</h4>
         {% if current_user.creator_id == world.creator_id %}

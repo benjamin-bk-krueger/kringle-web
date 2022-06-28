@@ -11,14 +11,12 @@
         <i>Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i>
         <br><br>
 
-        <table class="table">
-            <tr><td class="w-5">ID</td> <td>{{ person.person_id }}</td></tr>
-            <tr><td colspan="2">{{ person.person_desc }}</td></tr>
-        </table>
-        <br><br>
-
         <img src="{{ person.person_img if (person.person_img!='') else '/static/not_found.jpg' }}" alt="Person Image" width="33%" height="33%">
         <br><br>
+
+        <div class="panel panel-default">
+            <div class="panel-body">{{ person.person_desc }}</div>
+        </div>
 
         <a href="{{ url_for('show_persons', world_id=person.world_id) }}">All Persons</a>
     </div>

@@ -24,7 +24,7 @@
             <button data-toggle="collapse" data-target="#create">Edit world</button>
             <br><br>
             <div class="container-fluid collapse" id="create">
-                <form action="{{ url_for('show_world', world_id=world.world_id) }}" method="POST">
+                <form action="{{ url_for('show_world_p', world_id=world.world_id) }}" method="POST">
                     {{ form.csrf_token }}
                     <div class="form-group">
                         <label for="name">{{ form.name.label }}</label>

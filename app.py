@@ -14,10 +14,10 @@ from flask_restx import Resource, Api  # to enable the REST API, see https://rah
 from flask_sitemap import Sitemap  # to generate sitemap.xml
 from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
-from werkzeug.utils import secure_filename
+from werkzeug.utils import secure_filename # to prevent path traversal attacks
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
-    UploadForm, WorldForm  # to prevent path traversal attacks
+    UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm
 
 # the app configuration is done via environmental variables
 POSTGRES_URL = os.environ['POSTGRES_URL']  # DB connection data
@@ -1091,10 +1091,18 @@ def show_my_creator():
                            operation=operation)
 
 
-@app.route(APP_PREFIX + '/web/worlds', methods=['GET', 'POST'])
+@app.route(APP_PREFIX + '/web/worlds', methods=['GET'])
 def show_worlds():
     form = WorldForm()
-    if request.method == 'POST' and form.validate_on_submit() and current_user.creator_id:
+    worlds = World.query.order_by(World.world_name.asc())
+    return render_template('world.html', worlds=worlds, form=form)
+
+
+@app.route(APP_PREFIX + '/web/worlds', methods=['POST'])
+@login_required
+def show_worlds_p():
+    form = WorldForm()
+    if form.validate_on_submit() and current_user.creator_id:
         world_name = request.form["name"]
         world = World.query.filter_by(world_name=world_name).first()
 
@@ -1109,31 +1117,39 @@ def show_worlds():
             db.session.commit()
         return redirect(url_for('show_worlds'))
     else:
-        worlds = World.query.order_by(World.world_name.asc())
-        return render_template('world.html', worlds=worlds, form=form)
+        return render_template('error.html')
 
 
-@app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['GET', 'POST'])
+@app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['GET'])
 def show_world(world_id):
     form = WorldForm()
     world = World.query.filter_by(world_id=world_id).first()
     if world:
-        if request.method == 'POST' and form.validate_on_submit() and current_user.creator_id:
-            world.world_name = clean_url(request.form["name"])
-            world.world_url = clean_url(request.form["url"])
-            world.world_desc = escape(request.form["description"])
-            world.world_img = clean_url(request.form["image"])
-            db.session.commit()
-            return redirect(url_for('show_world', world_id=world_id))
-        else:
-            creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
 
-            form.name.default = world.world_name
-            form.url.default = world.world_url
-            form.description.default = world.world_desc
-            form.image.default = world.world_img
-            form.process()
-            return render_template('world_detail.html', world=world, creator=creator, form=form)
+        form.name.default = world.world_name
+        form.url.default = world.world_url
+        form.description.default = world.world_desc
+        form.image.default = world.world_img
+        form.process()
+        return render_template('world_detail.html', world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['POST'])
+@login_required
+def show_world_p(world_id):
+    form = WorldForm()
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world and form.validate_on_submit() and current_user.creator_id:
+        world.world_name = clean_url(request.form["name"])
+        world.world_url = clean_url(request.form["url"])
+        world.world_desc = escape(request.form["description"])
+        world.world_img = clean_url(request.form["image"])
+        db.session.commit()
+        return redirect(url_for('show_world', world_id=world.world_id))
     else:
         return render_template('error.html')
 
@@ -1157,52 +1173,169 @@ def show_switched_world(world_id):
             world.visible = 1
         db.session.commit()
 
-        return redirect(url_for('show_world', world_id=world_id))
+        return redirect(url_for('show_world', world_id=world.world_id))
     else:
         return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/rooms/<int:world_id>', methods=['GET'])
 def show_rooms(world_id):
-    rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
-    return render_template('room.html', rooms=rooms, world_id=world_id)
+    form = RoomForm()
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world:
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
+        return render_template('room.html', rooms=rooms, world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/rooms/<int:world_id>', methods=['POST'])
+@login_required
+def show_rooms_p(world_id):
+    form = RoomForm()
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world and form.validate_on_submit() and current_user.creator_id:
+        room_name = request.form["name"]
+        room = Room.query.filter_by(room_name=room_name).first()
+
+        if not room:
+            room = Room()
+            room.room_name = room_name
+            room.room_desc = escape(request.form["description"])
+            room.room_img = clean_url(request.form["image"])
+            room.world_id = world_id
+            db.session.add(room)
+            db.session.commit()
+        return redirect(url_for('show_rooms', world_id=world.world_id))
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/room/<int:room_id>', methods=['GET'])
 def show_room(room_id):
+    form = RoomForm()
     room = Room.query.filter_by(room_id=room_id).first()
+
     if room:
         world = World.query.filter_by(world_id=room.world_id).first()
-        return render_template('room_detail.html', room=room, world=world)
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+
+        form.name.default = room.room_name
+        form.description.default = room.room_desc
+        form.image.default = room.room_img
+        form.process()
+        return render_template('room_detail.html', room=room, world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/room/<int:room_id>', methods=['POST'])
+@login_required
+def show_room_p(room_id):
+    form = RoomForm()
+    room = Room.query.filter_by(room_id=room_id).first()
+
+    if room and form.validate_on_submit() and current_user.creator_id:
+        room.room_name = escape(request.form["name"])
+        room.room_desc = escape(request.form["description"])
+        room.room_img = clean_url(request.form["image"])
+        db.session.commit()
+        return redirect(url_for('show_room', room_id=room.room_id))
     else:
         return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/items/<int:world_id>', methods=['GET'])
 def show_items(world_id):
-    items = Item.query.filter_by(world_id=world_id).order_by(Item.item_id.asc())
-    return render_template('item.html', items=items, world_id=world_id)
+    form = ItemForm()
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world:
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
+        items = Item.query.filter_by(world_id=world_id).order_by(Item.item_id.asc())
+        return render_template('item.html', items=items, world=world, creator=creator, rooms=rooms, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/items/<int:world_id>', methods=['POST'])
+@login_required
+def show_items_p(world_id):
+    form = ItemForm()
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world and form.validate_on_submit() and current_user.creator_id:
+        item_name = request.form["name"]
+        item = Item.query.filter_by(item_name=item_name).first()
+
+        if not item:
+            item = Item()
+            item.item_name = item_name
+            item.item_desc = escape(request.form["description"])
+            item.item_img = clean_url(request.form["image"])
+            item.world_id = world_id
+            item.room_id = escape(request.form["room"])
+            db.session.add(item)
+            db.session.commit()
+        return redirect(url_for('show_items', world_id=world.world_id))
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/item/<int:item_id>', methods=['GET'])
 def show_item(item_id):
+    form = ItemForm()
     item = Item.query.filter_by(item_id=item_id).first()
+
     if item:
         room = Room.query.filter_by(room_id=item.room_id).first()
-        return render_template('item_detail.html', item=item, room=room)
+        world = World.query.filter_by(world_id=item.world_id).first()
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+
+        form.name.default = item.item_name
+        form.description.default = item.item_desc
+        form.image.default = item.item_img
+        form.process()
+        return render_template('item_detail.html', item=item, room=room, world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/item/<int:item_id>', methods=['POST'])
+@login_required
+def show_item_p(item_id):
+    form = ItemForm()
+    item = Item.query.filter_by(item_id=item_id).first()
+
+    if item and form.validate_on_submit() and current_user.creator_id:
+        item.item_name = escape(request.form["name"])
+        item.item_desc = escape(request.form["description"])
+        item.item_img = clean_url(request.form["image"])
+        db.session.commit()
+        return redirect(url_for('show_item', item_id=item.item_id))
     else:
         return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/persons/<int:world_id>', methods=['GET'])
 def show_persons(world_id):
-    persons = Person.query.filter_by(world_id=world_id).order_by(Person.person_id.asc())
-    return render_template('person.html', persons=persons, world_id=world_id)
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world:
+        persons = Person.query.filter_by(world_id=world_id).order_by(Person.person_id.asc())
+        return render_template('person.html', persons=persons, world_id=world_id)
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/person/<int:person_id>', methods=['GET'])
 def show_person(person_id):
     person = Person.query.filter_by(person_id=person_id).first()
+
     if person:
         room = Room.query.filter_by(room_id=person.room_id).first()
         return render_template('person_detail.html', person=person, room=room)
@@ -1212,19 +1345,57 @@ def show_person(person_id):
 
 @app.route(APP_PREFIX + '/web/objectives/<int:world_id>', methods=['GET'])
 def show_objectives(world_id):
-    session['world_id'] = world_id
-    objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_id.asc())
-    return render_template('objective.html', objectives=objectives, world_id=world_id)
+    form = ObjectiveForm()
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world:
+        session['world_id'] = world_id
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
+        objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_id.asc())
+        return render_template('objective.html', objectives=objectives, world=world, creator=creator, rooms=rooms, form=form)
+
+
+@app.route(APP_PREFIX + '/web/objectives/<int:world_id>', methods=['POST'])
+@login_required
+def show_objectives_p(world_id):
+    form = ObjectiveForm()
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world and form.validate_on_submit() and current_user.creator_id:
+        objective_name = request.form["name"]
+        objective = Objective.query.filter_by(objective_name=objective_name).first()
+
+        if not objective:
+            objective = Objective()
+            objective.objective_name = objective_name
+            objective.objective_title = escape(request.form["title"])
+            objective.difficulty = escape(request.form["difficulty"])
+            objective.objective_url = clean_url(request.form["url"])
+            objective.supported_by = escape(request.form["supported"])
+            objective.requires = escape(request.form["requires"])
+            objective.objective_desc = escape(request.form["description"])
+            objective.objective_img = clean_url(request.form["image"])
+            objective.world_id = world_id
+            objective.room_id = escape(request.form["room"])
+            db.session.add(objective)
+            db.session.commit()
+        return redirect(url_for('show_objectives', world_id=world.world_id))
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/objective/<int:objective_id>', methods=['GET'])
 def show_objective(objective_id):
+    form = ObjectiveForm()
     objective = Objective.query.filter_by(objective_id=objective_id).first()
+
     if objective:
         room = Room.query.filter_by(room_id=objective.room_id).first()
         solutions = Solution.query.filter_by(objective_id=objective_id).filter_by(visible=1).order_by(
             Solution.solution_id.asc())
         world = World.query.filter_by(world_id=objective.world_id).first()
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
 
         votingall = dict()
         creatorall = dict()
@@ -1239,16 +1410,52 @@ def show_objective(objective_id):
         else:
             mdquest = ""
 
+        form.name.default = objective.objective_name
+        form.title.default = objective.objective_title
+        form.difficulty.default = objective.difficulty
+        form.url.default = objective.objective_url
+        form.supported.default = objective.supported_by
+        form.requires.default = objective.requires
+        form.description.default = objective.objective_desc
+        form.image.default = objective.objective_img
+        form.process()
+
         return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions,
-                               world=world, votingall=votingall, creatorall=creatorall, room=room)
+                               world=world, votingall=votingall, creatorall=creatorall, room=room, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/objective/<int:objective_id>', methods=['POST'])
+@login_required
+def show_objective_p(objective_id):
+    form = ObjectiveForm()
+    objective = Objective.query.filter_by(objective_id=objective_id).first()
+
+    if objective and form.validate_on_submit() and current_user.creator_id:
+        objective.objective_name = escape(request.form["name"])
+        objective.objective_title = escape(request.form["title"])
+        objective.difficulty = escape(request.form["difficulty"])
+        objective.objective_url = clean_url(request.form["url"])
+        objective.supported_by = escape(request.form["supported"])
+        objective.requires = escape(request.form["requires"])
+        objective.objective_desc = escape(request.form["description"])
+        objective.objective_img = clean_url(request.form["image"])
+        db.session.commit()
+        return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/junctions/<int:world_id>', methods=['GET'])
 def show_junctions(world_id):
-    junctions = Junction.query.filter_by(world_id=world_id).order_by(Junction.junction_id.asc())
-    return render_template('junction.html', junctions=junctions, world_id=world_id)
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world:
+        junctions = Junction.query.filter_by(world_id=world_id).order_by(Junction.junction_id.asc())
+        return render_template('junction.html', junctions=junctions, world_id=world_id)
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/junction/<int:junction_id>', methods=['GET'])
