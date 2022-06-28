@@ -35,77 +35,61 @@
                 <form action="{{ url_for('show_objective_p', objective_id=objective.objective_id) }}" method="POST">
                     {{ form.csrf_token }}
                     <div class="form-group">
-                    <label for="name">{{ form.name.label }}</label>
-                    {{ form.name(size=20, class="form-control") }}
-                </div>
-                <div class="form-group">
-                    <label for="title">{{ form.title.label }}</label>
-                    {{ form.title(size=20, class="form-control") }}
-                </div>
-                <div class="form-group">
-                    <label for="difficulty">{{ form.difficulty.label }}</label>
-                    {{ form.difficulty(size=1, class="form-control") }}
-                </div>
-                <div class="form-group">
-                    <label for="url">{{ form.url.label }}</label>
-                    {{ form.url(size=20, class="form-control") }}
-                </div>
-                <div class="form-group">
-                    <label for="supported">{{ form.supported.label }}</label>
-                    {{ form.supported(size=40, class="form-control") }}
-                </div>
-                <div class="form-group">
-                    <label for="requires">{{ form.requires.label }}</label>
-                    {{ form.requires(size=40, class="form-control") }}
-                </div>
-                <div class="form-group">
-                    <label for="description">{{ form.description.label }}</label>
-                    {{ form.description(size=40, class="form-control") }}
-                </div>
-                <div class="form-group">
-                    <label for="image">{{ form.image.label }}</label>
-                    {{ form.image(size=20, class="form-control") }}
-                </div>
-                <ul class="errors">
+                        <label for="name">{{ form.name.label }}</label>
+                        {{ form.name(size=20, class="form-control") }}
+                    </div>
                     {% for error in form.name.errors %}
-                        <li>{{ error }}</li>
+                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                     {% endfor %}
-                </ul>
-                <ul class="errors">
+                    <div class="form-group">
+                        <label for="title">{{ form.title.label }}</label>
+                        {{ form.title(size=20, class="form-control") }}
+                    </div>
                     {% for error in form.title.errors %}
-                        <li>{{ error }}</li>
+                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                     {% endfor %}
-                </ul>
-                <ul class="errors">
+                    <div class="form-group">
+                        <label for="difficulty">{{ form.difficulty.label }}</label>
+                        {{ form.difficulty(size=1, class="form-control") }}
+                    </div>
                     {% for error in form.difficulty.errors %}
-                        <li>{{ error }}</li>
+                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                     {% endfor %}
-                </ul>
-                <ul class="errors">
+                    <div class="form-group">
+                        <label for="url">{{ form.url.label }}</label>
+                        {{ form.url(size=20, class="form-control") }}
+                    </div>
                     {% for error in form.url.errors %}
-                        <li>{{ error }}</li>
+                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                     {% endfor %}
-                </ul>
-                <ul class="errors">
+                    <div class="form-group">
+                        <label for="supported">{{ form.supported.label }}</label>
+                        {{ form.supported(size=40, class="form-control") }}
+                    </div>
                     {% for error in form.supported.errors %}
-                        <li>{{ error }}</li>
+                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                     {% endfor %}
-                </ul>
-                <ul class="errors">
+                    <div class="form-group">
+                        <label for="requires">{{ form.requires.label }}</label>
+                        {{ form.requires(size=40, class="form-control") }}
+                    </div>
                     {% for error in form.requires.errors %}
-                        <li>{{ error }}</li>
+                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                     {% endfor %}
-                </ul>
-                <ul class="errors">
+                    <div class="form-group">
+                        <label for="description">{{ form.description.label }}</label>
+                        {{ form.description(size=40, class="form-control") }}
+                    </div>
                     {% for error in form.description.errors %}
-                        <li>{{ error }}</li>
+                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                     {% endfor %}
-                </ul>
-                <ul class="errors">
+                    <div class="form-group">
+                        <label for="image">{{ form.image.label }}</label>
+                        {{ form.image(size=20, class="form-control") }}
+                    </div>
                     {% for error in form.image.errors %}
-                        <li>{{ error }}</li>
+                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                     {% endfor %}
-                </ul>
                     <button type="submit" class="btn btn-default">Update</button>
                 </form>
             </div>
