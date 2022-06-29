@@ -17,7 +17,10 @@
         <div class="panel panel-default">
             <div class="panel-body">{{ person.person_desc }}</div>
         </div>
+        <br><br>
 
-        <a href="{{ url_for('show_persons', world_id=person.world_id) }}">All Persons</a>
+        <a href="{{ url_for('show_persons', world_id=person.world_id) }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-th-list"></span> All Persons
+        </a>
     </div>
 {% endblock %}

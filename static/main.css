@@ -10,6 +10,11 @@ body {
 
 .carousel-inner img {
     margin: auto;
+    height: 500px !important;
+}
+
+.btn-space {
+    margin-right: 15px;
 }
 
 hr.solid {

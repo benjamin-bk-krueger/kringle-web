@@ -19,94 +19,93 @@
             <div class="panel-body">{{ world.world_desc }}</div>
         </div>
 
-        <br><hr class="little"><br>
-        <h4>World Actions</h4>
-        <br>
+        <br><br>
 
-        <form action="{{ url_for('show_objectives', world_id=world.world_id) }}">
-            <button type="submit" class="btn btn-primary">Select World</button>
-        </form>
-        <br>
-
-        {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-            <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='markdown') }}">
-                <button type="submit" class="btn btn-default">Create Walkthrough (Markdown)</button>
-            </form>
-            <br>
-        {% endif %}
-
-        {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-            <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='pdf') }}">
-                <button type="submit" class="btn btn-default">Create Walkthrough (HTML)</button>
-            </form>
-            <br>
-        {% endif %}
-
-        {% if current_user.creator_id == world.creator_id %}
-            <!-- Trigger the modal with a button -->
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">Edit World</button>
-
-            <!-- Modal -->
-            <div id="myModal" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Edit World</h4>
-                        </div>
-                        <div class="modal-body">
-                            <form action="{{ url_for('show_world_p', world_id=world.world_id) }}" method="POST">
-                                {{ form.csrf_token }}
-                                <div class="form-group">
-                                    <label for="name">{{ form.name.label }}</label>
-                                    {{ form.name(size=20, class="form-control") }}
-                                </div>
-                                {% for error in form.name.errors %}
-                                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                                {% endfor %}
-                                <div class="form-group">
-                                    <label for="url">{{ form.url.label }}</label>
-                                    {{ form.url(size=20, class="form-control") }}
-                                </div>
-                                {% for error in form.url.errors %}
-                                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                                {% endfor %}
-                                <div class="form-group">
-                                    <label for="description">{{ form.description.label }}</label>
-                                    {{ form.description(size=40, class="form-control") }}
-                                </div>
-                                {% for error in form.description.errors %}
-                                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                                {% endfor %}
-                                <div class="form-group">
-                                    <label for="image">{{ form.image.label }}</label>
-                                    {{ form.image(size=20, class="form-control") }}
-                                </div>
-                                {% for error in form.image.errors %}
-                                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                                {% endfor %}
-                                <button type="submit" class="btn btn-default">Update</button>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        </div>
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Edit World</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('show_world_p', world_id=world.world_id) }}" method="POST">
+                            {{ form.csrf_token }}
+                            <div class="form-group">
+                                <label for="name">{{ form.name.label }}</label>
+                                {{ form.name(size=20, class="form-control") }}
+                            </div>
+                            {% for error in form.name.errors %}
+                                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+                            {% endfor %}
+                            <div class="form-group">
+                                <label for="url">{{ form.url.label }}</label>
+                                {{ form.url(size=20, class="form-control") }}
+                            </div>
+                            {% for error in form.url.errors %}
+                                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+                            {% endfor %}
+                            <div class="form-group">
+                                <label for="description">{{ form.description.label }}</label>
+                                {{ form.description(size=40, class="form-control") }}
+                            </div>
+                            {% for error in form.description.errors %}
+                                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+                            {% endfor %}
+                            <div class="form-group">
+                                <label for="image">{{ form.image.label }}</label>
+                                {{ form.image(size=20, class="form-control") }}
+                            </div>
+                            {% for error in form.image.errors %}
+                                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-default">Update</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="btn-toolbar">
+            <a href="{{ url_for('show_worlds') }}" class="btn btn-default btn-space">
+                <span class="glyphicon glyphicon-th-list"></span> All Worlds
+            </a>
+
+            <form action="{{ url_for('show_objectives', world_id=world.world_id) }}">
+                <button type="submit" class="btn btn-primary btn-space">Select World</button>
+            </form>
+
+            {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
+                <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='markdown') }}">
+                    <button type="submit" class="btn btn-default btn-space">Create Walkthrough (Markdown)</button>
+                </form>
+            {% endif %}
+
+            {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
+                <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='pdf') }}">
+                    <button type="submit" class="btn btn-default btn-space">Create Walkthrough (HTML)</button>
+                </form>
+            {% endif %}
+
+            {% if current_user.creator_id == world.creator_id %}
+                <!-- Trigger the modal with a button -->
+                <button type="button" class="btn btn-default btn-space" data-toggle="modal" data-target="#myModal">Edit World</button>
+
+                <form action="{{ url_for('show_switched_world', world_id=world.world_id) }}">
+                    <button type="submit" class="btn btn-default btn-space">Switch Visibility</button>
+                </form>
+
+                <form action="{{ url_for('show_deleted_world', world_id=world.world_id) }}">
+                    <button type="submit" class="btn btn-danger btn-space">Delete Item</button>
+                </form>
+            {% endif %}
             <br><br>
-            <form action="{{ url_for('show_switched_world', world_id=world.world_id) }}">
-                <button type="submit" class="btn btn-default">Switch Visibility</button>
-            </form>
-            <br>
 
-            <form action="{{ url_for('show_deleted_world', world_id=world.world_id) }}">
-                <button type="submit" class="btn btn-danger">Delete Item</button>
-            </form>
-        {% endif %}
-        <br><br>
-
-        <a href="{{ url_for('show_worlds') }}">All Worlds</a>
+        </div>
     </div>
 {% endblock %}

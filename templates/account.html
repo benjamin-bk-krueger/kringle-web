@@ -12,14 +12,14 @@
         <form action="{{ url_for('show_new_creator') }}" method="POST">
             {{ form.csrf_token }}
             <div class="form-group">
-                <label for="creator">{{ form.creator.label }} ¹</label>
+                <a href="#" data-toggle="tooltip" title="Also used as your login, may not contain spaces"><label for="creator">{{ form.creator.label }}</label></a>
                 {{ form.creator(size=20, class="form-control") }}
             </div>
             {% for error in form.creator.errors %}
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
             {% endfor %}
             <div class="form-group">
-                <label for="email">{{ form.email.label }} ²</label>
+                <a href="#" data-toggle="tooltip" title="Only used to send notifications about account changes like e-mail address changes"><label for="email">{{ form.email.label }}</label></a>
                 {{ form.email(size=20, class="form-control") }}
             </div>
             {% for error in form.email.errors %}
@@ -37,15 +37,12 @@
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
             {% endfor %}
             <div class="form-group">
-                <label for="invitation">{{ form.invitation.label }} ³</label>
+                <a href="#" data-toggle="tooltip" title="Currently you need an invitation code. Just get in contact with me to get one"><label for="invitation">{{ form.invitation.label }}</label></a>
                 {{ form.invitation(size=20, class="form-control") }}
             </div>
             {% for error in form.invitation.errors %}
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
             {% endfor %}
-            ¹ Also used as your login, may not contain spaces<br>
-            ² Only used to send notifications about account changes like e-mail address changes<br>
-            ³ Currently you need an invitation code. Just <a href="{{ url_for('show_index')}}">get in contact with me</a> to get one
             <br><br>
             <button type="submit" class="btn btn-default">Create</button>
         </form>

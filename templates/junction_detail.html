@@ -15,7 +15,10 @@
         <div class="panel panel-default">
             <div class="panel-body">{{ junction.junction_desc }}</div>
         </div>
+        <br><br>
 
-        <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}">All Junctions</a>
+        <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-th-list"></span> All Junctions
+        </a>
     </div>
 {% endblock %}
