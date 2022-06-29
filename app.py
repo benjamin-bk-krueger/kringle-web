@@ -14,7 +14,7 @@ from flask_restx import Resource, Api  # to enable the REST API, see https://rah
 from flask_sitemap import Sitemap  # to generate sitemap.xml
 from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
-from werkzeug.utils import secure_filename # to prevent path traversal attacks
+from werkzeug.utils import secure_filename  # to prevent path traversal attacks
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
     UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm
@@ -1075,11 +1075,9 @@ def show_my_creator():
                 return redirect(url_for('show_my_creator'))
 
             if form3.validate_on_submit():
-                confirmation = request.form["confirmation"]
-                if confirmation == "delete":
-                    Creator.query.filter_by(creator_id=current_user.creator_id).delete()
-                    db.session.commit()
-                    logout_user()
+                Creator.query.filter_by(creator_id=current_user.creator_id).delete()
+                db.session.commit()
+                logout_user()
                 return redirect(url_for('show_index'))
         else:
             return render_template('error.html')
@@ -1374,7 +1372,8 @@ def show_objectives(world_id):
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_title.asc())
-        return render_template('objective.html', objectives=objectives, world=world, creator=creator, rooms=rooms, form=form)
+        return render_template('objective.html', objectives=objectives, world=world, creator=creator, rooms=rooms,
+                               form=form)
 
 
 @app.route(APP_PREFIX + '/web/objectives/<int:world_id>', methods=['POST'])
@@ -1442,7 +1441,8 @@ def show_objective(objective_id):
         form.process()
 
         return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions,
-                               world=world, votingall=votingall, creatorall=creatorall, room=room, creator=creator, form=form)
+                               world=world, votingall=votingall, creatorall=creatorall, room=room, creator=creator,
+                               form=form)
     else:
         return render_template('error.html')
 
@@ -1609,6 +1609,8 @@ def show_my_solution(objective_id):
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
         if objective:
+            world = World.query.filter_by(world_id=objective.world_id).first()
+            creator = Creator.query.filter_by(creator_id=world.creator_id).first()
             if objective.quest is not None:
                 mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
             else:
@@ -1619,12 +1621,28 @@ def show_my_solution(objective_id):
             if solution is not None:
                 return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'),
                                        visible=solution.visible, mdquest=mdquest, objective_id=objective_id,
-                                       world_id=objective.world_id)
+                                       world_id=objective.world_id, creator=creator)
             else:
                 return render_template('solution_my_detail.html', solution="", visible=0, mdquest=mdquest,
-                                       objective_id=objective_id, world_id=objective.world_id)
+                                       objective_id=objective_id, world_id=objective.world_id, creator=creator)
         else:
             return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/my_deleted_solution/<int:objective_id>', methods=['GET'])
+@login_required
+def show_deleted_solution(objective_id):
+    objective = Objective.query.filter_by(objective_id=objective_id).first()
+    if objective:
+        solution = Solution.query.filter_by(objective_id=objective_id).filter_by(
+            creator_id=current_user.creator_id).first()
+        if solution is not None:
+            db.session.delete(solution)
+            db.session.commit()
+
+        return redirect(url_for('show_objective', objective_id=objective_id))
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/walkthrough/<string:format_type>/<int:world_id>', methods=['GET'])

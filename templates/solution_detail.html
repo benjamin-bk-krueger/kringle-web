@@ -3,7 +3,7 @@
 {% block content %}
     <div class = "page-header">
         <h2>
-            {% block title %} Single Solution {% endblock %}
+            {% block title %} Solution {% endblock %}
         </h2>
     </div>
 
@@ -11,13 +11,16 @@
         {{ mdsolution|safe }}
         <br><br>
 
-        {% if (current_user.creator_id != solution.creator_id) and (current_user.creator_role == "creator" or current_user.creator_role == "user") %}
-            <form action="{{ url_for('show_liked_solution', solution_id=solution.solution_id) }}" method="GET">
-                <button type="submit" class="btn btn-default">Like / Unlike</button>
-            </form>
-        {% endif %}
-        <br><br>
+        <div class="btn-toolbar">
+            {% if (current_user.creator_id != solution.creator_id) and (current_user.creator_role == "creator" or current_user.creator_role == "user") %}
+                <form action="{{ url_for('show_liked_solution', solution_id=solution.solution_id) }}" method="GET">
+                    <button type="submit" class="btn btn-default btn-space">Like / Unlike</button>
+                </form>
+            {% endif %}
 
-        <a href="{{ url_for('show_objective', objective_id=objective.objective_id) }}">Back to Objective</a>
+            <form action="{{ url_for('show_objective', objective_id=solution.objective_id) }}">
+                <button type="submit" class="btn btn-default btn-space">Back</button>
+            </form>
+        </div>
     </div>
 {% endblock %}

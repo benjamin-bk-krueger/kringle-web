@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm  # integration with WTForms, data validation and CSRF protection
 from flask_wtf.file import FileRequired, FileAllowed
-from wtforms import StringField, PasswordField, BooleanField, HiddenField, FileField, TextAreaField, SelectField
-from wtforms.validators import InputRequired, NoneOf, EqualTo, Email, Length, Regexp, URL
+from wtforms import StringField, PasswordField, BooleanField, HiddenField, FileField, TextAreaField
+from wtforms.validators import InputRequired, NoneOf, EqualTo, Email, Length, URL
 
 
 class LoginForm(FlaskForm):
@@ -36,8 +36,6 @@ class PassCreatorForm(FlaskForm):
 
 
 class DelCreatorForm(FlaskForm):
-    confirmation = StringField('Confirmation (enter delete)',
-                               validators=[InputRequired(), Regexp("delete", message='Enter delete to confirm')])
     operation = HiddenField(default='delete')
 
 

@@ -8,6 +8,29 @@
     </div>
 
     <div class="container-fluid">
+        <!-- Delete Modal -->
+        <div id="myModal_del" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Delete Account</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('show_my_creator') }}" method="POST">
+                            {{ form3.csrf_token }}
+                            {{ form3.operation }}
+                            <button type="submit" class="btn btn-danger">Confirm</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <h4>Please enter data</h4>
         <form action="{{ url_for('show_my_creator') }}" method="POST">
             {{ form1.csrf_token }}
@@ -60,19 +83,7 @@
         <br><hr class="little"><br>
 
         <h4>Delete this user account</h4>
-        <form action="{{ url_for('show_my_creator') }}" method="POST">
-            {{ form3.csrf_token }}
-            {{ form3.operation }}
-            <div class="form-group">
-                <label for="confirmation">{{ form3.confirmation.label }}</label>
-                {{ form3.confirmation(size=20, class="form-control") }}
-            </div>
-            {% if operation == "delete" %}
-                {% for error in form3.confirmation.errors %}
-                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                {% endfor %}
-            {% endif %}
-            <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
+        <br>
+        <button type="button" class="btn btn-danger btn-space" data-toggle="modal" data-target="#myModal_del">Delete Account</button>
     </div>
 {% endblock %}

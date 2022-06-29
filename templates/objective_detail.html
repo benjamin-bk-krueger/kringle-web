@@ -19,14 +19,35 @@
             <div class="panel-body">{{ objective.objective_desc }}</div>
         </div>
 
-        <table class="table">
-            <tr><td class="w-5">Difficulty</td> <td>{{ objective.difficulty }}</td></tr>
-            <tr><td class="w-5">URL</td> <td>{{ objective.objective_url }}</td></tr>
-            <tr><td class="w-5">Supported_by</td> <td>{{ objective.supported_by }}</td></tr>
-            <tr><td class="w-5">Requires</td> <td>{{ objective.requires }}</td></tr>
-        </table>
+        <div class="well">
+            Difficulty: <span class="badge">{{ objective.difficulty }}</span><br>
+            Supported by {{ objective.supported_by }}<br>
+            Requires {{ objective.requires }}<br>
+            URL: {{ objective.objective_url }}
+        </div>
 
         <br><br>
+
+        <!-- Delete Modal -->
+        <div id="myModal_del" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Delete Objective</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('show_deleted_objective', objective_id=objective.objective_id) }}">
+                            <button type="submit" class="btn btn-danger btn-space">Confirm</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Modal -->
         <div id="myModal" class="modal fade" role="dialog">
@@ -111,6 +132,15 @@
                 <span class="glyphicon glyphicon-th-list"></span> All Objectives
             </a>
 
+            {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                <!-- Trigger the modal with a button -->
+                <button type="button" class="btn btn-default btn-space" data-toggle="modal" data-target="#myModal">Edit Objective</button>
+
+                <form action="{{ url_for('show_quest', objective_id=objective.objective_id)}}">
+                    <button type="submit" class="btn btn-default btn-space">Edit Quest</button>
+                </form>
+            {% endif %}
+
             {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
                 <form action="{{ url_for('show_my_solution', objective_id=objective.objective_id)}}">
                     <button type="submit" class="btn btn-default btn-space">Edit My Solution</button>
@@ -118,22 +148,13 @@
             {% endif %}
 
             {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-                <!-- Trigger the modal with a button -->
-                <button type="button" class="btn btn-default btn-space" data-toggle="modal" data-target="#myModal">Edit Objective</button>
-
-                <form action="{{ url_for('show_quest', objective_id=objective.objective_id)}}">
-                    <button type="submit" class="btn btn-default btn-space">Edit Master Quest</button>
-                </form>
-
-                <form action="{{ url_for('show_deleted_objective', objective_id=objective.objective_id) }}">
-                    <button type="submit" class="btn btn-danger btn-space">Delete Objective</button>
-                </form>
+                <button type="button" class="btn btn-danger btn-space" data-toggle="modal" data-target="#myModal_del">Delete Objective</button>
             {% endif %}
         </div>
 
         <br><hr class="little"><br>
 
-        <h4>Master Quest</h4>
+        <h4>Quest</h4>
         <br>
         {{ mdquest|safe }}
 
@@ -144,7 +165,7 @@
         {% if world.visible == 1 %}
             <div class="list-group">
                 {% for solution in solutions %}
-                    <a href="{{ url_for('show_solution', solution_id=solution.solution_id)}}" class="list-group-item">Solution created by {{ creatorall[solution.solution_id] }}, votes: {{ votingall[solution.solution_id] }}</a>
+                    <a href="{{ url_for('show_solution', solution_id=solution.solution_id)}}" class="list-group-item">Solution created by {{ creatorall[solution.solution_id] }}, {{ votingall[solution.solution_id] }} vote(s)</a>
                 {% endfor %}
             </div>
         {% else %}
