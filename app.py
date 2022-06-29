@@ -902,8 +902,9 @@ def send_mail(recipients, mailheader, mailbody):
 # Flask entry pages
 @app.route(APP_PREFIX + '/web/', methods=['GET'])
 def show_index():
-    session['world_id'] = None
-    return render_template('index.html')
+    # session['world_id'] = None
+    worlds = World.query.order_by(World.world_name.asc())
+    return render_template('index.html', worlds=worlds)
 
 
 @app.route(APP_PREFIX + '/web/error', methods=['GET'])
@@ -1185,7 +1186,7 @@ def show_rooms(world_id):
 
     if world:
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
-        rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
+        rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_name.asc())
         return render_template('room.html', rooms=rooms, world=world, creator=creator, form=form)
     else:
         return render_template('error.html')
@@ -1248,6 +1249,16 @@ def show_room_p(room_id):
         return render_template('error.html')
 
 
+@app.route(APP_PREFIX + '/web/deleted_room/<int:room_id>', methods=['GET'])
+@login_required
+def show_deleted_room(room_id):
+    world = World.query.filter_by(world_id=session['world_id']).first()
+    if current_user.creator_id == world.creator_id:
+        Room.query.filter_by(room_id=room_id).delete()
+        db.session.commit()
+    return redirect(url_for('show_rooms', world_id=session['world_id']))
+
+
 @app.route(APP_PREFIX + '/web/items/<int:world_id>', methods=['GET'])
 def show_items(world_id):
     form = ItemForm()
@@ -1256,7 +1267,7 @@ def show_items(world_id):
     if world:
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
-        items = Item.query.filter_by(world_id=world_id).order_by(Item.item_id.asc())
+        items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
         return render_template('item.html', items=items, world=world, creator=creator, rooms=rooms, form=form)
     else:
         return render_template('error.html')
@@ -1321,12 +1332,22 @@ def show_item_p(item_id):
         return render_template('error.html')
 
 
+@app.route(APP_PREFIX + '/web/deleted_item/<int:item_id>', methods=['GET'])
+@login_required
+def show_deleted_item(item_id):
+    world = World.query.filter_by(world_id=session['world_id']).first()
+    if current_user.creator_id == world.creator_id:
+        Item.query.filter_by(item_id=item_id).delete()
+        db.session.commit()
+    return redirect(url_for('show_items', world_id=session['world_id']))
+
+
 @app.route(APP_PREFIX + '/web/persons/<int:world_id>', methods=['GET'])
 def show_persons(world_id):
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
-        persons = Person.query.filter_by(world_id=world_id).order_by(Person.person_id.asc())
+        persons = Person.query.filter_by(world_id=world_id).order_by(Person.person_name.asc())
         return render_template('person.html', persons=persons, world_id=world_id)
     else:
         return render_template('error.html')
@@ -1352,7 +1373,7 @@ def show_objectives(world_id):
         session['world_id'] = world_id
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
-        objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_id.asc())
+        objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_title.asc())
         return render_template('objective.html', objectives=objectives, world=world, creator=creator, rooms=rooms, form=form)
 
 
@@ -1445,6 +1466,16 @@ def show_objective_p(objective_id):
         return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
         return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/deleted_objective/<int:objective_id>', methods=['GET'])
+@login_required
+def show_deleted_objective(objective_id):
+    world = World.query.filter_by(world_id=session['world_id']).first()
+    if current_user.creator_id == world.creator_id:
+        Objective.query.filter_by(objective_id=objective_id).delete()
+        db.session.commit()
+    return redirect(url_for('show_objectives', world_id=session['world_id']))
 
 
 @app.route(APP_PREFIX + '/web/junctions/<int:world_id>', methods=['GET'])

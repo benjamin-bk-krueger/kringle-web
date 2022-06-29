@@ -30,7 +30,6 @@
                 </div>
                 <ul class="nav navbar-nav">
                     <li><a href="{{ url_for('show_creators') }}">Creators</a></li>
-                    <li><a href="{{ url_for('show_stats') }}">Stats</a></li>
                     <li><a href="{{ url_for('show_worlds') }}">Worlds</a></li>
 
                     {% if session['world_id'] %}
@@ -39,7 +38,15 @@
                         <!--<li><a href="{{ url_for('show_persons', world_id=session['world_id']) }}">Persons</a></li>-->
                         <li><a href="{{ url_for('show_objectives', world_id=session['world_id']) }}">Objectives</a></li>
                         <!--<li><a href="{{ url_for('show_junctions', world_id=session['world_id']) }}">Junctions</a></li>-->
+                    {% else %}
+                        <li><a class="btn disabled" href="#">Rooms</a></li>
+                        <li><a class="btn disabled" href="#">Items</a></li>
+                        <!--<li><a class="btn disabled" href="#">Persons</a></li>-->
+                        <li><a class="btn disabled" href="#">Objectives</a></li>
+                        <!--<li><a class="btn disabled" href="#">Junctions</a></li>-->
                     {% endif %}
+
+                    <li><a href="{{ url_for('show_stats') }}">Stats</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_authenticated %}

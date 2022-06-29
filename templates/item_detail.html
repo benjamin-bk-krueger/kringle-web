@@ -18,39 +18,65 @@
             <div class="panel-body">{{ item.item_desc }}</div>
         </div>
 
+        <br><hr class="little"><br>
+        <h4>Item Actions</h4>
+        <br>
+
         {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-            <br><hr class="little"><br>
-            <button data-toggle="collapse" data-target="#create">Edit item</button>
-            <br><br>
-            <div class="container-fluid collapse" id="create">
-                <form action="{{ url_for('show_item_p', item_id=item.item_id) }}" method="POST">
-                    {{ form.csrf_token }}
-                    <div class="form-group">
-                        <label for="name">{{ form.name.label }}</label>
-                        {{ form.name(size=20, class="form-control") }}
+            <!-- Trigger the modal with a button -->
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">Edit Item</button>
+
+            <!-- Modal -->
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Edit Item</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ url_for('show_item_p', item_id=item.item_id) }}" method="POST">
+                                {{ form.csrf_token }}
+                                <div class="form-group">
+                                    <label for="name">{{ form.name.label }}</label>
+                                    {{ form.name(size=20, class="form-control") }}
+                                </div>
+                                {% for error in form.name.errors %}
+                                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+                                {% endfor %}
+                                <div class="form-group">
+                                    <label for="description">{{ form.description.label }}</label>
+                                    {{ form.description(size=40, class="form-control") }}
+                                </div>
+                                {% for error in form.description.errors %}
+                                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+                                {% endfor %}
+                                <div class="form-group">
+                                    <label for="image">{{ form.image.label }}</label>
+                                    {{ form.image(size=20, class="form-control") }}
+                                </div>
+                                {% for error in form.image.errors %}
+                                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+                                {% endfor %}
+                                <button type="submit" class="btn btn-default">Update</button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        </div>
                     </div>
-                    {% for error in form.name.errors %}
-                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                    {% endfor %}
-                    <div class="form-group">
-                        <label for="description">{{ form.description.label }}</label>
-                        {{ form.description(size=40, class="form-control") }}
-                    </div>
-                    {% for error in form.description.errors %}
-                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                    {% endfor %}
-                    <div class="form-group">
-                        <label for="image">{{ form.image.label }}</label>
-                        {{ form.image(size=20, class="form-control") }}
-                    </div>
-                    {% for error in form.image.errors %}
-                        <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-default">Update</button>
-                </form>
+                </div>
             </div>
             <br><br>
+
+            <form action="{{ url_for('show_deleted_item', item_id=item.item_id) }}">
+                <button type="submit" class="btn btn-danger">Delete Item</button>
+            </form>
+        {% else %}
+            No actions available.
         {% endif %}
+        <br><br>
 
         <a href="{{ url_for('show_items', world_id=item.world_id) }}">All Items</a>
     </div>
