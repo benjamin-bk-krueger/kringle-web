@@ -2,32 +2,39 @@
 
 ## New Account
 
-You can create a new account by clicking on *Account*. This is only possible if you are not already logged in.  
+You can create a new account by clicking on *New Account*. This is only possible if you are not already logged in.  
 
 The following data is required:  
 
-| Field            | Description         |  
-| ---------------- | ------------------- |
-| Name             | Your username (used for login and is displayed in the overview of the creators) |
-| E-mail           | Your e-mail address (Only used to send notifications about account changes like e-mail address changes) |
-| Password         | Your password (should be as secure as you want it to be) |
-| Invitation Code  | The invitation code is required to create an account |
+| Field            | Description                                                                 |
+| ---------------- |-----------------------------------------------------------------------------|
+| Name             | Your username (used as login and is visible in the creators overview)       |
+| E-mail           | Your e-mail address (only used to send notifications, not visible anywhere) |
+| Password         | Your password (should be as secure as you want it to be)                    |
+| Invitation Code  | An invitation code is currently required to create an account               |
 
 ![New Account](./img/account_new.png)
 
+## Login
+
+You can log into the application by clicking on *Login*. You need to enter the username and password you have chosen before. If you select *Remember me* you will stay logged in even after closing your browser.  
+To log out again, just click on *Logout*.
+
+![Login Account](./img/account_login.png)
+
 ## Edit Account
 
-If you are already logged in, you can edit your existing account by clicking on *Account* (user role "user" or "creator" necessary).
+If you are already logged in, you can edit your existing account data by clicking on *My Account*.
 
 ### Enter data
 
 In the first section, you can enter or change the following information:  
 
-| Field       | Description         |  
-| ----------- | ------------------- |
-| E-mail      | Your e-mail address |
-| Description | Something you want to let others know about you |
-| Image       | The link to a profile picture (This is displayed in the overview of the creators. You can also use the storage area to upload an image) |
+| Field       | Description                                                                                                                                      |
+| ----------- |--------------------------------------------------------------------------------------------------------------------------------------------------|
+| E-mail      | Your e-mail address                                                                                                                              |
+| Description | Something you want to let others know about you                                                                                                  |
+| Image       | The link to a profile picture (This is displayed in the creators overview. You can also use the storage area to upload an image) |
 
 ![Edit Account](./img/account_edit.png)
 

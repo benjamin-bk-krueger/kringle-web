@@ -13,7 +13,7 @@ I have invested some time to create that report, so I thought it would be a good
 
 What does it currently offer?
 
-- The application supports scenarios (aka worlds) which contain rooms and challenges (the SANS Holiday Hack Challenges are game based, also see chapter "Navigation" for more details)
+- The application supports scenarios (aka worlds) which contain rooms and challenges (the SANS Holiday Hack Challenges are game based, also see chapter *Navigation* for more details)
 - It does support different roles (world creators and registered users)
     - A world creator can upload (and later modify) a world and its content in the application or by using a simple REST API
     - A registered user can submit and store a solution for each of the challenges
