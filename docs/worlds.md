@@ -19,6 +19,7 @@ The *description* box below provides brief information about this world and a li
 ![World Detail 1](./img/worlds_detail.png)
 
 Below are some actions you can perform for this world. Please note that it depends on your role which actions are available.
+
 * When you click on *All Worlds* you will get back to the worlds overview.  
 * By clicking on *Select World* you will be taken to the *Rooms and Objectives* section specifically for this world. Here are the individual elements that make up this world.  
 * You can edit the name, URL, description or Image URL again by clicking on *Edit World* 
