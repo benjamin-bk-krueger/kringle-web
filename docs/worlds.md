@@ -24,7 +24,19 @@ Below are some actions you can perform for this world. Please note that it depen
 * By clicking on *Select World* you will be taken to the *Rooms and Objectives* section specifically for this world. Here are the individual elements that make up this world.  
 * You can edit the name, URL, description or Image URL again by clicking on *Edit World* 
 * By clicking on *Switch Visibility* you can set the status to *public*. Only if the status is public, other people can view submitted solutions. If the world is not public, you only see your own solutions. 
-* By clicking on *Create Walk-through* (Markdown or PDF) you can create a walk-through/solution document. On the one hand, this contains the general information about the world, on the other hand, the solutions you have submitted. 
+* By clicking on *Create Walk-through* you can create a walk-through/solution document. On the one hand, this contains the general information about the world, on the other hand, the solutions you have submitted. 
 * If you click on *Delete World* this world as well as all elements will be irrevocably deleted. Please be cautious as this will also delete any solution submitted for the challenges in this world.
 
 ![World Detail 2](./img/worlds_detail2.png)
+
+### Walk-through formats
+
+A walk-through can be in HTML format. This format can be viewed in the browser and does contain clickable links.  
+It also can be exported to other formats like PDF for example.
+
+![World Detail 2](./img/worlds_walkthrough.png)
+
+A walk-through can also be in Markdown format (preferred format). The result is optimized to be viewed in Markdown editors like Typora.  
+Using these tools they can be exported to PDF as well.
+
+![World Detail 2](./img/worlds_walkthrough2.png)
