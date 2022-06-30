@@ -25,4 +25,4 @@ A world consists of different rooms which are linked to each other. In the origi
 These are the challenges which need to be solved.
 
 ### Items
-Sometime you do need items to "open" challenges. That feature is not relevant for the web application.
+Sometimes you do need items to "open" challenges. That feature is not relevant for the web application.
