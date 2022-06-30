@@ -1001,6 +1001,11 @@ def show_stats():
     return render_template('stats.html', counts=counts)
 
 
+@app.route(APP_PREFIX + '/web/release', methods=['GET'])
+def show_release():
+    return render_template('release.html')
+
+
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])
 def show_creators():
     creators = Creator.query.order_by(Creator.creator_name.asc())

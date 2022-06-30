@@ -75,7 +75,7 @@
                             {% else %}
                                 Not logged in.
                             {% endif %}
-                            Version: {{ version }}
+                            <a href="{{ url_for('show_release')}}">Version: {{ version }}</a>
                         </h6>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-12">
