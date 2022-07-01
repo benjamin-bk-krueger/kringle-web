@@ -1,27 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class = "page-header">
-        <h2>
-            {% block title %} Quest {% endblock %}
-        </h2>
+    <div class="container-fluid pb-2 mt-4 mb-2">
+        <h2>{% block title %} Quest {% endblock %}</h2>
     </div>
 
-    <div class="container-fluid">
-        <div class="btn-toolbar">
-            <form action="{{ url_for('show_quest', objective_id=objective_id)}}" method="POST">
-                <div class="form-group">
-                    <label for="quest">Edit Content:</label>
-                    <textarea name="quest" cols="50" rows="10" id="quest" class="form-control">{{ quest }}</textarea>
-                </div>
-                <script>
-                    const easyMDE = new EasyMDE();
-                </script>
-                <button type="submit" class="btn btn-default btn-space">Submit</button>
-            </form>
+    <div class="container-fluid pb-3 mt-2 mb-2">
+        <form action="{{ url_for('show_quest', objective_id=objective_id)}}" id="quest" method="POST">
+            <div class="mb-3">
+                <label for="quest">Edit Content:</label>
+                <textarea name="quest" rows="10" id="quest" class="form-control">{{ quest }}</textarea>
+            </div>
+            <script>
+                const easyMDE = new EasyMDE();
+            </script>
+        </form>
+
+        <div class="btn-toolbar" role="toolbar" aria-label="Quest Actions">
+            <button type="submit" form="quest" class="btn btn-primary mt-4 mb-4 btn-space">Submit</button>
 
             <form action="{{ url_for('show_objective', objective_id=objective_id) }}">
-                <button type="submit" class="btn btn-default btn-space">Cancel</button>
+                <button type="submit" class="btn btn-secondary mt-4 mb-4 btn-space">Cancel</button>
             </form>
         </div>
     </div>

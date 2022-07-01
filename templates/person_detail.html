@@ -1,26 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class = "page-header">
-        <h2>
-            {% block title %} {{ person.person_name }} {% endblock %}
-        </h2>
+    <div class="container-fluid pb-2 mt-4 mb-2">
+        <h2>{% block title %} {{ person.person_name }} {% endblock %}</h2>
     </div>
 
-    <div class="container-fluid">
-        <i>Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i>
-        <br><br>
-
-        <img src="{{ person.person_img if (person.person_img!='') else '/static/not_found.jpg' }}" alt="Person Image" width="33%" height="33%">
-        <br><br>
-
-        <div class="panel panel-default">
-            <div class="panel-body">{{ person.person_desc }}</div>
+    <div class="container-fluid pb-3 mt-2 mb-2">
+        <div class="card mb-3" style="max-width: 720px;">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{{ person.person_img if (person.person_img!='') else '/static/not_found.jpg' }}" class="img-fluid rounded-start" alt="Person Image">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></h6>
+                        <p class="card-text">{{ person.person_desc }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <br><br>
 
-        <a href="{{ url_for('show_persons', world_id=person.world_id) }}" class="btn btn-default">
-            <span class="glyphicon glyphicon-th-list"></span> All Persons
-        </a>
+        <div class="btn-toolbar" role="toolbar" aria-label="Junction Actions">
+            <a href="{{ url_for('show_persons', world_id=person.world_id) }}" class="btn btn-primary mt-4 mb-4 btn-space">
+                <i class="bi bi-list-ul"></i> All Persons
+            </a>
+        </div>
     </div>
 {% endblock %}

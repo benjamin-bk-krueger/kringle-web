@@ -1,70 +1,66 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class = "page-header">
-        <h2>
-            {% block title %} All Worlds {% endblock %}
-        </h2>
+    <div class="container-fluid pb-2 mt-4 mb-2">
+        <h2>{% block title %} All Worlds {% endblock %}</h2>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid pb-3 mt-2 mb-2">
         {% if worlds.count() == 0 %}
-            No entries found.
+            No entries found.<br>
         {% else %}
             <div class="list-group">
                 {% for world in worlds %}
-                    <a href="{{ url_for('show_world', world_id=world.world_id)}}" class="list-group-item">{{ world.world_name }}{% if world.visible == 1 %} <span class="glyphicon glyphicon-globe"></span>{% endif %}</a>
+                    <a href="{{ url_for('show_world', world_id=world.world_id)}}" class="list-group-item">{{ world.world_name }}{% if world.visible == 1 %} <i class="bi bi-globe"></i>{% endif %}</a>
                 {% endfor %}
             </div>
         {% endif %}
 
-        <br><br>
-
         <!-- Modal -->
-        <div id="myModal" class="modal fade" role="dialog">
+        <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h4 class="modal-title">Create World</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
                     </div>
                     <div class="modal-body">
                        <form action="{{ url_for('show_worlds_p') }}" method="POST">
                             {{ form.csrf_token }}
-                            <div class="form-group">
+                            <div class="form-group mt-2 mb-2">
                                 <label for="name">{{ form.name.label }}</label>
                                 {{ form.name(size=20, class="form-control") }}
                             </div>
                             {% for error in form.name.errors %}
                                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                             {% endfor %}
-                            <div class="form-group">
+                            <div class="form-group mt-2 mb-2">
                                 <label for="url">{{ form.url.label }}</label>
                                 {{ form.url(size=20, class="form-control") }}
                             </div>
                             {% for error in form.url.errors %}
                                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                             {% endfor %}
-                            <div class="form-group">
+                            <div class="form-group mt-2 mb-2">
                                 <label for="description">{{ form.description.label }}</label>
                                 {{ form.description(size=40, class="form-control") }}
                             </div>
                             {% for error in form.description.errors %}
                                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                             {% endfor %}
-                            <div class="form-group">
+                            <div class="form-group mt-2 mb-2">
                                 <label for="image">{{ form.image.label }}</label>
                                 {{ form.image(size=20, class="form-control") }}
                             </div>
                             {% for error in form.image.errors %}
                                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                             {% endfor %}
-                            <button type="submit" class="btn btn-default">Create</button>
+                            <button type="submit" class="btn btn-primary mt-4 mb-4">Create</button>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -72,7 +68,7 @@
 
         {% if current_user.creator_role == "creator" %}
             <!-- Trigger the modal with a button -->
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">Create World</button>
+            <button type="button" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal">Create World</button>
             <br><br>
         {% endif %}
     </div>

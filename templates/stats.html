@@ -1,22 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class = "page-header">
-        <h2>
-            {% block title %} Stats {% endblock %}
-        </h2>
+    <div class="container-fluid pb-2 mt-4 mb-2">
+        <h2>{% block title %} Stats {% endblock %}</h2>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid pb-3 mt-2 mb-2">
         <ul class="list-group">
-            <li class="list-group-item">Creators <span class="badge">{{ counts['creator'] }}</span></li>
-            <li class="list-group-item">Worlds <span class="badge">{{ counts['world'] }}</span></li>
-            <li class="list-group-item">Rooms <span class="badge">{{ counts['room'] }}</span></li>
-            <li class="list-group-item">Items <span class="badge">{{ counts['item'] }}</span></li>
-            <li class="list-group-item">Persons <span class="badge">{{ counts['person'] }}</span></li>
-            <li class="list-group-item">Objectives <span class="badge">{{ counts['objective'] }}</span></li>
-            <li class="list-group-item">Junctions <span class="badge">{{ counts['junction'] }}</span></li>
-            <li class="list-group-item">Solutions <span class="badge">{{ counts['solution'] }}</span></li>
+            <li class="list-group-item">Creators <span class="badge bg-secondary">{{ counts['creator'] }}</span></li>
+            <li class="list-group-item">Worlds <span class="badge bg-secondary">{{ counts['world'] }}</span></li>
+            <li class="list-group-item">Rooms <span class="badge bg-secondary">{{ counts['room'] }}</span></li>
+            <li class="list-group-item">Items <span class="badge bg-secondary">{{ counts['item'] }}</span></li>
+            <li class="list-group-item">Persons <span class="badge bg-secondary">{{ counts['person'] }}</span></li>
+            <li class="list-group-item">Objectives <span class="badge bg-secondary">{{ counts['objective'] }}</span></li>
+            <li class="list-group-item">Junctions <span class="badge bg-secondary">{{ counts['junction'] }}</span></li>
+            <li class="list-group-item">Solutions <span class="badge bg-secondary">{{ counts['solution'] }}</span></li>
         </ul>
     </div>
 {% endblock %}
