@@ -1,24 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class = "page-header">
-        <h2>
-            {% block title %} #{{ junction.junction_id }} {% endblock %}
-        </h2>
+    <div class="container-fluid pb-2 mt-4 mb-2">
+        <h2>{% block title %} #{{ junction.junction_id }} {% endblock %}</h2>
     </div>
 
-    <div class="container-fluid">
-        <i>Found in <a href="{{ url_for('show_room', room_id=room_source.room_id)}}">{{ room_source.room_name }}</a></i><br>
-        <i>Targeting <a href="{{ url_for('show_room', room_id=room_dest.room_id)}}">{{ room_dest.room_name }}</a></i>
-        <br><br>
-
-        <div class="panel panel-default">
-            <div class="panel-body">{{ junction.junction_desc }}</div>
+    <div class="container-fluid pb-3 mt-2 mb-2">
+        <div class="card mb-3" style="max-width: 720px;">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="/static/not_found.jpg" class="img-fluid rounded-start" alt="Junction Image">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Found in <a class="link-primary" href="{{ url_for('show_room', room_id=room_source.room_id)}}">{{ room_source.room_name }}</a></h6>
+                        <h6 class="card-subtitle mb-2 text-muted">Targeting <a class="link-primary" href="{{ url_for('show_room', room_id=room_dest.room_id)}}">{{ room_dest.room_name }}</a></h6>
+                        <p class="card-text">{{ junction.junction_desc }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <br><br>
 
-        <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}" class="btn btn-default">
-            <span class="glyphicon glyphicon-th-list"></span> All Junctions
-        </a>
+        <div class="btn-toolbar" role="toolbar" aria-label="Junction Actions">
+            <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}" class="btn btn-primary mt-4 mb-4 btn-space">
+                <i class="bi bi-list-ul"></i> All Junctions
+            </a>
+        </div>
     </div>
 {% endblock %}

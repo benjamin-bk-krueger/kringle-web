@@ -1,19 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class = "page-header">
-        <h2>
-            {% block title %} All Creators {% endblock %}
-        </h2>
+    <div class="container-fluid pb-2 mt-4 mb-2">
+        <h2>{% block title %} All Creators {% endblock %}</h2>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid pb-3 mt-2 mb-2">
         {% if creators.count() == 0 %}
-            No entries found.
+            No entries found.<br>
         {% else %}
             <div class="list-group">
                 {% for creator in creators %}
-                    <a href="{{ url_for('show_creator', creator_id=creator.creator_id)}}" class="list-group-item">{{ creator.creator_name }}{% if creator.creator_role == "creator" %} <span class="glyphicon glyphicon-king"></span>{% endif %}</a>
+                    <a href="{{ url_for('show_creator', creator_id=creator.creator_id)}}" class="list-group-item">{{ creator.creator_name }}{% if creator.creator_role == "creator" %} <i class="bi bi-mortarboard"></i>{% endif %}</a>
                 {% endfor %}
             </div>
         {% endif %}

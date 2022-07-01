@@ -1,101 +1,98 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class = "page-header">
-        <h2>
-            {% block title %} {{ item.item_name }} {% endblock %}
-        </h2>
+    <div class="container-fluid pb-2 mt-4 mb-2">
+        <h2>{% block title %} {{ item.item_name }} {% endblock %}</h2>
     </div>
 
-    <div class="container-fluid">
-        <i>Found in <a href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></i>
-        <br><br>
-
-        <img src="{{ item.item_img if (item.item_img!='') else '/static/not_found.jpg' }}" alt="Item Image" width="33%" height="33%">
-        <br><br>
-
-        <div class="panel panel-default">
-            <div class="panel-body">{{ item.item_desc }}</div>
+    <div class="container-fluid pb-3 mt-2 mb-2">
+        <div class="card mb-3" style="max-width: 720px;">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{{ item.item_img if (item.item_img!='') else '/static/not_found.jpg' }}" class="img-fluid rounded-start" alt="Item Image">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Found in <a class="link-primary" href="{{ url_for('show_room', room_id=room.room_id)}}">{{ room.room_name }}</a></h6>
+                        <p class="card-text">{{ item.item_desc }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <br><br>
-
         <!-- Delete Modal -->
-        <div id="myModal_del" class="modal fade" role="dialog">
+        <div id="myModal_del" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h4 class="modal-title">Delete Item</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
                     </div>
                     <div class="modal-body">
                         <form action="{{ url_for('show_deleted_item', item_id=item.item_id) }}">
-                            <button type="submit" class="btn btn-danger btn-space" data-toggle="modal" data-target="#myModal_del">Confirm</button>
+                            <button type="submit" class="btn btn-danger mt-4 mb-4">Confirm</button>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Modal -->
-        <div id="myModal" class="modal fade" role="dialog">
+        <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h4 class="modal-title">Edit Item</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
                     </div>
                     <div class="modal-body">
                         <form action="{{ url_for('show_item_p', item_id=item.item_id) }}" method="POST">
                             {{ form.csrf_token }}
-                            <div class="form-group">
+                            <div class="form-group mt-2 mb-2">
                                 <label for="name">{{ form.name.label }}</label>
                                 {{ form.name(size=20, class="form-control") }}
                             </div>
                             {% for error in form.name.errors %}
                                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                             {% endfor %}
-                            <div class="form-group">
+                            <div class="form-group mt-2 mb-2">
                                 <label for="description">{{ form.description.label }}</label>
                                 {{ form.description(size=40, class="form-control") }}
                             </div>
                             {% for error in form.description.errors %}
                                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                             {% endfor %}
-                            <div class="form-group">
+                            <div class="form-group mt-2 mb-2">
                                 <label for="image">{{ form.image.label }}</label>
                                 {{ form.image(size=20, class="form-control") }}
                             </div>
                             {% for error in form.image.errors %}
                                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
                             {% endfor %}
-                            <button type="submit" class="btn btn-default">Update</button>
+                            <button type="submit" class="btn btn-primary mt-4 mb-4">Update</button>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="btn-toolbar">
-            <a href="{{ url_for('show_items', world_id=item.world_id) }}" class="btn btn-default btn-space">
-                <span class="glyphicon glyphicon-th-list"></span> All Items
+        <div class="btn-toolbar" role="toolbar" aria-label="Item Actions">
+            <a href="{{ url_for('show_items', world_id=item.world_id) }}" class="btn btn-primary mt-4 mb-4 btn-space">
+                <i class="bi bi-list-ul"></i> All Items
             </a>
 
             {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
                 <!-- Trigger the modal with a button -->
-                <button type="button" class="btn btn-default btn-space" data-toggle="modal" data-target="#myModal">Edit Item</button>
-
-                <button type="button" class="btn btn-danger btn-space" data-toggle="modal" data-target="#myModal_del">Delete Item</button>
-
-                <br><br>
+                <button type="button" class="btn btn-primary mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal">Edit Item</button>
+                <button type="button" class="btn btn-danger mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal_del">Delete Item</button>
             {% endif %}
         </div>
     </div>
