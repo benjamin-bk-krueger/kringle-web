@@ -1599,6 +1599,7 @@ def show_quest(objective_id):
             return render_template('error.html')
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
+        contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
         if objective:
             room = Room.query.filter_by(room_id=objective.room_id).first()
             world = World.query.filter_by(world_id=room.world_id).first()
@@ -1606,10 +1607,10 @@ def show_quest(objective_id):
             if world.creator_id == current_user.creator_id:
                 if objective.quest is not None:
                     return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'),
-                                           objective_id=objective_id, world_id=objective.world_id)
+                                           objective_id=objective_id, world_id=objective.world_id, contents=contents)
                 else:
                     return render_template('quest_detail.html', quest="", objective_id=objective_id,
-                                           world_id=objective.world_id)
+                                           world_id=objective.world_id, contents=contents)
             else:
                 return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
@@ -1691,6 +1692,7 @@ def show_my_solution(objective_id):
             return render_template('error.html')
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
+        contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
         if objective:
             world = World.query.filter_by(world_id=objective.world_id).first()
             creator = Creator.query.filter_by(creator_id=world.creator_id).first()
@@ -1705,10 +1707,10 @@ def show_my_solution(objective_id):
             if solution is not None:
                 return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'),
                                        visible=solution.visible, mdquest=mdquest, objective_id=objective_id,
-                                       world_id=objective.world_id, creator=creator)
+                                       world_id=objective.world_id, creator=creator, contents=contents)
             else:
                 return render_template('solution_my_detail.html', solution="", visible=0, mdquest=mdquest,
-                                       objective_id=objective_id, world_id=objective.world_id, creator=creator)
+                                       objective_id=objective_id, world_id=objective.world_id, creator=creator, contents=contents)
         else:
             return render_template('error.html')
 

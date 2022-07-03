@@ -32,6 +32,25 @@
 
         <hr class="little mt-4 mb-4">
 
+        <div class="dropdown">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                S3 Storage
+            </a>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to copy Markdown link to clipboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for item in contents %}
+                    <li><a class="dropdown-item" href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;">{{ item.Key }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% for item in contents %}
+            <div id="{{ item.Key }}" style="font-size:0;">![{{ item.Key }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }})</div>
+        {% endfor %}
+
+        <hr class="little mt-4 mb-4">
+
         <form action="{{ url_for('show_my_solution', objective_id=objective_id)}}" id="solution" method="POST">
             <div class="mb-3">
                 <label for="solution">Edit Solution:</label>
