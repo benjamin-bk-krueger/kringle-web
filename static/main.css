@@ -1,11 +1,14 @@
 body {
     padding: 10px;
     margin: 10px;
-    background: url('/static/background.png') no-repeat center center fixed;
+    background-image: url('/static/background.png') ;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     -webkit-background-size: cover;
     -moz-background-size: cover;
-    background-size: cover;
     -o-background-size: cover;
+    height:100%;
 }
 
 .header {
