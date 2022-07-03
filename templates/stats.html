@@ -6,6 +6,7 @@
     </div>
 
     <div class="container-fluid pb-3 mt-2 mb-2">
+        <h4 class="mb-3">Elements</h4>
         <ul class="list-group">
             <li class="list-group-item">Creators <span class="badge bg-secondary">{{ counts['creator'] }}</span></li>
             <li class="list-group-item">Worlds <span class="badge bg-secondary">{{ counts['world'] }}</span></li>
@@ -15,6 +16,15 @@
             <li class="list-group-item">Objectives <span class="badge bg-secondary">{{ counts['objective'] }}</span></li>
             <li class="list-group-item">Junctions <span class="badge bg-secondary">{{ counts['junction'] }}</span></li>
             <li class="list-group-item">Solutions <span class="badge bg-secondary">{{ counts['solution'] }}</span></li>
+        </ul>
+
+        <hr class="little mt-4 mb-4">
+
+        <h4 class="mb-3">S3 Storage</h4>
+        <ul class="list-group">
+            {% for item in bucket_all %}
+                <li class="list-group-item">{{ item }} <span class="badge bg-secondary">{{ (bucket_all[item] / 1024 / 1024) | round(2) }} MB</span></li>
+            {% endfor %}
         </ul>
     </div>
 {% endblock %}

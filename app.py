@@ -751,6 +751,30 @@ def list_files(bucket, creator_name):
     return contents
 
 
+def get_size(bucket, path):
+    s3 = boto3.resource('s3', endpoint_url=S3_ENDPOINT)
+    my_bucket = s3.Bucket(bucket)
+    total_size = 0
+
+    for obj in my_bucket.objects.filter(Prefix=path):
+        total_size = total_size + obj.size
+
+    return total_size
+
+
+def get_all_size(bucket):
+    s3 = boto3.client('s3', endpoint_url=S3_ENDPOINT)
+    top_level_folders = dict()
+    for key in s3.list_objects(Bucket=bucket)['Contents']:
+        folder = key['Key'].split('/')[0]
+        if folder in top_level_folders:
+            top_level_folders[folder] += key['Size']
+        else:
+            top_level_folders[folder] = key['Size']
+
+    return top_level_folders
+
+
 # initialize a completely new world using a world template supplied as JSON
 def init_world(world_file, creator_name, world_name, world_desc, world_url, world_img):
     counter_loaded = 0  # count each single element
@@ -997,7 +1021,13 @@ def show_stats():
     counts['objective'] = Objective.query.count()
     counts['junction'] = Junction.query.count()
     counts['solution'] = Solution.query.count()
-    return render_template('stats.html', counts=counts)
+
+    bucket = dict()
+    bucket['world'] = round((get_size(BUCKET_PUBLIC, "world/") / 1024 / 1024), 2)
+
+    bucket_all = get_all_size(BUCKET_PUBLIC)
+
+    return render_template('stats.html', counts=counts, bucket=bucket, bucket_all=bucket_all)
 
 
 @app.route(APP_PREFIX + '/web/release', methods=['GET'])
