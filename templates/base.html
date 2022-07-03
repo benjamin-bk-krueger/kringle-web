@@ -80,18 +80,25 @@
                 <div class="row">
                     <div class="col-lg-8 col-md-8 col-sm-12">
                         <h6 class="font-weight-bold">
+                            {% if session['world_name'] %}
+                                World selected: {{ session['world_name'] }}
+                            {% else %}
+                                No world selected.
+                            {% endif %}
+                            <br>
                             {% if current_user.is_authenticated %}
                                 Logged in as {{ current_user.creator_name }}.
                             {% else %}
                                 Not logged in.
                             {% endif %}
-                            <a class="link-dark" href="{{ url_for('show_release')}}">Version: {{ version }}</a>
                         </h6>
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-12">
                         <h6 class="font-weight-bold">
                             <a class="link-dark" href="{{ prefix }}/static/doc/index.html">Read Docs</a>,
                             <a class="link-dark" href="{{ prefix }}/swagger">Show API</a>
+                            <br>
+                            <a class="link-dark" href="{{ url_for('show_release')}}">Version: {{ version }}</a>
                         </h6>
                     </div>
                 </div>

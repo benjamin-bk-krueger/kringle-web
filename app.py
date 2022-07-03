@@ -1449,6 +1449,7 @@ def show_objectives(world_id):
 
     if world:
         session['world_id'] = world_id
+        session['world_name'] = world.world_name
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_title.asc())
