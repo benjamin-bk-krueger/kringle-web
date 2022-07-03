@@ -1,12 +1,17 @@
 body {
     padding: 10px;
     margin: 10px;
-    /* background: url('/static/background.png') no-repeat center center fixed; */
-    background: url('/static/background.jpg') center center scroll;
+    background: url('/static/background.png') no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
     -o-background-size: cover;
+}
+
+@media (pointer:none), (pointer:coarse) {
+    body {
+        background: url('/static/background.jpg') center center scroll;
+    }
 }
 
 .header {
@@ -17,6 +22,10 @@ body {
     max-width: 100%;
     max-height: 100%;
     height: 300px;
+}
+
+.editor-toolbar {
+    background: #f8f9fa;
 }
 
 .btn-space {
