@@ -75,8 +75,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
 db.init_app(app)
 
-# Login Manager configuration See https://www.digitalocean.com/community/tutorials/how-to-add-authentication-to-your
-# -app-with-flask-login#step-2-creating-the-main-app-file
+# Login Manager configuration
 login_manager = LoginManager()
 login_manager.login_view = 'show_login'  # show this page if a login is required
 login_manager.init_app(app)
@@ -752,7 +751,7 @@ def list_files(bucket, creator_name):
     return contents
 
 
-# initialize a completely new world using a world template suplied as JSON
+# initialize a completely new world using a world template supplied as JSON
 def init_world(world_file, creator_name, world_name, world_desc, world_url, world_img):
     counter_loaded = 0  # count each single element
 
@@ -1048,51 +1047,97 @@ def show_new_creator():
         return render_template('account.html', form=form)
 
 
-@app.route(APP_PREFIX + '/web/my_creator', methods=['GET', 'POST'])
+@app.route(APP_PREFIX + '/web/my_creator', methods=['GET'])
 @login_required
 def show_my_creator():
     form1 = MailCreatorForm()
     form2 = PassCreatorForm()
     form3 = DelCreatorForm()
     creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
-    if "operation" in request.form:
-        operation = request.form["operation"]
-    else:
-        operation = "none"
-    if request.method == 'POST':
-        if creator:
-            if form1.validate_on_submit():
-                old_mail = creator.creator_mail
-                creator.creator_mail = escape(request.form["email"])
-                creator.creator_desc = escape(request.form["description"])
-                creator.creator_img = clean_url(request.form["url"])
-                db.session.commit()
-
-                send_mail([creator.creator_mail], "Notification: E-Mail changed",
-                          f"You have changed you e-mail address from {old_mail} to {creator.creator_mail}.")
-
-                return redirect(url_for('show_my_creator'))
-
-            if form2.validate_on_submit():
-                creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
-                                                              salt_length=16)
-                db.session.commit()
-                return redirect(url_for('show_my_creator'))
-
-            if form3.validate_on_submit():
-                Creator.query.filter_by(creator_id=current_user.creator_id).delete()
-                db.session.commit()
-                logout_user()
-                return redirect(url_for('show_index'))
-        else:
-            return render_template('error.html')
 
     form1.email.default = creator.creator_mail
     form1.description.default = creator.creator_desc
     form1.url.default = creator.creator_img
     form1.process()
-    return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3,
-                           operation=operation)
+    return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
+
+
+@app.route(APP_PREFIX + '/web/my_mail_creator', methods=['POST'])
+@login_required
+def show_my_mail_creator():
+    form1 = MailCreatorForm()
+    form2 = PassCreatorForm()
+    form3 = DelCreatorForm()
+    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
+
+    if creator:
+        if form1.validate_on_submit():
+            old_mail = creator.creator_mail
+            creator.creator_mail = escape(request.form["email"])
+            creator.creator_desc = escape(request.form["description"])
+            creator.creator_img = clean_url(request.form["url"])
+            db.session.commit()
+
+            send_mail([creator.creator_mail], "Notification: E-Mail changed",
+                      f"You have changed you e-mail address from {old_mail} to {creator.creator_mail}.")
+
+            return redirect(url_for('show_my_creator'))
+        else:
+            form1.email.default = creator.creator_mail
+            form1.description.default = creator.creator_desc
+            form1.url.default = creator.creator_img
+            form1.process()
+            return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/my_pass_creator', methods=['POST'])
+@login_required
+def show_my_pass_creator():
+    form1 = MailCreatorForm()
+    form2 = PassCreatorForm()
+    form3 = DelCreatorForm()
+    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
+
+    if creator:
+        if form2.validate_on_submit():
+            creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
+                                                          salt_length=16)
+            db.session.commit()
+            return redirect(url_for('show_my_creator'))
+        else:
+            form1.email.default = creator.creator_mail
+            form1.description.default = creator.creator_desc
+            form1.url.default = creator.creator_img
+            form1.process()
+            return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/my_del_creator', methods=['POST'])
+@login_required
+def show_my_del_creator():
+    form1 = MailCreatorForm()
+    form2 = PassCreatorForm()
+    form3 = DelCreatorForm()
+    creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
+
+    if creator:
+        if form3.validate_on_submit():
+            Creator.query.filter_by(creator_id=current_user.creator_id).delete()
+            db.session.commit()
+            logout_user()
+            return redirect(url_for('show_index'))
+        else:
+            form1.email.default = creator.creator_mail
+            form1.description.default = creator.creator_desc
+            form1.url.default = creator.creator_img
+            form1.process()
+            return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/worlds', methods=['GET'])
@@ -1432,6 +1477,7 @@ def show_objective(objective_id):
 
         if objective.quest is not None:
             mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+            mdquest = mdquest.replace("<img src=", "<img class=\"img-fluid\" src=")
         else:
             mdquest = ""
 
@@ -1550,6 +1596,7 @@ def show_solution(solution_id):
             if solution.solution_text is not None:
                 mdsolution = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'),
                                                 extras=['fenced-code-blocks'])
+                mdsolution = mdsolution.replace("<img src=", "<img class=\"img-fluid\" src=")
 
                 return render_template('solution_detail.html', mdsolution=mdsolution, solution=solution,
                                        objective=objective)
@@ -1618,6 +1665,7 @@ def show_my_solution(objective_id):
             creator = Creator.query.filter_by(creator_id=world.creator_id).first()
             if objective.quest is not None:
                 mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+                mdquest = mdquest.replace("<img src=", "<img class=\"img-fluid\" src=")
             else:
                 mdquest = ""
 

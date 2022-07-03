@@ -16,9 +16,8 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('show_my_creator') }}" method="POST">
+                        <form action="{{ url_for('show_my_del_creator') }}" method="POST">
                             {{ form3.csrf_token }}
-                            {{ form3.operation }}
                             <button type="submit" class="btn btn-danger mt-4 mb-4">Confirm</button>
                         </form>
                     </div>
@@ -30,9 +29,8 @@
         </div>
 
         <h4 class="mb-3">Please enter data</h4>
-        <form action="{{ url_for('show_my_creator') }}" method="POST">
+        <form action="{{ url_for('show_my_mail_creator') }}" method="POST">
             {{ form1.csrf_token }}
-            {{ form1.operation }}
             <div class="form-group mt-2 mb-2">
                 <label for="email">{{ form1.email.label }}</label>
                 {{ form1.email(size=20, class="form-control") }}
@@ -45,23 +43,20 @@
                 <label for="url">{{ form1.url.label }}</label>
                 {{ form1.url(size=20, class="form-control") }}
             </div>
-            {% if operation == "mail" %}
-                {% for error in form1.email.errors %}
-                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                {% endfor %}
-                {% for error in form1.url.errors %}
-                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                {% endfor %}
-            {% endif %}
+            {% for error in form1.email.errors %}
+                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+            {% endfor %}
+            {% for error in form1.url.errors %}
+                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+            {% endfor %}
             <button type="submit" class="btn btn-primary mt-4 mb-4">Update</button>
         </form>
 
         <hr class="little mt-4 mb-4">
 
         <h4 class="mb-3">Set new password</h4>
-        <form action="{{ url_for('show_my_creator') }}" method="POST">
+        <form action="{{ url_for('show_my_pass_creator') }}" method="POST">
             {{ form2.csrf_token }}
-            {{ form2.operation }}
             <div class="form-group mt-2 mb-2">
                 <label for="password">{{ form2.password.label }}</label>
                 {{ form2.password(size=20, class="form-control") }}
@@ -70,11 +65,9 @@
                 <label for="password2">{{ form2.password2.label }}</label>
                 {{ form2.password2(size=20, class="form-control") }}
             </div>
-            {% if operation == "pass" %}
-                {% for error in form2.password.errors %}
-                    <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                {% endfor %}
-            {% endif %}
+            {% for error in form2.password.errors %}
+                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+            {% endfor %}
             <button type="submit" class="btn btn-primary mt-4 mb-4">Set</button>
         </form>
 
