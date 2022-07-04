@@ -1,8 +1,10 @@
 function CopyToClipboard(id) {
-    let r = document.createRange();
-    r.selectNode(document.getElementById(id));
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(r);
-    document.execCommand('copy');
-    window.getSelection().removeAllRanges();
+    let textToCopy = document.getElementById(id).innerText;
+    if(navigator.clipboard) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert('Copied to clipboard')
+        })
+    } else {
+        console.log('Browser Not compatible')
+    }
 }

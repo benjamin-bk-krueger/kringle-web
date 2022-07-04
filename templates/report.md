@@ -4,7 +4,7 @@
 
 ## About KringleCon
 
-KringleCon relates to SANS' Holiday Hacking Challenge which happens yearly around the Christmas time. You can find more information about the event here: https://www.sans.org/mlp/holiday-hack-challenge/
+KringleCon relates to SANS' Holiday Hacking Challenge which happens yearly around the Christmastime. You can find more information about the event here: https://www.sans.org/mlp/holiday-hack-challenge/
 <br>
 
 ## About {{ world.world_name }}
@@ -50,7 +50,7 @@ This year there are {{ items.count() }} items, just follow [this link](#Items) t
 [Go back](#Document-structure)
 
 Hint: Not all destinations are reachable when you start your adventure. You might to solve challenges to unlock all possible destinations.
-You can reach a destination by moving your virtual character to the given area. after you have unlocked that area and it's visible in the menu it's much faster to "teleport" by clicking on the matching entry.
+You can reach a destination by moving your virtual character to the given area. after you have unlocked that area, and it's visible in the menu it's much faster to "teleport" by clicking on the matching entry.
 
 {% for room in rooms %}
 **{{ room.room_name.replace(" ", "-") }}**
@@ -88,13 +88,13 @@ Requested by {{ objective.objective_name }}, {{ objective.objective_desc }}, {% 
 Difficulty: ({{ objective.difficulty }}/5)
 Task Name: {{ objective.objective_title }}
 Quest: 
-{% if mdquests[objective.objective_id] | length < 5 %}This objective has no quest yet{% endif %}
-{{ mdquests[objective.objective_id]|safe }}
+{% if md_quests[objective.objective_id] | length < 5 %}This objective has no quest yet{% endif %}
+{{ md_quests[objective.objective_id]|safe }}
 {% if objective.objective_img != "" %}<img src="{{ objective.objective_img }}" alt="{{ objective.iobjective_name }}" style="zoom: 33%;" />{% endif %}
 
 **Solution**
-{% if mdsolutions[objective.objective_id] | length < 5 %}This objective has no quest yet{% endif %}
-{{ mdsolutions[objective.objective_id]|safe }}
+{% if md_solutions[objective.objective_id] | length < 5 %}This objective has no quest yet{% endif %}
+{{ md_solutions[objective.objective_id]|safe }}
 
 [Go back](#Objectives)
 <br>
@@ -122,13 +122,13 @@ Requested by {{ objective.objective_name }}, {{ objective.objective_desc }}, {% 
 <br>
 Task Name: {{ objective.objective_title }}
 Quest: 
-{% if mdquests[objective.objective_id] | length < 5 %}This objective has no quest yet{% endif %}
-{{ mdquests[objective.objective_id]|safe }}
+{% if md_quests[objective.objective_id] | length < 5 %}This objective has no quest yet{% endif %}
+{{ md_quests[objective.objective_id]|safe }}
 {% if objective.objective_img != "" %}<img src="{{ objective.objective_img }}" alt="{{ objective.iobjective_name }}" style="zoom: 33%;" />{% endif %}
 
 **Solution**
-{% if mdsolutions[objective.objective_id] | length < 5 %}This objective has no solution yet{% endif %}
-{{ mdsolutions[objective.objective_id]|safe }}
+{% if md_solutions[objective.objective_id] | length < 5 %}This objective has no solution yet{% endif %}
+{{ md_solutions[objective.objective_id]|safe }}
 
 [Go back](#Hints)
 <br>

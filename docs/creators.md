@@ -13,7 +13,7 @@ If you click on an entry, you will be taken to the detailed view.
 
 In the detailed view you can inform yourself about the respective creator or user. The title also lists the role (creator or user).  
 If the creator has linked an image, it will be displayed here as well.  
-The *description* box below provides a brief information about this creator.  
+The *description* box below provides brief information about this creator.  
 
 When you click on *All creators* you will get back to the creators overview.  
 

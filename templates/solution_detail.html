@@ -6,7 +6,7 @@
     </div>
 
     <div class="container-fluid pb-3 mt-2 mb-2">
-        {{ mdsolution|safe }}
+        {{ md_solution|safe }}
 
         <div class="btn-toolbar" role="toolbar" aria-label="Solution Actions">
             {% if (current_user.creator_id != solution.creator_id) and (current_user.creator_role == "creator" or current_user.creator_role == "user") %}

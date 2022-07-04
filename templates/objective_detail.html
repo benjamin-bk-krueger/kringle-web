@@ -157,7 +157,7 @@
         <hr class="little mt-4 mb-4">
 
         <h4 class="mb-3">Quest</h4>
-        {{ mdquest|safe }}
+        {{ md_quest|safe }}
 
         <hr class="little mt-4 mb-4">
 
@@ -165,7 +165,7 @@
         {% if world.visible == 1 %}
             <div class="list-group">
                 {% for solution in solutions %}
-                    <a href="{{ url_for('show_solution', solution_id=solution.solution_id)}}" class="list-group-item">Solution created by {{ creatorall[solution.solution_id] }}, {{ votingall[solution.solution_id] }} vote(s)</a>
+                    <a href="{{ url_for('show_solution', solution_id=solution.solution_id)}}" class="list-group-item">Solution created by {{ creator_all[solution.solution_id] }}, {{ voting_all[solution.solution_id] }} vote(s)</a>
                 {% endfor %}
             </div>
         {% else %}

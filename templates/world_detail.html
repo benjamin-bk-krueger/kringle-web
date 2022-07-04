@@ -111,14 +111,14 @@
             {% endif %}
 
             {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-                <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='markdown') }}">
-                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space">Create Walkthrough (Markdown)</button>
+                <form action="{{ url_for('show_report', world_id=world.world_id, format_type='markdown') }}">
+                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space">Create Report (Markdown)</button>
                 </form>
             {% endif %}
 
             {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-                <form action="{{ url_for('show_walkthrough', world_id=world.world_id, format_type='pdf') }}">
-                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space">Create Walkthrough (HTML)</button>
+                <form action="{{ url_for('show_report', world_id=world.world_id, format_type='pdf') }}">
+                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space">Create Report (HTML)</button>
                 </form>
             {% endif %}
 

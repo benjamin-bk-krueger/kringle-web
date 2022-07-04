@@ -28,7 +28,7 @@
         </div>
 
         <h4 class="mb-3">For following quest:</h4>
-        {{ mdquest|safe }}
+        {{ md_quest|safe }}
 
         <hr class="little mt-4 mb-4">
 
@@ -38,7 +38,7 @@
             </a>
 
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to copy Markdown link to clipboard</a></li>
+                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to copy Markdown links to clipboard</a></li>
                 <li><hr class="dropdown-divider"></li>
                 {% for item in contents %}
                     <li><a class="dropdown-item" href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;">{{ item.Key }}</a></li>

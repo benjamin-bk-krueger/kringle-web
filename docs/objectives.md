@@ -19,7 +19,7 @@ The *description* box below provides brief information about this objective.
 The *Difficulty* indicates how difficult it is to solve the challenge.  
 Given the *URL*, you can open the challenge directly.  
 The field *Supported by* lists the objective that needs to be solved in order to get more information about this specific challenge.  
-The *Requires* entry indicates the item that is needed before this challenge can be solved.  
+The entry *Requires* indicates the item that is needed before this challenge can be solved.  
 
 ![Objectives Detail](./img/objectives_detail.png)
 
@@ -35,7 +35,7 @@ Below are some actions you can perform for this room. Please note that it depend
 
 The *Master Quest* section shows the challenge that needs to be solved in order for this *objective* to be completed.  
 
-The *Public solutions* section displays the solutions that have been submitted for this challenge and have been marked as *public*.  
+The section *Public solutions* displays the solutions that have been submitted for this challenge and have been marked as *public*.  
 You can reach the solution via the respective link.  
 The number at *votes* indicates how many times this solution has received a "like".
 

@@ -13,7 +13,7 @@ from flask_marshmallow import Marshmallow  # to marshall our objects
 from flask_restx import Resource, Api  # to enable the REST API, see https://rahmanfadhil.com/flask-rest-api/
 from flask_sitemap import Sitemap  # to generate sitemap.xml
 from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
-from flask_wtf.csrf import CSRFProtect # CSRF protection
+from flask_wtf.csrf import CSRFProtect  # CSRF protection
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
 from werkzeug.utils import secure_filename  # to prevent path traversal attacks
 
@@ -208,12 +208,12 @@ class WorldFullListResource(Resource):
                 world_img = escape(request.args.get('world_img'))
 
                 record = json.loads(request.data)
-                inputfile = f"{UPLOAD_FOLDER}/{secure_filename(world_name)}.world"
-                objectfile = f"world/{secure_filename(world_name)}.world"
-                with open(inputfile, 'w') as f:
+                input_file = f"{UPLOAD_FOLDER}/{secure_filename(world_name)}.world"
+                object_file = f"world/{secure_filename(world_name)}.world"
+                with open(input_file, 'w') as f:
                     f.write(json.dumps(record, indent=4))
-                upload_file(BUCKET_PRIVATE, objectfile, inputfile)
-                i = init_world(inputfile, request.authorization['username'], world_name, world_desc, world_url,
+                upload_file(BUCKET_PRIVATE, object_file, input_file)
+                i = init_world(input_file, request.authorization['username'], world_name, world_desc, world_url,
                                world_img)
                 return jsonify({'success': 'world file stored containing ' + str(i) + ' elements.'})
             else:
@@ -224,10 +224,10 @@ class WorldFullListResource(Resource):
 
 class WorldFullResource(Resource):
     @staticmethod
-    def get(worldname):
-        outputfile = f"{DOWNLOAD_FOLDER}/{secure_filename(worldname)}.world"
-        objectfile = f"world/{secure_filename(worldname)}.world"
-        output = download_file(BUCKET_PRIVATE, objectfile, outputfile)
+    def get(world_name):
+        output_file = f"{DOWNLOAD_FOLDER}/{secure_filename(world_name)}.world"
+        object_file = f"world/{secure_filename(world_name)}.world"
+        output = download_file(BUCKET_PRIVATE, object_file, output_file)
         if output:
             return send_file(output)
         else:
@@ -236,8 +236,8 @@ class WorldFullResource(Resource):
 
 api.add_resource(WorldListResource, APP_PREFIX + '/api/worlds')
 api.add_resource(WorldResource, APP_PREFIX + '/api/worlds/<int:world_id>')
-api.add_resource(WorldFullListResource, APP_PREFIX + '/api/fullworlds')
-api.add_resource(WorldFullResource, APP_PREFIX + '/api/fullworlds/<string:worldname>')
+api.add_resource(WorldFullListResource, APP_PREFIX + '/api/full_worlds')
+api.add_resource(WorldFullResource, APP_PREFIX + '/api/full_worlds/<string:world_name>')
 
 
 class Room(db.Model):
@@ -856,7 +856,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 objective.objective_desc = escape(j["description"])
                 objective.difficulty = escape(j["difficulty"])
                 objective.objective_url = clean_url(j["url"])
-                objective.supported_by = escape(j["supportedby"])
+                objective.supported_by = escape(j["supported_by"])
                 objective.requires = escape(j["requires"])
                 objective.objective_img = clean_url(j["image"])
                 db.session.add(objective)
@@ -870,8 +870,8 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 junction.room_id = room.room_id
                 junction.world_id = world.world_id
 
-                destroom = Room.query.filter_by(world_id=world.world_id).filter_by(room_name=j["destination"]).first()
-                junction.dest_id = destroom.room_id
+                dest_room = Room.query.filter_by(world_id=world.world_id).filter_by(room_name=j["destination"]).first()
+                junction.dest_id = dest_room.room_id
                 junction.junction_desc = escape(j["description"])
                 db.session.add(junction)
                 db.session.commit()
@@ -917,12 +917,12 @@ def index():
 
 
 # Send an e-mail
-def send_mail(recipients, mailheader, mailbody):
+def send_mail(recipients, mail_header, mail_body):
     if MAIL_ENABLE == 1:
-        msg = Message(mailheader,
+        msg = Message(mail_header,
                       sender=MAIL_SENDER,
                       recipients=recipients)
-        msg.body = mailbody
+        msg.body = mail_body
         mail.send(msg)
 
 
@@ -991,9 +991,9 @@ def show_storage():
         return render_template('storage.html', contents=contents, form=form)
 
 
-@app.route(APP_PREFIX + "/web/download/<string:creatorname>/<string:filename>", methods=['GET'])
+@app.route(APP_PREFIX + "/web/download/<string:creator_name>/<string:filename>", methods=['GET'])
 @login_required
-def do_download(creatorname, filename):
+def do_download(creator_name, filename):
     folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
     local_file = os.path.join(folder_name, secure_filename(filename))
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
@@ -1005,9 +1005,9 @@ def do_download(creatorname, filename):
     return send_file(output, as_attachment=True)
 
 
-@app.route(APP_PREFIX + "/web/delete/<string:creatorname>/<string:filename>", methods=['GET'])
+@app.route(APP_PREFIX + "/web/delete/<string:creator_name>/<string:filename>", methods=['GET'])
 @login_required
-def do_delete(creatorname, filename):
+def do_delete(creator_name, filename):
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
     delete_file(BUCKET_PUBLIC, remote_file)
     return redirect(url_for('show_storage'))
@@ -1039,10 +1039,10 @@ def show_release():
     return render_template('release.html')
 
 
-@app.route(APP_PREFIX + '/web/image/<string:creatorname>/<string:filename>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/image/<string:creator_name>/<string:filename>', methods=['GET'])
 @login_required
-def show_image(creatorname, filename):
-    return render_template('image.html', creatorname=creatorname, filename=filename)
+def show_image(creator_name, filename):
+    return render_template('image.html', creator_name=creator_name, filename=filename)
 
 
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])
@@ -1508,19 +1508,19 @@ def show_objective(objective_id):
         world = World.query.filter_by(world_id=objective.world_id).first()
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
 
-        votingall = dict()
-        creatorall = dict()
+        voting_all = dict()
+        creator_all = dict()
         for solution in solutions:
-            votingcount = Voting.query.filter_by(solution_id=solution.solution_id).filter_by(rating=1).count()
-            creatorname = Creator.query.filter_by(creator_id=solution.creator_id).first().creator_name
-            votingall[solution.solution_id] = votingcount
-            creatorall[solution.solution_id] = creatorname
+            voting_count = Voting.query.filter_by(solution_id=solution.solution_id).filter_by(rating=1).count()
+            creator_name = Creator.query.filter_by(creator_id=solution.creator_id).first().creator_name
+            voting_all[solution.solution_id] = voting_count
+            creator_all[solution.solution_id] = creator_name
 
         if objective.quest is not None:
-            mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
-            mdquest = mdquest.replace("<img src=", "<img class=\"img-fluid\" src=")
+            md_quest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+            md_quest = md_quest.replace("<img src=", "<img class=\"img-fluid\" src=")
         else:
-            mdquest = ""
+            md_quest = ""
 
         form.name.default = objective.objective_name
         form.title.default = objective.objective_title
@@ -1532,8 +1532,8 @@ def show_objective(objective_id):
         form.image.default = objective.objective_img
         form.process()
 
-        return render_template('objective_detail.html', objective=objective, mdquest=mdquest, solutions=solutions,
-                               world=world, votingall=votingall, creatorall=creatorall, room=room, creator=creator,
+        return render_template('objective_detail.html', objective=objective, md_quest=md_quest, solutions=solutions,
+                               world=world, voting_all=voting_all, creator_all=creator_all, room=room, creator=creator,
                                form=form)
     else:
         return render_template('error.html')
@@ -1636,14 +1636,14 @@ def show_solution(solution_id):
 
         if solution.visible == 1 and world.visible == 1:
             if solution.solution_text is not None:
-                mdsolution = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'),
-                                                extras=['fenced-code-blocks'])
-                mdsolution = mdsolution.replace("<img src=", "<img class=\"img-fluid\" src=")
+                md_solution = markdown2.markdown(str(bytes(solution.solution_text), 'utf-8'),
+                                                 extras=['fenced-code-blocks'])
+                md_solution = md_solution.replace("<img src=", "<img class=\"img-fluid\" src=")
 
-                return render_template('solution_detail.html', mdsolution=mdsolution, solution=solution,
+                return render_template('solution_detail.html', md_solution=md_solution, solution=solution,
                                        objective=objective)
             else:
-                return render_template('solution_detail.html', mdsolution="", solution=solution, objective=objective)
+                return render_template('solution_detail.html', md_solution="", solution=solution, objective=objective)
         else:
             return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
@@ -1707,20 +1707,21 @@ def show_my_solution(objective_id):
             world = World.query.filter_by(world_id=objective.world_id).first()
             creator = Creator.query.filter_by(creator_id=world.creator_id).first()
             if objective.quest is not None:
-                mdquest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
-                mdquest = mdquest.replace("<img src=", "<img class=\"img-fluid\" src=")
+                md_quest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
+                md_quest = md_quest.replace("<img src=", "<img class=\"img-fluid\" src=")
             else:
-                mdquest = ""
+                md_quest = ""
 
             solution = Solution.query.filter_by(objective_id=objective_id).filter_by(
                 creator_id=current_user.creator_id).first()
             if solution is not None:
                 return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'),
-                                       visible=solution.visible, mdquest=mdquest, objective_id=objective_id,
+                                       visible=solution.visible, md_quest=md_quest, objective_id=objective_id,
                                        world_id=objective.world_id, creator=creator, contents=contents)
             else:
-                return render_template('solution_my_detail.html', solution="", visible=0, mdquest=mdquest,
-                                       objective_id=objective_id, world_id=objective.world_id, creator=creator, contents=contents)
+                return render_template('solution_my_detail.html', solution="", visible=0, md_quest=md_quest,
+                                       objective_id=objective_id, world_id=objective.world_id, creator=creator,
+                                       contents=contents)
         else:
             return render_template('error.html')
 
@@ -1741,42 +1742,43 @@ def show_deleted_solution(objective_id):
         return render_template('error.html')
 
 
-@app.route(APP_PREFIX + '/web/walkthrough/<string:format_type>/<int:world_id>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/report/<string:format_type>/<int:world_id>', methods=['GET'])
 @login_required
-def show_walkthrough(world_id, format_type):
+def show_report(world_id, format_type):
     world = World.query.filter_by(world_id=world_id).first()
     creator = Creator.query.filter_by(creator_id=current_user.creator_id).first()
     rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
     objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_id.asc())
     items = Item.query.filter_by(world_id=world_id).order_by(Item.item_id.asc())
-    mdquests = dict()
-    mdsolutions = dict()
+    md_quests = dict()
+    md_solutions = dict()
     for objective in objectives:
         if objective.quest is not None:
-            mdquests[objective.objective_id] = str(bytes(objective.quest), 'utf-8')
+            md_quests[objective.objective_id] = str(bytes(objective.quest), 'utf-8')
         else:
-            mdquests[objective.objective_id] = ""
+            md_quests[objective.objective_id] = ""
 
         solution = Solution.query.filter_by(objective_id=objective.objective_id).filter_by(
             creator_id=current_user.creator_id).first()
         if solution is not None:
-            mdsolutions[objective.objective_id] = str(bytes(solution.solution_text), 'utf-8')
+            md_solutions[objective.objective_id] = str(bytes(solution.solution_text), 'utf-8')
         else:
-            mdsolutions[objective.objective_id] = ""
+            md_solutions[objective.objective_id] = ""
 
     folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
 
     if format_type == "markdown":
-        local_file = os.path.join(folder_name, "walkthrough.md")
+        local_file = os.path.join(folder_name, "report.md")
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
         with open(local_file, 'w') as f:
-            f.write(render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items,
-                                    mdquests=mdquests, mdsolutions=mdsolutions, creator=creator))
-        return send_file(local_file, attachment_filename='walkthrough.md', as_attachment=True)
+            f.write(render_template('report.md', world=world, rooms=rooms, objectives=objectives, items=items,
+                                    md_quests=md_quests, md_solutions=md_solutions, creator=creator))
+        return send_file(local_file, attachment_filename='report.md', as_attachment=True)
     else:
-        mdwalkthrough = markdown2.markdown(
-            render_template('walkthrough.md', world=world, rooms=rooms, objectives=objectives, items=items,
-                            mdquests=mdquests, mdsolutions=mdsolutions, creator=creator), extras=['fenced-code-blocks'])
+        md_report = markdown2.markdown(
+            render_template('report.md', world=world, rooms=rooms, objectives=objectives, items=items,
+                            md_quests=md_quests, md_solutions=md_solutions, creator=creator),
+            extras=['fenced-code-blocks'])
         return re.sub('<h2>(.*?)</h2>', '<h2 id="\\1">\\1</h2>',
-                      re.sub('<h1>(.*?)</h1>', '<h1 id="\\1">\\1</h1>', mdwalkthrough))
+                      re.sub('<h1>(.*?)</h1>', '<h1 id="\\1">\\1</h1>', md_report))
