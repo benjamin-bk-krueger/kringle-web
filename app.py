@@ -1809,7 +1809,7 @@ def show_report(world_id, format_type):
     if world.reduced == 0:
         template_file = "report_kringle.md"
     else:
-        template_file = "report.md"
+        template_file = "report_standard.md"
 
     if format_type == "markdown":
         local_file = os.path.join(folder_name, template_file)
@@ -1824,5 +1824,10 @@ def show_report(world_id, format_type):
             render_template(template_file, world=world, rooms=rooms, objectives=objectives, items=items,
                             md_quests=md_quests, md_solutions=md_solutions, creator=creator),
             extras=['fenced-code-blocks'])
-        return re.sub('<h2>(.*?)</h2>', '<h2 id="\\1">\\1</h2>',
-                      re.sub('<h1>(.*?)</h1>', '<h1 id="\\1">\\1</h1>', md_report))
+
+        md_report = re.sub('<h2>(.*?)</h2>', '<h2 id="\\1">\\1</h2>',
+                           re.sub('<h1>(.*?)</h1>', '<h1 id="\\1">\\1</h1>', md_report))
+
+        md_report = md_report.replace("<img src=", "<img class=\"img-fluid\" src=")
+
+        return render_template('report.html', world_id=world_id, md_report=md_report)
