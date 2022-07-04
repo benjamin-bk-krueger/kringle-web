@@ -30,7 +30,7 @@
                 </div>
                 {% for world in worlds %}
                     <div class="carousel-item">
-                        <a href="{{ url_for('show_world', world_id=world.world_id)}}"><img class="d-block mx-auto" src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Logo"></a>
+                        <a href="{{ url_for('show_selected_world', world_id=world.world_id)}}"><img class="d-block mx-auto" src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Logo"></a>
                         <div class="carousel-caption d-none d-md-block">
                             <h3>{{ world.world_name }}</h3>
                         </div>

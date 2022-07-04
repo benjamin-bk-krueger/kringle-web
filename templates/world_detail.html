@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="container-fluid pb-2 mt-4 mb-2">
-        <h2>{% block title %} {{ world.world_name }} {% endblock %} ({% if world.visible == 1 %}<i class="bi bi-globe"></i> Public{% else %}Closed{% endif %})</h2>
+        <h2>{% block title %} {{ world.world_name }} {% endblock %} ({% if world.reduced == 0 %}<i class="bi bi-chevron-bar-left"></i>ringle, {% endif %}{% if world.visible == 1 %}<i class="bi bi-globe"></i> Public{% else %}Closed{% endif %})</h2>
     </div>
 
     <div class="container-fluid pb-3 mt-2 mb-2">
@@ -97,7 +97,7 @@
                 <i class="bi bi-list-ul"></i> All Worlds
             </a>
 
-            <form action="{{ url_for('show_objectives', world_id=world.world_id) }}">
+            <form action="{{ url_for('show_selected_world', world_id=world.world_id) }}">
                 <button type="submit" class="btn btn-info mt-4 mb-4 btn-space">Select World</button>
             </form>
 
@@ -107,6 +107,10 @@
 
                 <form action="{{ url_for('show_switched_world', world_id=world.world_id) }}">
                     <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space">Switch Visibility</button>
+                </form>
+
+                <form action="{{ url_for('show_reduced_world', world_id=world.world_id) }}">
+                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space">Kringle Mode</button>
                 </form>
             {% endif %}
 

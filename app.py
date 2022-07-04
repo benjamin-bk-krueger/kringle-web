@@ -121,6 +121,7 @@ class World(db.Model):
     world_url = db.Column(db.VARCHAR(256))
     world_img = db.Column(db.VARCHAR(384))
     visible = db.Column(db.INTEGER)
+    reduced = db.Column(db.INTEGER)
 
     def __repr__(self):
         return '<World %s>' % self.world_name
@@ -1243,6 +1244,27 @@ def show_world_p(world_id):
         return render_template('error.html')
 
 
+@app.route(APP_PREFIX + '/web/selected_world/<int:world_id>', methods=['GET'])
+def show_selected_world(world_id):
+    form = WorldForm()
+    world = World.query.filter_by(world_id=world_id).first()
+    if world:
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+
+        session['world_id'] = world_id
+        session['world_name'] = world.world_name
+        session['reduced'] = world.reduced
+
+        form.name.default = world.world_name
+        form.url.default = world.world_url
+        form.description.default = world.world_desc
+        form.image.default = world.world_img
+        form.process()
+        return render_template('world_detail.html', world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
 @app.route(APP_PREFIX + '/web/deleted_world/<int:world_id>', methods=['GET'])
 @login_required
 def show_deleted_world(world_id):
@@ -1261,6 +1283,25 @@ def show_switched_world(world_id):
         else:
             world.visible = 1
         db.session.commit()
+
+        return redirect(url_for('show_world', world_id=world.world_id))
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/reduced_world/<int:world_id>', methods=['GET'])
+@login_required
+def show_reduced_world(world_id):
+    world = World.query.filter_by(world_id=world_id).filter_by(creator_id=current_user.creator_id).first()
+    if world:
+        if world.reduced == 1:
+            world.reduced = 0
+        else:
+            world.reduced = 1
+        db.session.commit()
+
+        if session['world_id'] == world_id:
+            session['reduced'] = world.reduced
 
         return redirect(url_for('show_world', world_id=world.world_id))
     else:
@@ -1458,8 +1499,6 @@ def show_objectives(world_id):
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
-        session['world_id'] = world_id
-        session['world_name'] = world.world_name
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_title.asc())
@@ -1767,17 +1806,22 @@ def show_report(world_id, format_type):
 
     folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
 
+    if world.reduced == 0:
+        template_file = "report_kringle.md"
+    else:
+        template_file = "report.md"
+
     if format_type == "markdown":
-        local_file = os.path.join(folder_name, "report.md")
+        local_file = os.path.join(folder_name, template_file)
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
         with open(local_file, 'w') as f:
-            f.write(render_template('report.md', world=world, rooms=rooms, objectives=objectives, items=items,
+            f.write(render_template(template_file, world=world, rooms=rooms, objectives=objectives, items=items,
                                     md_quests=md_quests, md_solutions=md_solutions, creator=creator))
-        return send_file(local_file, attachment_filename='report.md', as_attachment=True)
+        return send_file(local_file, attachment_filename=template_file, as_attachment=True)
     else:
         md_report = markdown2.markdown(
-            render_template('report.md', world=world, rooms=rooms, objectives=objectives, items=items,
+            render_template(template_file, world=world, rooms=rooms, objectives=objectives, items=items,
                             md_quests=md_quests, md_solutions=md_solutions, creator=creator),
             extras=['fenced-code-blocks'])
         return re.sub('<h2>(.*?)</h2>', '<h2 id="\\1">\\1</h2>',

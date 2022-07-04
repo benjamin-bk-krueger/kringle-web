@@ -42,17 +42,19 @@
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('show_worlds') }}">Worlds</a></li>
 
                         {% if session['world_id'] %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('show_rooms', world_id=session['world_id']) }}">Rooms</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('show_items', world_id=session['world_id']) }}">Items</a></li>
-                            <!--<li class="nav-item"><a class="nav-link" href="{{ url_for('show_persons', world_id=session['world_id']) }}">Persons</a></li>-->
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('show_objectives', world_id=session['world_id']) }}">Objectives</a></li>
-                            <!--<li class="nav-item"><a class="nav-link" href="{{ url_for('show_junctions', world_id=session['world_id']) }}">Junctions</a></li>-->
+                            {% if not session['reduced']  %}
+                                <li class="nav-item"><a class="nav-link" href="{{ url_for('show_rooms', world_id=session['world_id']) }}">Rooms</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ url_for('show_items', world_id=session['world_id']) }}">Items</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ url_for('show_persons', world_id=session['world_id']) }}">Persons</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ url_for('show_objectives', world_id=session['world_id']) }}">Objectives</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ url_for('show_junctions', world_id=session['world_id']) }}">Junctions</a></li>
+                            {% else %}
+                                <li class="nav-item"><a class="nav-link" href="{{ url_for('show_rooms', world_id=session['world_id']) }}">Rooms</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ url_for('show_objectives', world_id=session['world_id']) }}">Objectives</a></li>
+                            {% endif %}
                         {% else %}
                             <li class="nav-item"><a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Rooms</a></li>
-                            <li class="nav-item"><a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Items</a></li>
-                            <!--<li class="nav-item"><a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Persons</a></li>-->
                             <li class="nav-item"><a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Objectives</a></li>
-                            <!--<li class="nav-item"><a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Junctions</a></li>-->
                         {% endif %}
 
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('show_stats') }}">Stats</a></li>

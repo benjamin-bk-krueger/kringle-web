@@ -18,6 +18,7 @@ CREATE TABLE world (
     world_url VARCHAR ( 256 ),
     world_img VARCHAR ( 384 ),
     visible INT default 0,
+    reduced INT default 0,
     created timestamp default current_timestamp,
     modified timestamp default current_timestamp
 );
