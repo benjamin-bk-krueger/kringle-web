@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container-fluid pb-2 mt-4 mb-2">
+        <h2>{% block title %} Upladed image {% endblock %}</h2>
+    </div>
+
+    <div class="container-fluid pb-3 mt-2 mb-2">
+        <img src="https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ creatorname }}/{{ filename }}" class="img-fluid rounded-start" alt="Uploaded Image">
+    </div>
+
+    <div class="container-fluid pb-3 mt-2 mb-2">
+        <a href="{{ url_for('show_storage') }}" class="btn btn-primary mt-4 mb-4">
+            <i class="bi bi-list-ul"></i> All Files
+        </a>
+    </div>
+{% endblock %}

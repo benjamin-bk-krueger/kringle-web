@@ -5,7 +5,93 @@
         <h2>{% block title %} S3 Storage {% endblock %}</h2>
     </div>
 
+    <script>
+        document.onpaste = function(e){
+            var items = e.clipboardData.items;
+            var upload_progress = document.getElementById("upload_progress");
+            // console.log(JSON.stringify(items));
+            if (e.clipboardData.items[0].kind === 'file') {
+                upload_progress.style.width = "10%";
+                upload_progress.ariaValueNow = "10";
+                // get the blob
+                var imageFile = items[0].getAsFile();
+                // console.log(imageFile);
+                /*
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    console.log(event.target.result); // data url!
+                    submitFileForm(event.target.result, 'paste');
+                };
+                reader.readAsBinaryString(imageFile);
+                */
+                submitFileForm(imageFile, "paste");
+            }
+        };
+
+        function ISODateString(d){
+            function pad(n){return n<10 ? '0'+n : n}
+            return d.getUTCFullYear()+'-'
+                + pad(d.getUTCMonth()+1)+'-'
+                + pad(d.getUTCDate())+'_'
+                + pad(d.getUTCHours())+'-'
+                + pad(d.getUTCMinutes())+'-'
+                + pad(d.getUTCSeconds())
+        }
+
+        function sleep(duration) {
+	        return new Promise(resolve => {
+		        setTimeout(() => {
+			        resolve()
+		        }, duration * 1000)
+	        })
+        }
+
+        async function submitFileForm(file, type) {
+            var upload_progress = document.getElementById("upload_progress");
+            var date = new Date();
+            var formData = new FormData();
+            var myBlob = new Blob([file], { "type" : "image/png"} );
+            formData.append('file', myBlob, 'upload_' + ISODateString(date)+ '.png');
+            formData.append('csrf_token', '{{ csrf_token() }}')
+            formData.append('submission-type', type);
+            upload_progress.style.width = "20%";
+            upload_progress.ariaValueNow = "20";
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '{{ url_for('show_storage') }}');
+            xhr.onload = function () {
+                if (xhr.status == 200) {
+                    console.log('all done: ');
+                } else {
+                    console.log('Nope');
+                }
+            };
+
+            xhr.send(formData);
+            await sleep(1)
+            upload_progress.style.width = "50%";
+            upload_progress.ariaValueNow = "50";
+            await sleep(5)
+            upload_progress.style.width = "100%";
+            upload_progress.ariaValueNow = "100";
+            await sleep(1)
+            window.location.assign("{{ url_for('show_storage') }}");
+        }
+    </script>
+
     <div class="container-fluid pb-3 mt-2 mb-2">
+        <h4 class="mb-3">Paste your image here</h4>
+        <div class="card">
+            <div class="card-body">
+                You can paste and upload an image in the clipboard just by pressing ctrl+v on this page.
+            </div>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" name="upload_progress" id="upload_progress" style="width: 1%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+
+        <hr class="little mt-4 mb-4">
+
         <h4 class="mb-3">Upload your file here</h4>
         <form action="{{ url_for('show_storage') }}" method="POST" enctype=multipart/form-data>
             {{ form.csrf_token }}
@@ -27,12 +113,15 @@
         <ul class="list-group">
             {% for item in contents %}
                 <li class="list-group-item">
-                    <a href="{{ url_for('do_download', creatorname='.', filename=item.Key) }}"><i class="bi bi-download"></i></a> - <a href="{{ url_for('do_delete', creatorname='.', filename=item.Key) }}"><i class="bi bi-trash"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;"><i class="bi bi-link"></i></a> {{ item.Key }}
+                    <a href="{{ url_for('show_image', creatorname='.', filename=item.Key) }}"><i class="bi bi-eye"></i></a> - <a href="{{ url_for('do_download', creatorname='.', filename=item.Key) }}"><i class="bi bi-download"></i></a> - <a href="{{ url_for('do_delete', creatorname='.', filename=item.Key) }}"><i class="bi bi-trash"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-html');return false;"><i class="bi bi-link"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-md');return false;"><i class="bi bi-markdown"></i></a> {{ item.Key }}
                 </li>
             {% endfor %}
         </ul>
         {% for item in contents %}
-            <div id="{{ item.Key }}" style="font-size:0;">![{{ item.Key }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }})</div>
+            <div id="{{ item.Key }}-html" style="font-size:0;">https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }}</div>
+        {% endfor %}
+        {% for item in contents %}
+            <div id="{{ item.Key }}-md" style="font-size:0;">![{{ item.Key }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }})</div>
         {% endfor %}
     </div>
 {% endblock %}

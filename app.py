@@ -13,6 +13,7 @@ from flask_marshmallow import Marshmallow  # to marshall our objects
 from flask_restx import Resource, Api  # to enable the REST API, see https://rahmanfadhil.com/flask-rest-api/
 from flask_sitemap import Sitemap  # to generate sitemap.xml
 from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
+from flask_wtf.csrf import CSRFProtect # CSRF protection
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
 from werkzeug.utils import secure_filename  # to prevent path traversal attacks
 
@@ -49,6 +50,9 @@ app = Flask(__name__,
 def inject_version_and_prefix():
     return dict(version=APP_VERSION, prefix=APP_PREFIX)
 
+
+# Enable CSRF protection for the app
+csrf = CSRFProtect(app)
 
 # Limit file uploads to 16MB
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
@@ -1033,6 +1037,12 @@ def show_stats():
 @app.route(APP_PREFIX + '/web/release', methods=['GET'])
 def show_release():
     return render_template('release.html')
+
+
+@app.route(APP_PREFIX + '/web/image/<string:creatorname>/<string:filename>', methods=['GET'])
+@login_required
+def show_image(creatorname, filename):
+    return render_template('image.html', creatorname=creatorname, filename=filename)
 
 
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])
