@@ -2,6 +2,7 @@ import json  # for JSON file handling and parsing
 import os  # for direct file system and environment access
 import re  # for regular expressions
 import random  # for captcha random numbers
+import logging  # enable logging
 
 import boto3  # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
 import markdown2  # for markdown parsing
@@ -17,6 +18,7 @@ from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
 from flask_wtf.csrf import CSRFProtect  # CSRF protection
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
 from werkzeug.utils import secure_filename  # to prevent path traversal attacks
+from logging.handlers import SMTPHandler  # get crashes via mail
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
     UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm
@@ -51,6 +53,23 @@ app = Flask(__name__,
 @app.context_processor
 def inject_version_and_prefix():
     return dict(version=APP_VERSION, prefix=APP_PREFIX)
+
+
+# Enable logging and crashes via mail
+if MAIL_ENABLE == 1:
+    mail_handler = SMTPHandler(
+        mailhost='127.0.0.1',
+        fromaddr=MAIL_SENDER,
+        toaddrs=[MAIL_ADMIN],
+        subject='Kringle.info: Application Error'
+    )
+    mail_handler.setLevel(logging.ERROR)
+    mail_handler.setFormatter(logging.Formatter(
+        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    ))
+
+    if not app.debug:
+        app.logger.addHandler(mail_handler)
 
 
 # Enable CSRF protection for the app
