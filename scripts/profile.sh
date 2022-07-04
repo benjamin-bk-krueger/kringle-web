@@ -12,5 +12,6 @@ export BUCKET_PRIVATE=kringle-private
 export MAIL_ENABLE=1
 export MAIL_SERVER=localhost
 export MAIL_SENDER=mail@kringle.info
+export MAIL_ADMIN=admin@kringle.info
 export APP_VERSION=0.96_beta
 export APP_PREFIX=

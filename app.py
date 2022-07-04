@@ -18,7 +18,7 @@ from werkzeug.security import generate_password_hash, check_password_hash  # for
 from werkzeug.utils import secure_filename  # to prevent path traversal attacks
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
-    UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm
+    UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm
 
 # the app configuration is done via environmental variables
 POSTGRES_URL = os.environ['POSTGRES_URL']  # DB connection data
@@ -28,6 +28,7 @@ POSTGRES_DB = os.environ['POSTGRES_DB']
 SECRET_KEY = os.environ['SECRET_KEY']
 MAIL_SERVER = os.environ['MAIL_SERVER']  # mail host
 MAIL_SENDER = os.environ['MAIL_SENDER']
+MAIL_ADMIN = os.environ['MAIL_ADMIN']
 MAIL_ENABLE = int(os.environ['MAIL_ENABLE'])
 S3_ENDPOINT = os.environ['S3_ENDPOINT']  # where S3 buckets are located
 BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
@@ -1044,6 +1045,23 @@ def show_release():
 @login_required
 def show_image(creator_name, filename):
     return render_template('image.html', creator_name=creator_name, filename=filename)
+
+
+@app.route(APP_PREFIX + '/web/contact', methods=['GET', 'POST'])
+@login_required
+def show_contact():
+    form = ContactForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        contact_name = escape(request.form["contact_name"])
+        email = escape(request.form["email"])
+        message = escape(request.form["message"])
+
+        send_mail([MAIL_ADMIN], f"{contact_name} - {email}",
+                  f"{message}")
+
+        return redirect(url_for('show_index'))
+    else:
+        return render_template('contact.html', form=form)
 
 
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])

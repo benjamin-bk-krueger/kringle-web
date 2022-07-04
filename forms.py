@@ -82,3 +82,9 @@ class ObjectiveForm(FlaskForm):
                                        NoneOf([' '], message='No spaces allowed')])
     description = TextAreaField('Description', validators=[Length(max=1024)])
     image = StringField('Image URL')
+
+
+class ContactForm(FlaskForm):
+    contact_name = StringField('Name', validators=[InputRequired(), Length(min=5, max=20)])
+    email = StringField('E-Mail', validators=[InputRequired(), Email()])
+    message = TextAreaField('Message', validators=[Length(max=1024)])

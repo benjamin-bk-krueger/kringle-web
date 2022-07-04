@@ -17,6 +17,7 @@ services:
       - MAIL_ENABLE=0
       - MAIL_SERVER=localhost
       - MAIL_SENDER=mail@kringle.info
+      - MAIL_ADMIN=admin@kringle.info
       - APP_VERSION=0.96_alpha
       - APP_PREFIX=
     command: /home/kringle/flask.sh
