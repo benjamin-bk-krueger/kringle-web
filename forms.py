@@ -88,3 +88,6 @@ class ContactForm(FlaskForm):
     contact_name = StringField('Name', validators=[InputRequired(), Length(min=5, max=20)])
     email = StringField('E-Mail', validators=[InputRequired(), Email()])
     message = TextAreaField('Message', validators=[Length(max=1024)])
+    check_captcha = HiddenField(default='0')
+    captcha = StringField('Captcha', validators=[InputRequired(), EqualTo('check_captcha', message='Captcha does not '
+                                                                                                   'match')])

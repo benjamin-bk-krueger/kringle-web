@@ -1,6 +1,7 @@
 import json  # for JSON file handling and parsing
 import os  # for direct file system and environment access
 import re  # for regular expressions
+import random  # for captcha random numbers
 
 import boto3  # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
 import markdown2  # for markdown parsing
@@ -1048,7 +1049,6 @@ def show_image(creator_name, filename):
 
 
 @app.route(APP_PREFIX + '/web/contact', methods=['GET', 'POST'])
-@login_required
 def show_contact():
     form = ContactForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -1061,7 +1061,14 @@ def show_contact():
 
         return redirect(url_for('show_index'))
     else:
-        return render_template('contact.html', form=form)
+        random1 = random.randint(1, 10)
+        random2 = random.randint(1, 10)
+        check_captcha = random1 + random2
+
+        form.check_captcha.default = check_captcha
+        form.process()
+
+        return render_template('contact.html', form=form, random1=random1, random2=random2, check_captcha=check_captcha)
 
 
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])
