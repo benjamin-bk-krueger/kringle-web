@@ -9,11 +9,5 @@
         {{ md_report|safe }}
     </div>
 
-    <div class="btn-toolbar" role="toolbar" aria-label="Room Actions">
-        <form action="{{ url_for('show_world', world_id=world_id)}}">
-            <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space">Back</button>
-        </form>
-
-        <button onclick="window.print()" class="btn btn-primary mt-4 mb-4 btn-space">Print</button>
-    </div>
+    <button onclick="window.print()" class="btn btn-primary mt-4 mb-4 btn-space">Print</button>
 {% endblock %}

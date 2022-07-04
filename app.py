@@ -1874,4 +1874,47 @@ def show_report(world_id, format_type):
 
         md_report = md_report.replace("<img src=", "<img class=\"img-fluid\" src=")
 
-        return render_template('report.html', world_id=world_id, md_report=md_report)
+        return render_template('report.html', md_report=md_report)
+
+
+@app.route(APP_PREFIX + '/web/report_single/<string:format_type>/<int:objective_id>', methods=['GET'])
+@login_required
+def show_report_single(objective_id, format_type):
+    objective = Objective.query.filter_by(objective_id=objective_id).first()
+    if objective:
+        if objective.quest is not None:
+            md_quest = str(bytes(objective.quest), 'utf-8')
+        else:
+            md_quest = ""
+
+        solution = Solution.query.filter_by(objective_id=objective.objective_id).filter_by(
+            creator_id=current_user.creator_id).first()
+        if solution is not None:
+            md_solution = str(bytes(solution.solution_text), 'utf-8')
+        else:
+            md_solution = ""
+
+        folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
+
+        template_file = "report_single.md"
+
+        if format_type == "markdown":
+            local_file = os.path.join(folder_name, template_file)
+            if not os.path.exists(folder_name):
+                os.makedirs(folder_name)
+            with open(local_file, 'w') as f:
+                f.write(render_template(template_file, objective=objective, md_quest=md_quest,
+                                        md_solution=md_solution))
+            return send_file(local_file, attachment_filename=template_file, as_attachment=True)
+        else:
+            md_report = markdown2.markdown(
+                render_template(template_file, objective=objective, md_quest=md_quest,
+                                md_solution=md_solution),
+                extras=['fenced-code-blocks'])
+
+            md_report = re.sub('<h2>(.*?)</h2>', '<h2 id="\\1">\\1</h2>',
+                               re.sub('<h1>(.*?)</h1>', '<h1 id="\\1">\\1</h1>', md_report))
+
+            md_report = md_report.replace("<img src=", "<img class=\"img-fluid\" src=")
+
+            return render_template('report.html', md_report=md_report)

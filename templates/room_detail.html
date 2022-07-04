@@ -91,8 +91,8 @@
 
             {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
                 <!-- Trigger the modal with a button -->
-                <button type="button" class="btn btn-primary mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal">Edit Room</button>
-                <button type="button" class="btn btn-danger mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal_del">Delete Room</button>
+                <button type="button" class="btn btn-primary mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i> Edit Room</button>
+                <button type="button" class="btn btn-danger mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i> Delete Room</button>
             {% endif %}
         </div>
     </div>
