@@ -1621,8 +1621,12 @@ def show_objectives(world_id):
         items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
 
         form.room.choices = get_rooms_choices(rooms)
-        form.supported.choices = get_objectives_choices(objectives)
-        form.requires.choices = get_items_choices(items)
+        if (world.reduced == 0):
+            form.supported.choices = get_objectives_choices(objectives)
+            form.requires.choices = get_items_choices(items)
+        else:
+            form.supported.choices = ["none"]
+            form.requires.choices = ["none"]
 
         return render_template('objective.html', objectives=objectives, world=world, creator=creator, form=form)
 
