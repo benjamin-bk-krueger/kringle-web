@@ -1072,12 +1072,12 @@ def show_stats():
     counts['junction'] = Junction.query.count()
     counts['solution'] = Solution.query.count()
 
-    bucket = dict()
-    bucket['world'] = round((get_size(BUCKET_PUBLIC, "world/") / 1024 / 1024), 2)
+    # bucket = dict()
+    # bucket['world'] = round((get_size(BUCKET_PUBLIC, "world/") / 1024 / 1024), 2)
 
     bucket_all = get_all_size(BUCKET_PUBLIC)
 
-    return render_template('stats.html', counts=counts, bucket=bucket, bucket_all=bucket_all)
+    return render_template('stats.html', counts=counts, bucket_all=bucket_all)
 
 
 @app.route(APP_PREFIX + '/web/release', methods=['GET'])
@@ -1426,7 +1426,7 @@ def show_rooms_p(world_id):
 
     if world and current_user.creator_id and current_user.creator_id == world.creator_id:
         room_name = escape(request.form["name"])
-        room = Room.query.filter_by(room_name=room_name).first()
+        room = Room.query.filter_by(room_name=room_name).filter_by(world_id=world_id).first()
 
         if not room:
             room = Room()
@@ -1514,7 +1514,7 @@ def show_items_p(world_id):
 
     if world and current_user.creator_id and current_user.creator_id == world.creator_id:
         item_name = escape(request.form["name"])
-        item = Item.query.filter_by(item_name=item_name).first()
+        item = Item.query.filter_by(item_name=item_name).filter_by(world_id=world_id).first()
 
         if not item:
             item = Item()
@@ -1621,7 +1621,7 @@ def show_objectives(world_id):
         items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
 
         form.room.choices = get_rooms_choices(rooms)
-        if (world.reduced == 0):
+        if world.reduced == 0:
             form.supported.choices = get_objectives_choices(objectives)
             form.requires.choices = get_items_choices(items)
         else:
@@ -1638,7 +1638,7 @@ def show_objectives_p(world_id):
 
     if world and current_user.creator_id and current_user.creator_id == world.creator_id:
         objective_name = escape(request.form["name"])
-        objective = Objective.query.filter_by(objective_name=objective_name).first()
+        objective = Objective.query.filter_by(objective_name=objective_name).filter_by(world_id=world_id).first()
 
         if not objective:
             objective = Objective()
