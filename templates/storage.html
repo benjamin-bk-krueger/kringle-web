@@ -113,7 +113,7 @@
         <ul class="list-group">
             {% for item in contents %}
                 <li class="list-group-item">
-                    <a href="{{ url_for('show_image', creator_name='.', filename=item.Key) }}"><i class="bi bi-eye"></i></a> - <a href="{{ url_for('do_download', creator_name='.', filename=item.Key) }}"><i class="bi bi-download"></i></a> - <a href="{{ url_for('do_delete', creator_name='.', filename=item.Key) }}"><i class="bi bi-trash"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-html');return false;"><i class="bi bi-link"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-md');return false;"><i class="bi bi-markdown"></i></a> {{ item.Key }}
+                    <a href="{{ url_for('show_image', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-eye"></i></a> - <a href="{{ url_for('do_download', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-download"></i></a> - <a href="{{ url_for('do_delete', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-trash"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-html');return false;"><i class="bi bi-link"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-md');return false;"><i class="bi bi-markdown"></i></a> {{ item.Key }}
                 </li>
             {% endfor %}
         </ul>

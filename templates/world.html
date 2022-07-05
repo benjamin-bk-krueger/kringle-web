@@ -47,33 +47,21 @@
                        <form action="{{ url_for('show_worlds_p') }}" method="POST">
                             {{ form.csrf_token }}
                             <div class="form-group mt-2 mb-2">
-                                <label for="name">{{ form.name.label }}</label>
+                                <label for="{{ form.name.name }}">{{ form.name.label }}</label>
                                 {{ form.name(size=20, class="form-control") }}
                             </div>
-                            {% for error in form.name.errors %}
-                                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                            {% endfor %}
                             <div class="form-group mt-2 mb-2">
-                                <label for="url">{{ form.url.label }}</label>
+                                <label for="{{ form.url.name }}">{{ form.url.label }}</label>
                                 {{ form.url(size=20, class="form-control") }}
                             </div>
-                            {% for error in form.url.errors %}
-                                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                            {% endfor %}
                             <div class="form-group mt-2 mb-2">
-                                <label for="description">{{ form.description.label }}</label>
+                                <label for="{{ form.description.name }}">{{ form.description.label }}</label>
                                 {{ form.description(size=40, class="form-control") }}
                             </div>
-                            {% for error in form.description.errors %}
-                                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                            {% endfor %}
                             <div class="form-group mt-2 mb-2">
-                                <label for="image">{{ form.image.label }}</label>
+                                <label for="{{ form.image.name }}">{{ form.image.label }}</label>
                                 {{ form.image(size=20, class="form-control") }}
                             </div>
-                            {% for error in form.image.errors %}
-                                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
-                            {% endfor %}
                             <button type="submit" class="btn btn-primary mt-4 mb-4">Create</button>
                         </form>
                     </div>

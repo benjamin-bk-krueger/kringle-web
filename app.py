@@ -141,9 +141,9 @@ class World(db.Model):
     world_desc = db.Column(db.VARCHAR(1024))
     world_url = db.Column(db.VARCHAR(256))
     world_img = db.Column(db.VARCHAR(384))
-    visible = db.Column(db.INTEGER)
-    reduced = db.Column(db.INTEGER)
-    archived = db.Column(db.INTEGER)
+    visible = db.Column(db.INTEGER, default=0)
+    reduced = db.Column(db.INTEGER, default=0)
+    archived = db.Column(db.INTEGER, default=0)
 
     def __repr__(self):
         return '<World %s>' % self.world_name
@@ -722,7 +722,7 @@ class Solution(db.Model):
     objective_id = db.Column(db.INTEGER, db.ForeignKey("objective.objective_id"))
     creator_id = db.Column(db.INTEGER, db.ForeignKey("creator.creator_id"))
     solution_text = db.Column(db.LargeBinary)
-    visible = db.Column(db.INTEGER)
+    visible = db.Column(db.INTEGER, default=0)
 
     def __repr__(self):
         return '<Solution %s>' % self.solution_id
@@ -733,8 +733,8 @@ class Invitation(db.Model):
     invitation_id = db.Column(db.INTEGER, primary_key=True)
     invitation_code = db.Column(db.VARCHAR(20))
     invitation_role = db.Column(db.VARCHAR(20))
-    invitation_forever = db.Column(db.INTEGER)
-    invitation_taken = db.Column(db.INTEGER)
+    invitation_forever = db.Column(db.INTEGER, default=0)
+    invitation_taken = db.Column(db.INTEGER, default=0)
 
     def __repr__(self):
         return '<Invitation %s>' % self.invitation_id
@@ -745,7 +745,7 @@ class Voting(db.Model):
     voting_id = db.Column(db.INTEGER, primary_key=True)
     creator_id = db.Column(db.INTEGER, db.ForeignKey("creator.creator_id"))
     solution_id = db.Column(db.INTEGER, db.ForeignKey("solution.solution_id"))
-    rating = db.Column(db.INTEGER)
+    rating = db.Column(db.INTEGER, default=1)
 
     def __repr__(self):
         return '<Voting %s>' % self.voting_id
@@ -949,10 +949,33 @@ def send_mail(recipients, mail_header, mail_body):
         mail.send(msg)
 
 
+# Internal helpers
+def get_rooms_choices(rooms):
+    rooms_choices = list()
+    for room in rooms:
+        rooms_choices.append((room.room_id, room.room_name))
+    return rooms_choices
+
+
+def get_objectives_choices(objectives):
+    objectives_choices = list()
+    objectives_choices.append("none")
+    for objective in objectives:
+        objectives_choices.append(objective.objective_name)
+    return objectives_choices
+
+
+def get_items_choices(items):
+    items_choices = list()
+    items_choices.append("none")
+    for item in items:
+        items_choices.append(item.item_name)
+    return items_choices
+
+
 # Flask entry pages
 @app.route(APP_PREFIX + '/web/', methods=['GET'])
 def show_index():
-    # session['world_id'] = None
     worlds = World.query.filter_by(archived=0).order_by(World.world_name.asc())
     return render_template('index.html', worlds=worlds)
 
@@ -1011,12 +1034,12 @@ def show_storage():
         return redirect(url_for('show_storage'))
     else:
         contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
-        return render_template('storage.html', contents=contents, form=form)
+        return render_template('storage.html', contents=contents, creator_name=current_user.creator_name, form=form)
 
 
-@app.route(APP_PREFIX + "/web/download/<string:creator_name>/<string:filename>", methods=['GET'])
+@app.route(APP_PREFIX + "/web/download/<string:filename>", methods=['GET'])
 @login_required
-def do_download(creator_name, filename):
+def do_download(filename):
     folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
     local_file = os.path.join(folder_name, secure_filename(filename))
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
@@ -1028,9 +1051,9 @@ def do_download(creator_name, filename):
     return send_file(output, as_attachment=True)
 
 
-@app.route(APP_PREFIX + "/web/delete/<string:creator_name>/<string:filename>", methods=['GET'])
+@app.route(APP_PREFIX + "/web/delete/<string:filename>", methods=['GET'])
 @login_required
-def do_delete(creator_name, filename):
+def do_delete(filename):
     remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
     delete_file(BUCKET_PUBLIC, remote_file)
     return redirect(url_for('show_storage'))
@@ -1062,24 +1085,39 @@ def show_release():
     return render_template('release.html')
 
 
-@app.route(APP_PREFIX + '/web/image/<string:creator_name>/<string:filename>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/image/<string:filename>', methods=['GET'])
 @login_required
-def show_image(creator_name, filename):
-    return render_template('image.html', creator_name=creator_name, filename=filename)
+def show_image(filename):
+    return render_template('image.html', creator_name=current_user.creator_name, filename=filename)
 
 
 @app.route(APP_PREFIX + '/web/contact', methods=['GET', 'POST'])
 def show_contact():
     form = ContactForm()
-    if request.method == 'POST' and form.validate_on_submit():
-        contact_name = escape(request.form["contact_name"])
-        email = escape(request.form["email"])
-        message = escape(request.form["message"])
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            contact_name = escape(request.form["contact_name"])
+            email = escape(request.form["email"])
+            message = escape(request.form["message"])
 
-        send_mail([MAIL_ADMIN], f"{contact_name} - {email}",
-                  f"{message}")
+            send_mail([MAIL_ADMIN], f"{contact_name} - {email}",
+                      f"{message}")
 
-        return redirect(url_for('show_index'))
+            return redirect(url_for('show_index'))
+        else:
+            form.contact_name.default = escape(request.form["contact_name"])
+            form.email.default = escape(request.form["email"])
+            form.message.default = escape(request.form["message"])
+
+            random1 = random.randint(1, 10)
+            random2 = random.randint(1, 10)
+            check_captcha = random1 + random2
+
+            form.check_captcha.default = check_captcha
+            form.process()
+
+            return render_template('contact.html', form=form, random1=random1, random2=random2,
+                                   check_captcha=check_captcha)
     else:
         random1 = random.randint(1, 10)
         random2 = random.randint(1, 10)
@@ -1237,9 +1275,8 @@ def show_worlds():
 @app.route(APP_PREFIX + '/web/worlds', methods=['POST'])
 @login_required
 def show_worlds_p():
-    form = WorldForm()
-    if form.validate_on_submit() and current_user.creator_id:
-        world_name = request.form["name"]
+    if current_user.creator_id and current_user.creator_role == "creator":
+        world_name = escape(request.form["name"])
         world = World.query.filter_by(world_name=world_name).first()
 
         if not world:
@@ -1276,10 +1313,9 @@ def show_world(world_id):
 @app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['POST'])
 @login_required
 def show_world_p(world_id):
-    form = WorldForm()
     world = World.query.filter_by(world_id=world_id).first()
 
-    if world and form.validate_on_submit() and current_user.creator_id:
+    if world and current_user.creator_id and current_user.creator_id == world.creator_id:
         world.world_name = clean_url(request.form["name"])
         world.world_url = clean_url(request.form["url"])
         world.world_desc = escape(request.form["description"])
@@ -1386,11 +1422,10 @@ def show_rooms(world_id):
 @app.route(APP_PREFIX + '/web/rooms/<int:world_id>', methods=['POST'])
 @login_required
 def show_rooms_p(world_id):
-    form = RoomForm()
     world = World.query.filter_by(world_id=world_id).first()
 
-    if world and form.validate_on_submit() and current_user.creator_id:
-        room_name = request.form["name"]
+    if world and current_user.creator_id and current_user.creator_id == world.creator_id:
+        room_name = escape(request.form["name"])
         room = Room.query.filter_by(room_name=room_name).first()
 
         if not room:
@@ -1427,10 +1462,10 @@ def show_room(room_id):
 @app.route(APP_PREFIX + '/web/room/<int:room_id>', methods=['POST'])
 @login_required
 def show_room_p(room_id):
-    form = RoomForm()
     room = Room.query.filter_by(room_id=room_id).first()
+    world = World.query.filter_by(world_id=room.world_id).first()
 
-    if room and form.validate_on_submit() and current_user.creator_id:
+    if room and current_user.creator_id and current_user.creator_id == world.creator_id:
         room.room_name = escape(request.form["name"])
         room.room_desc = escape(request.form["description"])
         room.room_img = clean_url(request.form["image"])
@@ -1443,11 +1478,16 @@ def show_room_p(room_id):
 @app.route(APP_PREFIX + '/web/deleted_room/<int:room_id>', methods=['GET'])
 @login_required
 def show_deleted_room(room_id):
-    world = World.query.filter_by(world_id=session['world_id']).first()
-    if current_user.creator_id == world.creator_id:
+    room = Room.query.filter_by(room_id=room_id).first()
+    world = World.query.filter_by(world_id=room.world_id).first()
+
+    if room and current_user.creator_id and current_user.creator_id == world.creator_id:
         Room.query.filter_by(room_id=room_id).delete()
         db.session.commit()
-    return redirect(url_for('show_rooms', world_id=session['world_id']))
+
+        return redirect(url_for('show_rooms', world_id=session['world_id']))
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/items/<int:world_id>', methods=['GET'])
@@ -1459,7 +1499,10 @@ def show_items(world_id):
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
-        return render_template('item.html', items=items, world=world, creator=creator, rooms=rooms, form=form)
+
+        form.room.choices = get_rooms_choices(rooms)
+
+        return render_template('item.html', items=items, world=world, creator=creator, form=form)
     else:
         return render_template('error.html')
 
@@ -1467,11 +1510,10 @@ def show_items(world_id):
 @app.route(APP_PREFIX + '/web/items/<int:world_id>', methods=['POST'])
 @login_required
 def show_items_p(world_id):
-    form = ItemForm()
     world = World.query.filter_by(world_id=world_id).first()
 
-    if world and form.validate_on_submit() and current_user.creator_id:
-        item_name = request.form["name"]
+    if world and current_user.creator_id and current_user.creator_id == world.creator_id:
+        item_name = escape(request.form["name"])
         item = Item.query.filter_by(item_name=item_name).first()
 
         if not item:
@@ -1498,10 +1540,15 @@ def show_item(item_id):
         world = World.query.filter_by(world_id=item.world_id).first()
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
 
+        rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
+
         form.name.default = item.item_name
         form.description.default = item.item_desc
         form.image.default = item.item_img
+        form.room.choices = get_rooms_choices(rooms)
+        form.room.default = item.room_id
         form.process()
+
         return render_template('item_detail.html', item=item, room=room, world=world, creator=creator, form=form)
     else:
         return render_template('error.html')
@@ -1510,14 +1557,16 @@ def show_item(item_id):
 @app.route(APP_PREFIX + '/web/item/<int:item_id>', methods=['POST'])
 @login_required
 def show_item_p(item_id):
-    form = ItemForm()
     item = Item.query.filter_by(item_id=item_id).first()
+    world = World.query.filter_by(world_id=item.world_id).first()
 
-    if item and form.validate_on_submit() and current_user.creator_id:
+    if item and current_user.creator_id and current_user.creator_id == world.creator_id:
         item.item_name = escape(request.form["name"])
         item.item_desc = escape(request.form["description"])
         item.item_img = clean_url(request.form["image"])
+        item.room_id = escape(request.form["room"])
         db.session.commit()
+
         return redirect(url_for('show_item', item_id=item.item_id))
     else:
         return render_template('error.html')
@@ -1526,11 +1575,16 @@ def show_item_p(item_id):
 @app.route(APP_PREFIX + '/web/deleted_item/<int:item_id>', methods=['GET'])
 @login_required
 def show_deleted_item(item_id):
-    world = World.query.filter_by(world_id=session['world_id']).first()
-    if current_user.creator_id == world.creator_id:
+    item = Item.query.filter_by(item_id=item_id).first()
+    world = World.query.filter_by(world_id=item.world_id).first()
+
+    if item and current_user.creator_id and current_user.creator_id == world.creator_id:
         Item.query.filter_by(item_id=item_id).delete()
         db.session.commit()
-    return redirect(url_for('show_items', world_id=session['world_id']))
+
+        return redirect(url_for('show_items', world_id=session['world_id']))
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/persons/<int:world_id>', methods=['GET'])
@@ -1564,18 +1618,22 @@ def show_objectives(world_id):
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_title.asc())
-        return render_template('objective.html', objectives=objectives, world=world, creator=creator, rooms=rooms,
-                               form=form)
+        items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
+
+        form.room.choices = get_rooms_choices(rooms)
+        form.supported.choices = get_objectives_choices(objectives)
+        form.requires.choices = get_items_choices(items)
+
+        return render_template('objective.html', objectives=objectives, world=world, creator=creator, form=form)
 
 
 @app.route(APP_PREFIX + '/web/objectives/<int:world_id>', methods=['POST'])
 @login_required
 def show_objectives_p(world_id):
-    form = ObjectiveForm()
     world = World.query.filter_by(world_id=world_id).first()
 
-    if world and form.validate_on_submit() and current_user.creator_id:
-        objective_name = request.form["name"]
+    if world and current_user.creator_id and current_user.creator_id == world.creator_id:
+        objective_name = escape(request.form["name"])
         objective = Objective.query.filter_by(objective_name=objective_name).first()
 
         if not objective:
@@ -1606,8 +1664,12 @@ def show_objective(objective_id):
         room = Room.query.filter_by(room_id=objective.room_id).first()
         solutions = Solution.query.filter_by(objective_id=objective_id).filter_by(visible=1).order_by(
             Solution.solution_id.asc())
-        world = World.query.filter_by(world_id=objective.world_id).first()
+        world = World.query.filter_by(world_id=room.world_id).first()
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+
+        rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
+        objectives = Objective.query.filter_by(world_id=world.world_id).order_by(Objective.objective_title.asc())
+        items = Item.query.filter_by(world_id=world.world_id).order_by(Item.item_name.asc())
 
         voting_all = dict()
         creator_all = dict()
@@ -1627,10 +1689,16 @@ def show_objective(objective_id):
         form.title.default = objective.objective_title
         form.difficulty.default = objective.difficulty
         form.url.default = objective.objective_url
+        form.supported.choices = get_objectives_choices(objectives)
         form.supported.default = objective.supported_by
+        form.supported.default = objective.supported_by
+        form.requires.choices = get_items_choices(items)
+        form.requires.default = objective.requires
         form.requires.default = objective.requires
         form.description.default = objective.objective_desc
         form.image.default = objective.objective_img
+        form.room.choices = get_rooms_choices(rooms)
+        form.room.default = objective.room_id
         form.process()
 
         return render_template('objective_detail.html', objective=objective, md_quest=md_quest, solutions=solutions,
@@ -1643,10 +1711,10 @@ def show_objective(objective_id):
 @app.route(APP_PREFIX + '/web/objective/<int:objective_id>', methods=['POST'])
 @login_required
 def show_objective_p(objective_id):
-    form = ObjectiveForm()
     objective = Objective.query.filter_by(objective_id=objective_id).first()
+    world = World.query.filter_by(world_id=objective.world_id).first()
 
-    if objective and form.validate_on_submit() and current_user.creator_id:
+    if objective and current_user.creator_id and current_user.creator_id == world.creator_id:
         objective.objective_name = escape(request.form["name"])
         objective.objective_title = escape(request.form["title"])
         objective.difficulty = escape(request.form["difficulty"])
@@ -1655,6 +1723,7 @@ def show_objective_p(objective_id):
         objective.requires = escape(request.form["requires"])
         objective.objective_desc = escape(request.form["description"])
         objective.objective_img = clean_url(request.form["image"])
+        objective.room_id = escape(request.form["room"])
         db.session.commit()
         return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
@@ -1664,11 +1733,16 @@ def show_objective_p(objective_id):
 @app.route(APP_PREFIX + '/web/deleted_objective/<int:objective_id>', methods=['GET'])
 @login_required
 def show_deleted_objective(objective_id):
-    world = World.query.filter_by(world_id=session['world_id']).first()
-    if current_user.creator_id == world.creator_id:
+    objective = Objective.query.filter_by(objective_id=objective_id).first()
+    world = World.query.filter_by(world_id=objective.world_id).first()
+
+    if objective and current_user.creator_id and current_user.creator_id == world.creator_id:
         Objective.query.filter_by(objective_id=objective_id).delete()
         db.session.commit()
-    return redirect(url_for('show_objectives', world_id=session['world_id']))
+
+        return redirect(url_for('show_objectives', world_id=session['world_id']))
+    else:
+        return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/junctions/<int:world_id>', methods=['GET'])
