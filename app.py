@@ -143,6 +143,7 @@ class World(db.Model):
     world_img = db.Column(db.VARCHAR(384))
     visible = db.Column(db.INTEGER)
     reduced = db.Column(db.INTEGER)
+    archived = db.Column(db.INTEGER)
 
     def __repr__(self):
         return '<World %s>' % self.world_name
@@ -933,9 +934,9 @@ class AuthChecker:
 @ext.register_generator
 def index():
     # Not needed if you set SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS=True
-    yield 'get_index', {}
-    yield 'get_creators', {}
-    yield 'get_worlds', {}
+    yield 'show_index', {}
+    yield 'show_creators', {}
+    yield 'show_worlds', {}
 
 
 # Send an e-mail
@@ -952,7 +953,7 @@ def send_mail(recipients, mail_header, mail_body):
 @app.route(APP_PREFIX + '/web/', methods=['GET'])
 def show_index():
     # session['world_id'] = None
-    worlds = World.query.order_by(World.world_name.asc())
+    worlds = World.query.filter_by(archived=0).order_by(World.world_name.asc())
     return render_template('index.html', worlds=worlds)
 
 
@@ -1228,8 +1229,9 @@ def show_my_del_creator():
 @app.route(APP_PREFIX + '/web/worlds', methods=['GET'])
 def show_worlds():
     form = WorldForm()
-    worlds = World.query.order_by(World.world_name.asc())
-    return render_template('world.html', worlds=worlds, form=form)
+    worlds_active = World.query.filter_by(archived=0).order_by(World.world_name.asc())
+    worlds_archived = World.query.filter_by(archived=1).order_by(World.world_name.asc())
+    return render_template('world.html', worlds_active=worlds_active, worlds_archived=worlds_archived, form=form)
 
 
 @app.route(APP_PREFIX + '/web/worlds', methods=['POST'])
@@ -1333,6 +1335,22 @@ def show_switched_world(world_id):
         return render_template('error.html')
 
 
+@app.route(APP_PREFIX + '/web/archived_world/<int:world_id>', methods=['GET'])
+@login_required
+def show_archived_world(world_id):
+    world = World.query.filter_by(world_id=world_id).filter_by(creator_id=current_user.creator_id).first()
+    if world:
+        if world.archived == 1:
+            world.archived = 0
+        else:
+            world.archived = 1
+        db.session.commit()
+
+        return redirect(url_for('show_world', world_id=world.world_id))
+    else:
+        return render_template('error.html')
+
+
 @app.route(APP_PREFIX + '/web/reduced_world/<int:world_id>', methods=['GET'])
 @login_required
 def show_reduced_world(world_id):
@@ -1344,7 +1362,7 @@ def show_reduced_world(world_id):
             world.reduced = 1
         db.session.commit()
 
-        if session['world_id'] == world_id:
+        if 'world_id' in session and session['world_id'] == world_id:
             session['reduced'] = world.reduced
 
         return redirect(url_for('show_world', world_id=world.world_id))
