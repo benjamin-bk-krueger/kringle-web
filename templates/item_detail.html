@@ -79,16 +79,32 @@
             </div>
         </div>
 
-        <div class="btn-toolbar" role="toolbar" aria-label="Item Actions">
-            <a href="{{ url_for('show_items', world_id=item.world_id) }}" class="btn btn-primary mt-4 mb-4 btn-space">
-                <i class="bi bi-list-ul"></i> All Items
-            </a>
-
-            {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-                <!-- Trigger the modal with a button -->
-                <button type="button" class="btn btn-primary mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i> Edit Item</button>
-                <button type="button" class="btn btn-danger mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i> Delete Item</button>
-            {% endif %}
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle mt-4 mb-4" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-activity"></i> Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                        <li><a class="dropdown-item" href="{{ url_for('show_items', world_id=item.world_id) }}">All Items</a></li>
+                        {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Edit Item</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal_del">Delete Item</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('show_items', world_id=item.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+                {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                    <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal" ><i class="bi bi-pencil"></i></a>
+                {% endif %}
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Third group">
+                {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                    <a href="#" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

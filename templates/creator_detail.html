@@ -19,8 +19,20 @@
             </div>
         </div>
 
-        <a href="{{ url_for('show_creators') }}" class="btn btn-primary mt-4 mb-4">
-            <i class="bi bi-list-ul"></i> All Creators
-        </a>
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle mt-4 mb-4" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-activity"></i> Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                        <li><a class="dropdown-item" href="{{ url_for('show_creators') }}">All Creators</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('show_creators') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+            </div>
+        </div>
     </div>
 {% endblock %}

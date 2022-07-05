@@ -80,47 +80,54 @@
             </div>
         </div>
 
-        <div class="btn-toolbar" role="toolbar" aria-label="Word Actions">
-            <a href="{{ url_for('show_worlds') }}" class="btn btn-primary mt-4 mb-4 btn-space">
-                <i class="bi bi-list-ul"></i> All Worlds
-            </a>
-
-            <form action="{{ url_for('show_selected_world', world_id=world.world_id) }}">
-                <button type="submit" class="btn btn-info mt-4 mb-4 btn-space"><i class="bi bi-check2"></i> Select World</button>
-            </form>
-
-            {% if current_user.creator_id == world.creator_id %}
-                <!-- Trigger the modal with a button -->
-                <button type="button" class="btn btn-primary mt-4 mb-4 btn-space" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i> Edit World</button>
-
-                <form action="{{ url_for('show_switched_world', world_id=world.world_id) }}">
-                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space"><i class="bi bi-globe"></i> Switch Visibility</button>
-                </form>
-
-                <form action="{{ url_for('show_archived_world', world_id=world.world_id) }}">
-                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space"><i class="bi bi-archive"></i> Archive</button>
-                </form>
-
-                <form action="{{ url_for('show_reduced_world', world_id=world.world_id) }}">
-                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space"><i class="bi bi-chevron-bar-left"></i> Kringle Mode</button>
-                </form>
-            {% endif %}
-
-            {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-                <form action="{{ url_for('show_report', world_id=world.world_id, format_type='markdown') }}">
-                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space"><i class="bi bi-filetype-md"></i> Create Report (Markdown)</button>
-                </form>
-            {% endif %}
-
-            {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-                <form action="{{ url_for('show_report', world_id=world.world_id, format_type='pdf') }}">
-                    <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space"><i class="bi bi-filetype-html"></i> Create Report (HTML)</button>
-                </form>
-            {% endif %}
-
-            {% if current_user.creator_id == world.creator_id %}
-                <button type="button" class="btn btn-danger mt-4 mb-4 btn-space" data-toggle="modal" data-target="#myModal_del"><i class="bi bi-trash"></i> Delete World</button>
-            {% endif %}
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle mt-4 mb-4" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-activity"></i> Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                        <li><a class="dropdown-item" href="{{ url_for('show_worlds') }}">All Worlds</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('show_selected_world', world_id=world.world_id) }}">Select World</a></li>
+                        {% if current_user.creator_id == world.creator_id %}
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Edit World</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('show_switched_world', world_id=world.world_id) }}">Switch Visibility</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('show_archived_world', world_id=world.world_id) }}">Archive</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('show_reduced_world', world_id=world.world_id) }}">Kringle Mode</a></li>
+                        {% endif %}
+                        {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
+                            <li><a class="dropdown-item" href="{{ url_for('show_report', world_id=world.world_id, format_type='markdown') }}">Create Report (Markdown)</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('show_report', world_id=world.world_id, format_type='pdf') }}">Create Report (HTML)</a></li>
+                        {% endif %}
+                        {% if current_user.creator_id == world.creator_id %}
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal_del">Delete World</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('show_worlds') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Third group">
+                <a href="{{ url_for('show_selected_world', world_id=world.world_id) }}" class="btn btn-info mt-4 mb-4"><i class="bi bi-check2"></i></a>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Fourth group">
+                {% if current_user.creator_id == world.creator_id %}
+                    <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a>
+                    <a href="{{ url_for('show_switched_world', world_id=world.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-globe"></i></a>
+                    <a href="{{ url_for('show_archived_world', world_id=world.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-archive"></i></a>
+                    <a href="{{ url_for('show_reduced_world', world_id=world.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-chevron-bar-left"></i></a>
+                {% endif %}
+                {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
+                    <a href="{{ url_for('show_report', world_id=world.world_id, format_type='markdown') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-filetype-md"></i></a>
+                    <a href="{{ url_for('show_report', world_id=world.world_id, format_type='pdf') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-filetype-html"></i></a>
+                {% endif %}
+            </div>
+            <div class="btn-group" role="group" aria-label="Fifth group">
+                {% if current_user.creator_id == world.creator_id %}
+                    <a href="#" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

@@ -74,10 +74,24 @@
             </div>
         </div>
 
-        {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-            <!-- Trigger the modal with a button -->
-            <button type="button" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-plus-square"></i> Create Objective</button>
-            <br><br>
-        {% endif %}
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle mt-4 mb-4" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-activity"></i> Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                        {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Create Objective</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Second group">
+                {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                    <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-plus-square"></i></a>
+                {% endif %}
+            </div>
+        </div>
     </div>
 {% endblock %}
