@@ -62,6 +62,13 @@ class ItemForm(FlaskForm):
     room = SelectField('Select Room', choices=["none"])
 
 
+class PersonForm(FlaskForm):
+    name = StringField('Name', validators=[InputRequired()])
+    description = TextAreaField('Description')
+    image = StringField('Image URL')
+    room = SelectField('Select Room', choices=["none"])
+
+
 class ObjectiveForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     title = StringField('Title', validators=[InputRequired()])
@@ -72,6 +79,12 @@ class ObjectiveForm(FlaskForm):
     description = TextAreaField('Description')
     image = StringField('Image URL')
     room = SelectField('Select Room', choices=["none"])
+
+
+class JunctionForm(FlaskForm):
+    description = TextAreaField('Description')
+    room = SelectField('Select Room', choices=["none"])
+    room_dest = SelectField('Select Destination Room', choices=["none"])
 
 
 class ContactForm(FlaskForm):

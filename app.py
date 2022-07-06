@@ -21,7 +21,8 @@ from werkzeug.utils import secure_filename  # to prevent path traversal attacks
 from logging.handlers import SMTPHandler  # get crashes via mail
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
-    UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm
+    UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm, PersonForm, \
+    JunctionForm
 
 # the app configuration is done via environmental variables
 POSTGRES_URL = os.environ['POSTGRES_URL']  # DB connection data
@@ -1589,23 +1590,99 @@ def show_deleted_item(item_id):
 
 @app.route(APP_PREFIX + '/web/persons/<int:world_id>', methods=['GET'])
 def show_persons(world_id):
+    form = PersonForm()
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
         update_session(world)
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         persons = Person.query.filter_by(world_id=world_id).order_by(Person.person_name.asc())
-        return render_template('person.html', persons=persons, world_id=world_id)
+
+        form.room.choices = get_rooms_choices(rooms)
+
+        return render_template('person.html', persons=persons, world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/persons/<int:world_id>', methods=['POST'])
+@login_required
+def show_persons_p(world_id):
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world and current_user.creator_id and current_user.creator_id == world.creator_id:
+        person_name = escape(request.form["name"])
+        person = Person.query.filter_by(person_name=person_name).filter_by(world_id=world_id).first()
+
+        if not person:
+            person = Person()
+            person.person_name = person_name
+            person.person_desc = escape(request.form["description"])
+            person.person_img = clean_url(request.form["image"])
+            person.world_id = world_id
+            person.room_id = escape(request.form["room"])
+            db.session.add(person)
+            db.session.commit()
+        return redirect(url_for('show_persons', world_id=world.world_id))
     else:
         return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/person/<int:person_id>', methods=['GET'])
 def show_person(person_id):
+    form = PersonForm()
     person = Person.query.filter_by(person_id=person_id).first()
 
     if person:
         room = Room.query.filter_by(room_id=person.room_id).first()
-        return render_template('person_detail.html', person=person, room=room)
+        world = World.query.filter_by(world_id=person.world_id).first()
+        update_session(world)
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+
+        rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
+
+        form.name.default = person.person_name
+        form.description.default = person.person_desc
+        form.image.default = person.person_img
+        form.room.choices = get_rooms_choices(rooms)
+        form.room.default = person.room_id
+        form.process()
+
+        return render_template('person_detail.html', person=person, room=room, world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/person/<int:person_id>', methods=['POST'])
+@login_required
+def show_person_p(person_id):
+    person = Person.query.filter_by(person_id=person_id).first()
+    world = World.query.filter_by(world_id=person.world_id).first()
+
+    if person and current_user.creator_id and current_user.creator_id == world.creator_id:
+        person.person_name = escape(request.form["name"])
+        person.person_desc = escape(request.form["description"])
+        person.person_img = clean_url(request.form["image"])
+        person.room_id = escape(request.form["room"])
+        db.session.commit()
+
+        return redirect(url_for('show_person', person_id=person.person_id))
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/deleted_person/<int:person_id>', methods=['GET'])
+@login_required
+def show_deleted_person(person_id):
+    person = Person.query.filter_by(person_id=person_id).first()
+    world = World.query.filter_by(world_id=person.world_id).first()
+
+    if person and current_user.creator_id and current_user.creator_id == world.creator_id:
+        Person.query.filter_by(person_id=person_id).delete()
+        db.session.commit()
+
+        return redirect(url_for('show_persons', world_id=session['world_id']))
     else:
         return render_template('error.html')
 
@@ -1754,23 +1831,101 @@ def show_deleted_objective(objective_id):
 
 @app.route(APP_PREFIX + '/web/junctions/<int:world_id>', methods=['GET'])
 def show_junctions(world_id):
+    form = JunctionForm()
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
         update_session(world)
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         junctions = Junction.query.filter_by(world_id=world_id).order_by(Junction.junction_id.asc())
-        return render_template('junction.html', junctions=junctions, world_id=world_id)
+
+        form.room.choices = get_rooms_choices(rooms)
+        form.room_dest.choices = get_rooms_choices(rooms)
+
+        return render_template('junction.html', junctions=junctions, world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/junctions/<int:world_id>', methods=['POST'])
+@login_required
+def show_junctions_p(world_id):
+    world = World.query.filter_by(world_id=world_id).first()
+
+    if world and current_user.creator_id and current_user.creator_id == world.creator_id:
+        junction_room = escape(request.form["room"])
+        junction_room_dest = escape(request.form["room_dest"])
+
+        junction = Junction.query.filter_by(room_id=junction_room).filter_by(dest_id=junction_room_dest).filter_by(world_id=world_id).first()
+
+        if not junction:
+            junction = Junction()
+            junction.junction_desc = escape(request.form["description"])
+            junction.world_id = world_id
+            junction.room_id = escape(request.form["room"])
+            junction.dest_id = escape(request.form["room_dest"])
+            db.session.add(junction)
+            db.session.commit()
+        return redirect(url_for('show_junctions', world_id=world.world_id))
     else:
         return render_template('error.html')
 
 
 @app.route(APP_PREFIX + '/web/junction/<int:junction_id>', methods=['GET'])
 def show_junction(junction_id):
+    form = JunctionForm()
     junction = Junction.query.filter_by(junction_id=junction_id).first()
+
     if junction:
-        room_source = Room.query.filter_by(room_id=junction.room_id).first()
+        room = Room.query.filter_by(room_id=junction.room_id).first()
         room_dest = Room.query.filter_by(room_id=junction.dest_id).first()
-        return render_template('junction_detail.html', junction=junction, room_source=room_source, room_dest=room_dest)
+        world = World.query.filter_by(world_id=junction.world_id).first()
+        update_session(world)
+        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+
+        rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
+
+        form.description.default = junction.junction_desc
+        form.room.choices = get_rooms_choices(rooms)
+        form.room_dest.choices = get_rooms_choices(rooms)
+        form.room.default = junction.room_id
+        form.room_dest.default = junction.dest_id
+        form.process()
+
+        return render_template('junction_detail.html', junction=junction, room=room, room_dest=room_dest, world=world, creator=creator, form=form)
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/junction/<int:junction_id>', methods=['POST'])
+@login_required
+def show_junction_p(junction_id):
+    junction = Junction.query.filter_by(junction_id=junction_id).first()
+    world = World.query.filter_by(world_id=junction.world_id).first()
+
+    if junction and current_user.creator_id and current_user.creator_id == world.creator_id:
+        junction.junction_desc = escape(request.form["description"])
+        junction.room_id = escape(request.form["room"])
+        junction.dest_id = escape(request.form["room_dest"])
+        db.session.commit()
+
+        return redirect(url_for('show_junction', junction_id=junction.junction_id))
+    else:
+        return render_template('error.html')
+
+
+@app.route(APP_PREFIX + '/web/deleted_junction/<int:junction_id>', methods=['GET'])
+@login_required
+def show_deleted_junction(junction_id):
+    junction = Junction.query.filter_by(junction_id=junction_id).first()
+    world = World.query.filter_by(world_id=junction.world_id).first()
+
+    if junction and current_user.creator_id and current_user.creator_id == world.creator_id:
+        Junction.query.filter_by(junction_id=junction_id).delete()
+        db.session.commit()
+
+        return redirect(url_for('show_junctions', world_id=session['world_id']))
     else:
         return render_template('error.html')
 

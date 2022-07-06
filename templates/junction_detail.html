@@ -13,18 +13,95 @@
                 </div>
                 <div class="col-md-8">
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">Found in <a class="link-primary" href="{{ url_for('show_room', room_id=room_source.room_id)}}">{{ room_source.room_name }}</a></h6>
-                        <h6 class="card-subtitle mb-2 text-muted">Targeting <a class="link-primary" href="{{ url_for('show_room', room_id=room_dest.room_id)}}">{{ room_dest.room_name }}</a></h6>
+                        <h6 class="card-subtitle mb-2 text-muted">Found in <a class="link-primary" href="{{ url_for('show_room', room_id=junction.room_id)}}">{{ room.room_name }}</a></h6>
+                        <h6 class="card-subtitle mb-2 text-muted">Targeting <a class="link-primary" href="{{ url_for('show_room', room_id=junction.dest_id)}}">{{ room_dest.room_name }}</a></h6>
                         <p class="card-text">{{ junction.junction_desc }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="btn-toolbar" role="toolbar" aria-label="Junction Actions">
-            <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}" class="btn btn-primary mt-4 mb-4 btn-space">
-                <i class="bi bi-list-ul"></i> All Junctions
-            </a>
+        <!-- Delete Modal -->
+        <div id="myModal_del" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Delete Junction</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('show_deleted_junction', junction_id=junction.junction_id) }}">
+                            <button type="submit" class="btn btn-danger mt-4 mb-4">Confirm</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit Junction</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('show_junction_p', junction_id=junction.junction_id) }}" method="POST">
+                            {{ form.csrf_token }}
+                            <div class="form-group mt-2 mb-2">
+                                <label for="{{ form.description.name }}">{{ form.description.label }}</label>
+                                {{ form.description(size=40, class="form-control") }}
+                            </div>
+                            <div class="form-group mt-2 mb-2">
+                                <label for="{{ form.room.name }}">{{ form.room.label }}</label>
+                                {{ form.room(class="form-select") }}
+                            </div>
+                            <div class="form-group mt-2 mb-2">
+                                <label for="{{ form.room_dest.name }}">{{ form.room_dest.label }}</label>
+                                {{ form.room_dest(class="form-select") }}
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-4 mb-4">Update</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle mt-4 mb-4" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-activity"></i> Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                        <li><a class="dropdown-item" href="{{ url_for('show_junctions', world_id=junction.world_id) }}">All Junctions</a></li>
+                        {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal">Edit Junction</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal_del">Delete Junction</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+                {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                    <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal" ><i class="bi bi-pencil"></i></a>
+                {% endif %}
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Third group">
+                {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
+                    <a href="#" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}
