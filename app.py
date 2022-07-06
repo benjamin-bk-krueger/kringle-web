@@ -974,9 +974,9 @@ def get_items_choices(items):
 
 
 def update_session(world):
-        session['world_id'] = world.world_id
-        session['world_name'] = world.world_name
-        session['reduced'] = world.reduced
+    session['world_id'] = world.world_id
+    session['world_name'] = world.world_name
+    session['reduced'] = world.reduced
 
 
 # Flask entry pages
@@ -1438,16 +1438,21 @@ def show_room(room_id):
         world = World.query.filter_by(world_id=room.world_id).first()
         update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
-        objectives = Objective.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(Objective.objective_title.asc())
-        items = Item.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(Item.item_name.asc())
-        persons = Person.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(Person.person_name.asc())
-        junctions = Junction.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(Junction.junction_id.asc())
+        objectives = Objective.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
+                Objective.objective_title.asc())
+        items = Item.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
+                Item.item_name.asc())
+        persons = Person.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
+                Person.person_name.asc())
+        junctions = Junction.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
+                Junction.junction_id.asc())
 
         form.name.default = room.room_name
         form.description.default = room.room_desc
         form.image.default = room.room_img
         form.process()
-        return render_template('room_detail.html', room=room, world=world, creator=creator, objectives=objectives, items=items, persons=persons, junctions=junctions, form=form)
+        return render_template('room_detail.html', room=room, world=world, creator=creator, objectives=objectives,
+                               items=items, persons=persons, junctions=junctions, form=form)
     else:
         return render_template('error.html')
 
