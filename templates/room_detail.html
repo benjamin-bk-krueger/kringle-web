@@ -75,6 +75,56 @@
             </div>
         </div>
 
+        <div class="dropdown">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                Available Objectives
+            </a>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to open objective</a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for objective in objectives %}
+                    <li><a class="dropdown-item" href="{{ url_for('show_objective', objective_id=objective.objective_id)}}">{{ objective.objective_title }} ({{ objective.objective_name }})</a></li>
+                {% endfor %}
+            </ul>
+
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
+                Available Items
+            </a>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to open item</a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for item in items %}
+                    <li><a class="dropdown-item" href="{{ url_for('show_item', item_id=item.item_id)}}">{{ item.item_name }}</a></li>
+                {% endfor %}
+            </ul>
+
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink3" data-bs-toggle="dropdown" aria-expanded="false">
+                Available Persons
+            </a>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink3">
+                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to open person</a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for person in persons %}
+                    <li><a class="dropdown-item" href="{{ url_for('show_person', person_id=person.person_id)}}">{{ person.person_name }}</a></li>
+                {% endfor %}
+            </ul>
+
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink4" data-bs-toggle="dropdown" aria-expanded="false">
+                Available Junctions
+            </a>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink4">
+                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to open junction</a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for junction in junctions %}
+                    <li><a class="dropdown-item" href="{{ url_for('show_junction', junction_id=junction.junction_id)}}">{{ junction.junction_id }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
                 <div class="btn-group" role="group">

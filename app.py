@@ -973,6 +973,12 @@ def get_items_choices(items):
     return items_choices
 
 
+def update_session(world):
+        session['world_id'] = world.world_id
+        session['world_name'] = world.world_name
+        session['reduced'] = world.reduced
+
+
 # Flask entry pages
 @app.route(APP_PREFIX + '/web/', methods=['GET'])
 def show_index():
@@ -1298,14 +1304,16 @@ def show_world(world_id):
     form = WorldForm()
     world = World.query.filter_by(world_id=world_id).first()
     if world:
+        update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_name.asc())
 
         form.name.default = world.world_name
         form.url.default = world.world_url
         form.description.default = world.world_desc
         form.image.default = world.world_img
         form.process()
-        return render_template('world_detail.html', world=world, creator=creator, form=form)
+        return render_template('world_detail.html', world=world, creator=creator, rooms=rooms, form=form)
     else:
         return render_template('error.html')
 
@@ -1322,27 +1330,6 @@ def show_world_p(world_id):
         world.world_img = clean_url(request.form["image"])
         db.session.commit()
         return redirect(url_for('show_world', world_id=world.world_id))
-    else:
-        return render_template('error.html')
-
-
-@app.route(APP_PREFIX + '/web/selected_world/<int:world_id>', methods=['GET'])
-def show_selected_world(world_id):
-    form = WorldForm()
-    world = World.query.filter_by(world_id=world_id).first()
-    if world:
-        creator = Creator.query.filter_by(creator_id=world.creator_id).first()
-
-        session['world_id'] = world_id
-        session['world_name'] = world.world_name
-        session['reduced'] = world.reduced
-
-        form.name.default = world.world_name
-        form.url.default = world.world_url
-        form.description.default = world.world_desc
-        form.image.default = world.world_img
-        form.process()
-        return render_template('world_detail.html', world=world, creator=creator, form=form)
     else:
         return render_template('error.html')
 
@@ -1412,6 +1399,7 @@ def show_rooms(world_id):
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
+        update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_name.asc())
         return render_template('room.html', rooms=rooms, world=world, creator=creator, form=form)
@@ -1448,13 +1436,18 @@ def show_room(room_id):
 
     if room:
         world = World.query.filter_by(world_id=room.world_id).first()
+        update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+        objectives = Objective.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(Objective.objective_title.asc())
+        items = Item.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(Item.item_name.asc())
+        persons = Person.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(Person.person_name.asc())
+        junctions = Junction.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(Junction.junction_id.asc())
 
         form.name.default = room.room_name
         form.description.default = room.room_desc
         form.image.default = room.room_img
         form.process()
-        return render_template('room_detail.html', room=room, world=world, creator=creator, form=form)
+        return render_template('room_detail.html', room=room, world=world, creator=creator, objectives=objectives, items=items, persons=persons, junctions=junctions, form=form)
     else:
         return render_template('error.html')
 
@@ -1496,6 +1489,7 @@ def show_items(world_id):
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
+        update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
@@ -1538,6 +1532,7 @@ def show_item(item_id):
     if item:
         room = Room.query.filter_by(room_id=item.room_id).first()
         world = World.query.filter_by(world_id=item.world_id).first()
+        update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
 
         rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
@@ -1592,6 +1587,7 @@ def show_persons(world_id):
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
+        update_session(world)
         persons = Person.query.filter_by(world_id=world_id).order_by(Person.person_name.asc())
         return render_template('person.html', persons=persons, world_id=world_id)
     else:
@@ -1615,6 +1611,7 @@ def show_objectives(world_id):
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
+        update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_title.asc())
@@ -1669,6 +1666,7 @@ def show_objective(objective_id):
         solutions = Solution.query.filter_by(objective_id=objective_id).filter_by(visible=1).order_by(
             Solution.solution_id.asc())
         world = World.query.filter_by(world_id=room.world_id).first()
+        update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
 
         rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
@@ -1754,6 +1752,7 @@ def show_junctions(world_id):
     world = World.query.filter_by(world_id=world_id).first()
 
     if world:
+        update_session(world)
         junctions = Junction.query.filter_by(world_id=world_id).order_by(Junction.junction_id.asc())
         return render_template('junction.html', junctions=junctions, world_id=world_id)
     else:
@@ -1779,6 +1778,7 @@ def show_quest(objective_id):
         if objective:
             room = Room.query.filter_by(room_id=objective.room_id).first()
             world = World.query.filter_by(world_id=room.world_id).first()
+            update_session(world)
 
             if world.creator_id == current_user.creator_id:
                 objective.quest = request.form["quest"].encode()
@@ -1812,6 +1812,7 @@ def show_solution(solution_id):
     if solution:
         objective = Objective.query.filter_by(objective_id=solution.objective_id).first()
         world = World.query.filter_by(world_id=objective.world_id).first()
+        update_session(world)
 
         if solution.visible == 1 and world.visible == 1:
             if solution.solution_text is not None:

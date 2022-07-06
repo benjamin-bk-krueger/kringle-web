@@ -17,23 +17,6 @@
             </div>
         {% endif %}
 
-        <hr class="little mt-4 mb-4">
-
-        <h4 class="mb-3">Archived Worlds</h4>
-        <div class="dropdown">
-            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                World Archive
-            </a>
-
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to open world</a></li>
-                <li><hr class="dropdown-divider"></li>
-                {% for world in worlds_archived %}
-                    <li><a class="dropdown-item" href="{{ url_for('show_world', world_id=world.world_id)}}">{{ world.world_name }}</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-
         <!-- Modal -->
         <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -70,6 +53,23 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <hr class="little mt-4 mb-4">
+
+        <h4 class="mb-3">Archived Worlds</h4>
+        <div class="dropdown">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                World Archive
+            </a>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to open world</a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for world in worlds_archived %}
+                    <li><a class="dropdown-item" href="{{ url_for('show_world', world_id=world.world_id)}}">{{ world.world_name }}</a></li>
+                {% endfor %}
+            </ul>
         </div>
 
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
