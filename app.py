@@ -1857,7 +1857,8 @@ def show_junctions_p(world_id):
         junction_room = escape(request.form["room"])
         junction_room_dest = escape(request.form["room_dest"])
 
-        junction = Junction.query.filter_by(room_id=junction_room).filter_by(dest_id=junction_room_dest).filter_by(world_id=world_id).first()
+        junction = Junction.query.filter_by(room_id=junction_room).filter_by(dest_id=junction_room_dest).filter_by(
+                world_id=world_id).first()
 
         if not junction:
             junction = Junction()
@@ -1893,7 +1894,8 @@ def show_junction(junction_id):
         form.room_dest.default = junction.dest_id
         form.process()
 
-        return render_template('junction_detail.html', junction=junction, room=room, room_dest=room_dest, world=world, creator=creator, form=form)
+        return render_template('junction_detail.html', junction=junction, room=room, room_dest=room_dest, world=world,
+                               creator=creator, form=form)
     else:
         return render_template('error.html')
 
