@@ -13,6 +13,8 @@ The following data is required:
 | Password        | Your password (should be as secure as you want it to be)                    |
 | Invitation Code | An invitation code is currently required to create an account               |
 
+Note: The invitation code also decides your role (creator or registered user only).
+
 ![New Account](./img/account_new.png)
 
 ## Login
