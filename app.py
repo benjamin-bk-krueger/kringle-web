@@ -131,6 +131,7 @@ class Creator(UserMixin, db.Model):
     creator_pass = db.Column(db.VARCHAR(256))
     creator_img = db.Column(db.VARCHAR(384))
     creator_role = db.Column(db.VARCHAR(20))
+    active = db.Column(db.INTEGER, default=0)
 
     # match the correct row for the Login Manager ID
     def get_id(self):
@@ -938,7 +939,7 @@ class AuthChecker:
         if auth:
             creator_name = auth['username']
             creator_pass = auth['password']
-            creator = Creator.query.filter_by(creator_name=creator_name).first()
+            creator = Creator.query.filter_by(active=1).filter_by(creator_name=creator_name).first()
             world = World.query.filter_by(world_id=world_id).first()
 
             if (creator and world and check_password_hash(creator.creator_pass,
@@ -1029,7 +1030,7 @@ def show_login():
         creator_name = request.form["creator"]
         creator_pass = request.form["password"]
         remember = True if request.form.get('remember') else False
-        creator = Creator.query.filter_by(creator_name=creator_name).first()
+        creator = Creator.query.filter_by(active=1).filter_by(creator_name=creator_name).first()
 
         if not creator or not check_password_hash(creator.creator_pass, creator_pass):
             return redirect(url_for('show_login'))
@@ -1082,7 +1083,6 @@ def show_storage():
 @app.route(APP_PREFIX + "/web/rename", methods=['POST'])
 @login_required
 def do_rename():
-    form = FileForm()
     filename_new = escape(request.form["filename_new"])
     filename_old = escape(request.form["filename_old"])
 
@@ -1199,14 +1199,21 @@ def show_contact():
 # Displays all available creators
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])
 def show_creators():
-    creators = Creator.query.order_by(Creator.creator_name.asc())
+    if current_user.is_authenticated and current_user.creator_id and current_user.creator_role == "admin":
+        creators = Creator.query.order_by(Creator.creator_name.asc())
+    else:
+        creators = Creator.query.filter_by(active=1).order_by(Creator.creator_name.asc())
     return render_template('creator.html', creators=creators)
 
 
 # Shows information about a specific creator
 @app.route(APP_PREFIX + '/web/creator/<int:creator_id>', methods=['GET'])
 def show_creator(creator_id):
-    creator = Creator.query.filter_by(creator_id=creator_id).first()
+    if current_user.is_authenticated and current_user.creator_id and current_user.creator_role == "admin":
+        creator = Creator.query.filter_by(creator_id=creator_id).first()
+    else:
+        creator = Creator.query.filter_by(active=1).filter_by(creator_id=creator_id).first()
+
     if creator:
         return render_template('creator_detail.html', creator=creator)
     else:
@@ -1221,21 +1228,39 @@ def show_new_creator():
         code = request.form["invitation"]
         invitation = Invitation.query.filter_by(invitation_code=code).first()
 
-        if invitation:
-            if invitation.invitation_forever == 1 or invitation.invitation_taken == 0:
-                creator = Creator()
-                creator.creator_name = escape(request.form["creator"])
-                creator.creator_mail = escape(request.form["email"])
-                creator.creator_desc = ""
-                creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
-                                                              salt_length=16)
-                creator.creator_role = invitation.invitation_role
-                creator.creator_img = ""
-                db.session.add(creator)
-                db.session.commit()
+        if invitation and (invitation.invitation_forever == 1 or invitation.invitation_taken == 0):
+            creator = Creator()
+            creator.creator_name = escape(request.form["creator"])
+            creator.creator_mail = escape(request.form["email"])
+            creator.creator_desc = ""
+            creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
+                                                          salt_length=16)
+            creator.creator_role = invitation.invitation_role
+            creator.creator_img = ""
+            creator.active = 1
+            db.session.add(creator)
+            db.session.commit()
 
-                invitation.invitation_taken = 1
-                db.session.commit()
+            invitation.invitation_taken = 1
+            db.session.commit()
+
+            send_mail([MAIL_ADMIN], f"{creator.creator_name} - Registration complete",
+                      "A new user has registered using an invitation code. No action necessary.")
+        else:
+            creator = Creator()
+            creator.creator_name = escape(request.form["creator"])
+            creator.creator_mail = escape(request.form["email"])
+            creator.creator_desc = ""
+            creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
+                                                          salt_length=16)
+            creator.creator_role = "user"
+            creator.creator_img = ""
+            creator.active = 0
+            db.session.add(creator)
+            db.session.commit()
+
+            send_mail([MAIL_ADMIN], f"{creator.creator_name} - Approval required",
+                      "A new user has registered, please approve registration.")
         return redirect(url_for('show_creators'))
     else:
         return render_template('account.html', form=form)
@@ -1334,6 +1359,23 @@ def show_my_del_creator():
             form1.url.default = creator.creator_img
             form1.process()
             return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
+    else:
+        return render_template('error.html')
+
+
+# Approve a user's registration
+@app.route(APP_PREFIX + '/web/approve_creator/<int:creator_id>', methods=['GET'])
+@login_required
+def show_approve_creator(creator_id):
+    if current_user.is_authenticated and current_user.creator_id and current_user.creator_role == "admin":
+        creator = Creator.query.filter_by(creator_id=creator_id).first()
+        creator.active = 1
+        db.session.commit()
+
+        send_mail([creator.creator_mail], f"{creator.creator_name} - Registration complete",
+                  "Your registration has been approved. You can use your login now.")
+
+        return redirect(url_for('show_creators'))
     else:
         return render_template('error.html')
 

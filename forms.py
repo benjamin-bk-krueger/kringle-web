@@ -19,7 +19,7 @@ class AccountForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired(), Length(min=5, max=20),
                                                      EqualTo('password2', message='Passwords must match')])
     password2 = PasswordField('Password Verification', validators=[InputRequired(), Length(min=5, max=20)])
-    invitation = StringField('Invitation Code', validators=[InputRequired(), Length(min=5, max=20)])
+    invitation = StringField('Invitation Code', validators=[InputRequired(), Length(min=5, max=20)], default='guest')
 
 
 class MailCreatorForm(FlaskForm):

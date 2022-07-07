@@ -34,6 +34,9 @@
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                         <li><a class="dropdown-item" href="{{ url_for('show_creators') }}">All Creators</a></li>
+                        {%  if current_user.creator_role == "admin" %}
+                            <li><a class="dropdown-item" href="{{ url_for('show_approve_creator', creator_id=creator.creator_id) }}">Approve Creator</a></li>
+                        {%  endif %}
                     </ul>
                 </div>
             </div>
@@ -41,6 +44,9 @@
             {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
                 <a href="{{ url_for('show_creators') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+                {%  if current_user.creator_role == "admin" %}
+                    <a href="{{ url_for('show_approve_creator', creator_id=creator.creator_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-person-check"></i></a>
+                {%  endif %}
             </div>
         </div>
     </div>
