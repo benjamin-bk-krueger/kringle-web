@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} New Account {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
+
+        {# Display form and possible error message - create a new user #}
         <h4 class="mb-3">Please enter data</h4>
         <form action="{{ url_for('show_new_creator') }}" method="POST">
             {{ form.csrf_token }}

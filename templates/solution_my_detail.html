@@ -1,15 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} My Solution {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
-        <!-- Delete Modal -->
+
+        {# Modal dialog window - delete currently selected solution #}
         <div id="myModal_del" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Delete Solution</h4>
@@ -27,11 +29,13 @@
             </div>
         </div>
 
+        {#  Display quest of the selected objective - the markdown has been converted to HTML #}
         <h4 class="mb-3">For following quest:</h4>
         {{ md_quest|safe }}
 
         <hr class="little mt-4 mb-4">
 
+        {#  Display a dropdown containing all available S3 files - selecting an item copies its link to the clipboard #}
         <div class="dropdown">
             <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                 S3 Storage
@@ -51,6 +55,7 @@
 
         <hr class="little mt-4 mb-4">
 
+        {# Display Markdown editor form - edit an objective's solution #}
         <form action="{{ url_for('show_my_solution', objective_id=objective_id)}}" id="solution" method="POST">
             <div class="mb-3">
                 <label for="solution">Edit Solution:</label>
@@ -66,6 +71,7 @@
             </div>
         </form>
 
+        {# Display simple buttons - submit or cancel form editing #}
         <div class="btn-toolbar" role="toolbar" aria-label="Solution Actions">
             <button type="submit" form="solution" class="btn btn-primary mt-4 mb-4 btn-space">Submit</button>
 

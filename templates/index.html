@@ -1,18 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} Welcome to {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
         <b>Kringle Info</b> <i>/ˈkrɪŋ.ɡəl in·fo/</i>. An online CTF solution editor and report generator inspired by <a class="link-primary" href="https://www.sans.org/mlp/holiday-hack-challenge/">SANS Holiday Hack Challenge &amp; KringleCon</a>.<br>
         Makes creating solutions and reports easy and fun 😀<br>
     </div>
 
+    {#  Show carousel containing links and images to all available and active worlds #}
     <div class="container-fluid pb-3 mt-2 mb-2">
         <div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
-            <!-- Indicators -->
+
+            {# Indicators #}
             <div class="carousel-indicators">
                 <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
                 {% for world in worlds %}
@@ -20,14 +24,18 @@
                 {% endfor %}
             </div>
 
-            <!-- Wrapper for slides -->
+            {# Wrapper for slides #}
             <div class="carousel-inner">
+
+                {# First static slide #}
                 <div class="carousel-item active">
                     <img class="d-block mx-auto" src="/static/kringle_worlds.png" alt="Kringle Worlds">
                     <div class="carousel-caption d-none d-md-block">
                             <h3>Welcome to Kringle.info</h3>
                     </div>
                 </div>
+
+                {# Dynamic slides for all worlds #}
                 {% for world in worlds %}
                     <div class="carousel-item">
                         <a href="{{ url_for('show_world', world_id=world.world_id)}}"><img class="d-block mx-auto" src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" alt="World Logo"></a>
@@ -38,7 +46,7 @@
                 {% endfor %}
             </div>
 
-            <!-- Left and right controls -->
+            {# Left and right controls #}
             <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
@@ -50,6 +58,7 @@
         </div>
     </div>
 
+    {#  Additional page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
         Based on <a class="link-primary" href="https://palletsprojects.com/p/flask/">Flask</a> web application framework and <a class="link-primary" href="https://getbootstrap.com">Bootstrap</a> frontend toolkit. Hosted on <a class="link-primary" href="https://contabo.com/en/">Contabo</a> servers.<br>
         If you want to get in touch with me just visit my <a class="link-primary" href="https://github.com/Benjamin-BK-Krueger">GitHub page</a> or my <a class="link-primary" href="https://blk8.de">WordPress site</a>.<br>

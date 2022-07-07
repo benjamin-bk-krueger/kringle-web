@@ -1,15 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} Edit Account {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
-        <!-- Delete Modal -->
+
+        {# Modal dialog window - delete currently logged in user #}
         <div id="myModal_del" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Delete Account</h4>
@@ -28,6 +30,7 @@
             </div>
         </div>
 
+        {# Display form and possible error message - change user data #}
         <h4 class="mb-3">Please enter data</h4>
         <form action="{{ url_for('show_my_mail_creator') }}" method="POST">
             {{ form1.csrf_token }}
@@ -54,6 +57,7 @@
 
         <hr class="little mt-4 mb-4">
 
+        {# Display form and possible error message - set a password for currently logged in user #}
         <h4 class="mb-3">Set new password</h4>
         <form action="{{ url_for('show_my_pass_creator') }}" method="POST">
             {{ form2.csrf_token }}
@@ -73,6 +77,7 @@
 
         <hr class="little mt-4 mb-4">
 
+        {# Display simple button - show modal dialog window to delete currently logged in user #}
         <h4 class="mb-3">Delete this user account</h4>
         <button type="button" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del">Delete Account</button>
     </div>

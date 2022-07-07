@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} S3 Storage {% endblock %}</h2>
     </div>
 
+    {#  Javascript magic: paste clipboard's image data by pressing ctrl-v and upload it to S3 storage #}
     <script>
         document.onpaste = function(e){
             let items = e.clipboardData.items;
@@ -79,7 +81,10 @@
         }
     </script>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
+
+        {#  Javascript anchor and progress bar #}
         <h4 class="mb-3">Paste your image here</h4>
         <div class="card">
             <div class="card-body">
@@ -92,6 +97,7 @@
 
         <hr class="little mt-4 mb-4">
 
+        {#  Traditional upload via file selection form #}
         <h4 class="mb-3">Upload your file here</h4>
         <form action="{{ url_for('show_storage') }}" method="POST" enctype=multipart/form-data>
             {{ form.csrf_token }}
@@ -106,6 +112,7 @@
 
         <hr class="little mt-4 mb-4">
 
+        {#  Show list of all available S3 files #}
         <h4 class="mb-3">These are your uploaded files</h4>
         Click on the options to download or delete them.<br>
         If you click on <i>copy markdown link</i> the link to that image which you can use in your markdown snippets will be copied to your clipboard<br><br>

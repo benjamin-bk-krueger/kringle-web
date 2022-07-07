@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} All Rooms {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
+
+        {#  Show list of all rooms #}
         {% if rooms.count() == 0 %}
             No entries found.<br>
         {% else %}
@@ -16,10 +20,9 @@
             </div>
         {% endif %}
 
-        <!-- Modal -->
+        {# Modal dialog window - create a new room #}
         <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Create Room</h4>
@@ -50,7 +53,10 @@
             </div>
         </div>
 
+        {#  Display action buttons regarding the selected room #}
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+
+            {#  Text-based links #}
             <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
                 <div class="btn-group" role="group">
                     <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle mt-4 mb-4" data-bs-toggle="dropdown" aria-expanded="false">
@@ -63,6 +69,8 @@
                     </ul>
                 </div>
             </div>
+
+            {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
                     <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-plus-square"></i></a>

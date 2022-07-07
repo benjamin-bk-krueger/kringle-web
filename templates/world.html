@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} All Worlds {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
+
+        {#  Show list of all active worlds #}
         <h4 class="mb-3">Active Worlds</h4>
         {% if worlds_active.count() == 0 %}
             No entries found.<br>
@@ -17,10 +21,9 @@
             </div>
         {% endif %}
 
-        <!-- Modal -->
+        {# Modal dialog window - create a new world #}
         <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Create World</h4>
@@ -57,6 +60,7 @@
 
         <hr class="little mt-4 mb-4">
 
+        {#  Show dropdown list of all archived worlds #}
         <h4 class="mb-3">Archived Worlds</h4>
         <div class="dropdown">
             <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
@@ -72,7 +76,10 @@
             </ul>
         </div>
 
+        {#  Display action buttons regarding the selected item #}
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+
+            {#  Text-based links #}
             <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
                 <div class="btn-group" role="group">
                     <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle mt-4 mb-4" data-bs-toggle="dropdown" aria-expanded="false">
@@ -85,6 +92,8 @@
                     </ul>
                 </div>
             </div>
+
+            {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
                 {% if current_user.creator_role == "creator" %}
                     <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-plus-square"></i></a>

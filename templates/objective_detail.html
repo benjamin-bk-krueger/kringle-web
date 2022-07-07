@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} {{ objective.objective_title }} {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
+
+        {#  Show detailed information regarding the selected objective #}
         <div class="card mb-3" style="max-width: 720px;">
             <div class="row g-0">
                 <div class="col-md-4">
@@ -21,7 +25,8 @@
             </div>
         </div>
 
-        <div class="card">
+        {#  Show additional information regarding the selected objective #}
+        <div class="card mb-3" style="max-width: 720px;">
             <div class="card-body">
                 Difficulty: <span class="badge bg-secondary">{{ objective.difficulty }}</span><br>
                 Supported by {{ objective.supported_by }}<br>
@@ -30,10 +35,9 @@
             </div>
         </div>
 
-        <!-- Delete Modal -->
+        {# Modal dialog window - delete currently selected objective #}
         <div id="myModal_del" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Delete Objective</h4>
@@ -51,10 +55,9 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        {# Modal dialog window - edit currently selected objective #}
         <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Edit Objective</h4>
@@ -109,7 +112,10 @@
             </div>
         </div>
 
+        {#  Display action buttons regarding the selected objective #}
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+
+            {#  Text-based links #}
             <div class="btn-group me-2" role="group" aria-label="Button group with nested dropdown">
                 <div class="btn-group" role="group">
                     <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle mt-4 mb-4" data-bs-toggle="dropdown" aria-expanded="false">
@@ -132,6 +138,8 @@
                     </ul>
                 </div>
             </div>
+
+            {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
                 <a href="{{ url_for('show_objectives', world_id=objective.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
@@ -153,11 +161,13 @@
 
         <hr class="little mt-4 mb-4">
 
+        {#  Display quest of the selected objective - the markdown has been converted to HTML #}
         <h4 class="mb-3">Quest</h4>
         {{ md_quest|safe }}
 
         <hr class="little mt-4 mb-4">
 
+        {#  Display all available public solutions regarding the selected objective #}
         <h4 class="mb-3">Public Solutions</h4>
         {% if world.visible == 1 %}
             <div class="list-group">

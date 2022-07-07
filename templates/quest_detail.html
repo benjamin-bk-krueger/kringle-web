@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} Quest {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
+
+        {#  Display a dropdown containing all available S3 files - selecting an item copies its link to the clipboard #}
         <div class="dropdown">
             <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                 S3 Storage
@@ -25,6 +29,7 @@
 
         <hr class="little mt-4 mb-4">
 
+        {# Display Markdown editor form - edit an objective's quest #}
         <form action="{{ url_for('show_quest', objective_id=objective_id)}}" id="quest" method="POST">
             <div class="mb-3">
                 <label for="quest">Edit Content:</label>
@@ -35,6 +40,7 @@
             </script>
         </form>
 
+        {# Display simple buttons - submit or cancel form editing #}
         <div class="btn-toolbar" role="toolbar" aria-label="Quest Actions">
             <button type="submit" form="quest" class="btn btn-primary mt-4 mb-4 btn-space">Submit</button>
 

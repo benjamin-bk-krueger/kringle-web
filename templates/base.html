@@ -28,8 +28,14 @@
     </head>
 
     <body>
+        {#  Anchor to allow the user to return to the page start #}
         <div id="page-start"></div>
 
+        {#
+            Navigation bar which may be collapsed on smaller displays.
+            Show navigation elements depending on the selected world.
+            Non-Kringle worlds have fewer buttons.
+        #}
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{ url_for('show_index') }}">Kringle.info</a>
@@ -73,10 +79,12 @@
             </div>
         </nav>
 
+        {#  Content space for all depending page templates #}
         {% block content %} {% endblock %}
 
         <hr class="solid mt-4 mb-4">
 
+        {#  Page footer - 2 column layout #}
         <footer class="page-footer">
             <div class="container-fluid">
                 <div class="row">

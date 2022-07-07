@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} Contact {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
+
+        {# Display form and possible error message - send a message to the page admin, includes simple captcha #}
         <form action="{{ url_for('show_contact') }}" method="POST">
             {{ form.csrf_token }}
             <div class="form-group mt-2 mb-2">

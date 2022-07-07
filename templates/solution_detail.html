@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
         <h2>{% block title %} Solution {% endblock %}</h2>
     </div>
 
+    {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
+
+        {#  Display solution of the selected objective - the markdown has been converted to HTML #}
         {{ md_solution|safe }}
 
+        {# Display simple buttons - like the solution or go back the the objective's overview #}
         <div class="btn-toolbar" role="toolbar" aria-label="Solution Actions">
             {% if (current_user.creator_id != solution.creator_id) and (current_user.creator_role == "creator" or current_user.creator_role == "user") %}
                 <form action="{{ url_for('show_liked_solution', solution_id=solution.solution_id) }}" method="GET">
