@@ -1261,6 +1261,9 @@ def show_new_creator():
 
             send_mail([MAIL_ADMIN], f"{creator.creator_name} - Approval required",
                       "A new user has registered, please approve registration.")
+
+            send_mail([creator.creator_mail], f"{creator.creator_name} - Registration pending",
+                      "Your registration needs to be approved. This should not take too long.")
         return redirect(url_for('show_creators'))
     else:
         return render_template('account.html', form=form)
@@ -1835,7 +1838,8 @@ def show_objectives(world_id):
         solved_solutions = dict()
         solved_percentage = "0"
         if current_user.is_authenticated:
-            solutions = Solution.query.filter_by(creator_id=current_user.creator_id).order_by(Solution.solution_id.asc())
+            solutions = Solution.query.filter_by(creator_id=current_user.creator_id).order_by(
+                Solution.solution_id.asc())
             counter_solved = 0
             for objective in objectives:
                 for solution in solutions:
@@ -1905,7 +1909,8 @@ def show_objective(objective_id):
 
         solved_solution = 0
         if current_user.is_authenticated:
-            my_solutions = Solution.query.filter_by(creator_id=current_user.creator_id).order_by(Solution.solution_id.asc())
+            my_solutions = Solution.query.filter_by(creator_id=current_user.creator_id).order_by(
+                Solution.solution_id.asc())
             for my_solution in my_solutions:
                 if objective.objective_id == my_solution.objective_id:
                     solved_solution = 1
