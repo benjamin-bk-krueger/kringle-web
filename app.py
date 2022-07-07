@@ -1,43 +1,43 @@
-import json  # for JSON file handling and parsing
-import os  # for direct file system and environment access
-import re  # for regular expressions
-import random  # for captcha random numbers
+import json     # for JSON file handling and parsing
+import os       # for direct file system and environment access
+import re       # for regular expressions
+import random   # for captcha random numbers
 import logging  # enable logging
 
-import boto3  # for S3 storage, see https://stackabuse.com/file-management-with-aws-s3-python-and-flask/
-import markdown2  # for markdown parsing
+import boto3            # for S3 storage
+import markdown2        # for markdown parsing
 from flask import Flask, request, render_template, jsonify, send_file, escape, redirect, url_for, \
-    session  # most important Flask modules
+    session             # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, \
-    current_user  # to manage user sessions
-from flask_mail import Mail, Message  # to send mails
-from flask_marshmallow import Marshmallow  # to marshall our objects
-from flask_restx import Resource, Api  # to enable the REST API, see https://rahmanfadhil.com/flask-rest-api/
-from flask_sitemap import Sitemap  # to generate sitemap.xml
-from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
-from flask_wtf.csrf import CSRFProtect  # CSRF protection
+    current_user        # to manage user sessions
+from flask_mail import Mail, Message        # to send mails
+from flask_marshmallow import Marshmallow   # to marshall our objects
+from flask_restx import Resource, Api       # to enable the REST API
+from flask_sitemap import Sitemap           # to generate sitemap.xml
+from flask_sqlalchemy import SQLAlchemy     # object-relational mapper (ORM)
+from flask_wtf.csrf import CSRFProtect      # CSRF protection
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
 from werkzeug.utils import secure_filename  # to prevent path traversal attacks
-from logging.handlers import SMTPHandler  # get crashes via mail
+from logging.handlers import SMTPHandler    # get crashes via mail
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
     UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm, PersonForm, \
-    JunctionForm
+    JunctionForm    # Flask/Jinja template forms
 
 # the app configuration is done via environmental variables
-POSTGRES_URL = os.environ['POSTGRES_URL']  # DB connection data
+POSTGRES_URL = os.environ['POSTGRES_URL']           # DB connection data
 POSTGRES_USER = os.environ['POSTGRES_USER']
 POSTGRES_PW = os.environ['POSTGRES_PW']
 POSTGRES_DB = os.environ['POSTGRES_DB']
 SECRET_KEY = os.environ['SECRET_KEY']
-MAIL_SERVER = os.environ['MAIL_SERVER']  # mail host
+MAIL_SERVER = os.environ['MAIL_SERVER']             # mail host
 MAIL_SENDER = os.environ['MAIL_SENDER']
 MAIL_ADMIN = os.environ['MAIL_ADMIN']
 MAIL_ENABLE = int(os.environ['MAIL_ENABLE'])
-S3_ENDPOINT = os.environ['S3_ENDPOINT']  # where S3 buckets are located
+S3_ENDPOINT = os.environ['S3_ENDPOINT']             # where S3 buckets are located
 BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
 BUCKET_PRIVATE = os.environ['BUCKET_PRIVATE']
-UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"  # directory for game data
+UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"     # directory for game data
 DOWNLOAD_FOLDER = os.environ['HOME'] + "/downloads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 APP_VERSION = os.environ['APP_VERSION']
@@ -50,7 +50,7 @@ app = Flask(__name__,
             template_folder='templates')
 
 
-# global variables
+# enable global variables
 @app.context_processor
 def inject_version_and_prefix():
     return dict(version=APP_VERSION, prefix=APP_PREFIX)
@@ -107,11 +107,16 @@ login_manager.login_view = 'show_login'  # show this page if a login is required
 login_manager.init_app(app)
 
 
+# link the Login Manager to the correct user entry
 @login_manager.user_loader
 def load_user(creator_id):
     # since the creator_id is just the primary key of our user table, use it in the query for the user
     return Creator.query.get(int(creator_id))
 
+
+# --------------------------------------------------------------
+# ORM classes
+# --------------------------------------------------------------
 
 # ORM model classes, Creator table is used for the Login Manager
 # for each REST-enabled element, we add marshmallow schemas
@@ -752,6 +757,10 @@ class Voting(db.Model):
         return '<Voting %s>' % self.voting_id
 
 
+# --------------------------------------------------------------
+# Internal functions
+# --------------------------------------------------------------
+
 # S3 storage helper functions
 def upload_file(bucket, object_name, file_name):
     s3_client = boto3.client('s3', endpoint_url=S3_ENDPOINT)
@@ -950,7 +959,7 @@ def send_mail(recipients, mail_header, mail_body):
         mail.send(msg)
 
 
-# Internal helpers
+# Internal helpers - return choices list used in HTML select elements
 def get_rooms_choices(rooms):
     rooms_choices = list()
     for room in rooms:
@@ -974,30 +983,38 @@ def get_items_choices(items):
     return items_choices
 
 
+# Internal helpers - persist selected world in the session to improve navigation and remember selected world
 def update_session(world):
     session['world_id'] = world.world_id
     session['world_name'] = world.world_name
     session['reduced'] = world.reduced
 
 
+# --------------------------------------------------------------
 # Flask entry pages
+# --------------------------------------------------------------
+
+# Show site index containing a list of all active and available worlds
 @app.route(APP_PREFIX + '/web/', methods=['GET'])
 def show_index():
     worlds = World.query.filter_by(archived=0).order_by(World.world_name.asc())
     return render_template('index.html', worlds=worlds)
 
 
+# Show error page  - for all "hard" crashes a mail is sent to the site admin
 @app.route(APP_PREFIX + '/web/error', methods=['GET'])
 def show_error():
     return render_template('error.html')
 
 
+# Force user log-in and return to the site index afterwards
 @app.route(APP_PREFIX + '/web/logged', methods=['GET'])
 @login_required
 def show_logged():
     return redirect(url_for('show_index'))
 
 
+# Show user log-in page
 @app.route(APP_PREFIX + '/web/login', methods=['GET', 'POST'])
 def show_login():
     form = LoginForm()
@@ -1016,13 +1033,18 @@ def show_login():
         return render_template('login.html', form=form)
 
 
+# Log out user and return to the site index afterwards
 @app.route(APP_PREFIX + '/web/logout', methods=['GET'])
 def show_logout():
     logout_user()
     return redirect(url_for('show_index'))
 
 
+# --------------------------------------------------------------
 # S3 storage pages
+# --------------------------------------------------------------
+
+# Show list of all uploaded filed and upload form
 @app.route(APP_PREFIX + "/web/storage", methods=['GET', 'POST'])
 @login_required
 def show_storage():
@@ -1044,6 +1066,7 @@ def show_storage():
         return render_template('storage.html', contents=contents, creator_name=current_user.creator_name, form=form)
 
 
+# Download a specific file from S3 storage
 @app.route(APP_PREFIX + "/web/download/<string:filename>", methods=['GET'])
 @login_required
 def do_download(filename):
@@ -1058,6 +1081,7 @@ def do_download(filename):
     return send_file(output, as_attachment=True)
 
 
+# Remove a specific file from S3 storage
 @app.route(APP_PREFIX + "/web/delete/<string:filename>", methods=['GET'])
 @login_required
 def do_delete(filename):
@@ -1066,7 +1090,11 @@ def do_delete(filename):
     return redirect(url_for('show_storage'))
 
 
+# --------------------------------------------------------------
 # Flask HTML views to read and modify the database contents
+# --------------------------------------------------------------
+
+# Show statistics regarding available elements stored in the database and on S3 storage
 @app.route(APP_PREFIX + '/web/stats', methods=['GET'])
 def show_stats():
     counts = dict()
@@ -1087,17 +1115,20 @@ def show_stats():
     return render_template('stats.html', counts=counts, bucket_all=bucket_all)
 
 
+# Show information about all major releases
 @app.route(APP_PREFIX + '/web/release', methods=['GET'])
 def show_release():
     return render_template('release.html')
 
 
+# Displays an image file stored on S3 storage
 @app.route(APP_PREFIX + '/web/image/<string:filename>', methods=['GET'])
 @login_required
 def show_image(filename):
     return render_template('image.html', creator_name=current_user.creator_name, filename=filename)
 
 
+# Displays a form to send a message to the site admin - implements a simple captcha as well
 @app.route(APP_PREFIX + '/web/contact', methods=['GET', 'POST'])
 def show_contact():
     form = ContactForm()
@@ -1136,12 +1167,14 @@ def show_contact():
         return render_template('contact.html', form=form, random1=random1, random2=random2, check_captcha=check_captcha)
 
 
+# Displays all available creators
 @app.route(APP_PREFIX + '/web/creators', methods=['GET'])
 def show_creators():
     creators = Creator.query.order_by(Creator.creator_name.asc())
     return render_template('creator.html', creators=creators)
 
 
+# Shows information about a specific creator
 @app.route(APP_PREFIX + '/web/creator/<int:creator_id>', methods=['GET'])
 def show_creator(creator_id):
     creator = Creator.query.filter_by(creator_id=creator_id).first()
@@ -1151,6 +1184,7 @@ def show_creator(creator_id):
         return render_template('error.html')
 
 
+# Displays a form to create a new user (aka creator)
 @app.route(APP_PREFIX + '/web/new_creator', methods=['GET', 'POST'])
 def show_new_creator():
     form = AccountForm()
@@ -1178,6 +1212,7 @@ def show_new_creator():
         return render_template('account.html', form=form)
 
 
+# Displays various forms to change the currently logged-in user
 @app.route(APP_PREFIX + '/web/my_creator', methods=['GET'])
 @login_required
 def show_my_creator():
@@ -1193,6 +1228,7 @@ def show_my_creator():
     return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
 
 
+# Post a change of user data or display error message if some data was not entered correctly
 @app.route(APP_PREFIX + '/web/my_mail_creator', methods=['POST'])
 @login_required
 def show_my_mail_creator():
@@ -1223,6 +1259,7 @@ def show_my_mail_creator():
         return render_template('error.html')
 
 
+# Post a user's password change or display error message if some data was not entered correctly
 @app.route(APP_PREFIX + '/web/my_pass_creator', methods=['POST'])
 @login_required
 def show_my_pass_creator():
@@ -1247,6 +1284,7 @@ def show_my_pass_creator():
         return render_template('error.html')
 
 
+# Delete a user and return to the site index afterwards
 @app.route(APP_PREFIX + '/web/my_del_creator', methods=['POST'])
 @login_required
 def show_my_del_creator():
@@ -1271,6 +1309,7 @@ def show_my_del_creator():
         return render_template('error.html')
 
 
+# Displays all available worlds
 @app.route(APP_PREFIX + '/web/worlds', methods=['GET'])
 def show_worlds():
     form = WorldForm()
@@ -1279,6 +1318,7 @@ def show_worlds():
     return render_template('world.html', worlds_active=worlds_active, worlds_archived=worlds_archived, form=form)
 
 
+# Post a new world - if it doesn't already exist
 @app.route(APP_PREFIX + '/web/worlds', methods=['POST'])
 @login_required
 def show_worlds_p():
@@ -1300,6 +1340,7 @@ def show_worlds_p():
         return render_template('error.html')
 
 
+# Shows information about a specific world
 @app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['GET'])
 def show_world(world_id):
     form = WorldForm()
@@ -1319,6 +1360,7 @@ def show_world(world_id):
         return render_template('error.html')
 
 
+# Post a change in a world's data
 @app.route(APP_PREFIX + '/web/world/<int:world_id>', methods=['POST'])
 @login_required
 def show_world_p(world_id):
@@ -1335,6 +1377,7 @@ def show_world_p(world_id):
         return render_template('error.html')
 
 
+# Delete a specific world - and all included elements!!!
 @app.route(APP_PREFIX + '/web/deleted_world/<int:world_id>', methods=['GET'])
 @login_required
 def show_deleted_world(world_id):
@@ -1343,6 +1386,7 @@ def show_deleted_world(world_id):
     return redirect(url_for('show_worlds'))
 
 
+# Switch the world's visibility - it may be open (solutions can be seen) or closed (no solutions can be seen)
 @app.route(APP_PREFIX + '/web/switched_world/<int:world_id>', methods=['GET'])
 @login_required
 def show_switched_world(world_id):
@@ -1359,6 +1403,7 @@ def show_switched_world(world_id):
         return render_template('error.html')
 
 
+# Archive a specific world - archived worlds are not shown on the site index page
 @app.route(APP_PREFIX + '/web/archived_world/<int:world_id>', methods=['GET'])
 @login_required
 def show_archived_world(world_id):
@@ -1375,6 +1420,7 @@ def show_archived_world(world_id):
         return render_template('error.html')
 
 
+# Switch the world's mode - it may be Kringle (containing additional elements) or Standard (missing items, persons, etc)
 @app.route(APP_PREFIX + '/web/reduced_world/<int:world_id>', methods=['GET'])
 @login_required
 def show_reduced_world(world_id):
@@ -1394,6 +1440,7 @@ def show_reduced_world(world_id):
         return render_template('error.html')
 
 
+# Displays all available rooms
 @app.route(APP_PREFIX + '/web/rooms/<int:world_id>', methods=['GET'])
 def show_rooms(world_id):
     form = RoomForm()
@@ -1408,6 +1455,7 @@ def show_rooms(world_id):
         return render_template('error.html')
 
 
+# Post a new room - if it doesn't already exist
 @app.route(APP_PREFIX + '/web/rooms/<int:world_id>', methods=['POST'])
 @login_required
 def show_rooms_p(world_id):
@@ -1430,6 +1478,7 @@ def show_rooms_p(world_id):
         return render_template('error.html')
 
 
+# Shows information about a specific room - and links to all attached elements
 @app.route(APP_PREFIX + '/web/room/<int:room_id>', methods=['GET'])
 def show_room(room_id):
     form = RoomForm()
@@ -1458,6 +1507,7 @@ def show_room(room_id):
         return render_template('error.html')
 
 
+# Post a change in a room's data
 @app.route(APP_PREFIX + '/web/room/<int:room_id>', methods=['POST'])
 @login_required
 def show_room_p(room_id):
@@ -1474,6 +1524,7 @@ def show_room_p(room_id):
         return render_template('error.html')
 
 
+# Delete a specific room - and all included elements!!!
 @app.route(APP_PREFIX + '/web/deleted_room/<int:room_id>', methods=['GET'])
 @login_required
 def show_deleted_room(room_id):
@@ -1489,6 +1540,7 @@ def show_deleted_room(room_id):
         return render_template('error.html')
 
 
+# Displays all available items
 @app.route(APP_PREFIX + '/web/items/<int:world_id>', methods=['GET'])
 def show_items(world_id):
     form = ItemForm()
@@ -1507,6 +1559,7 @@ def show_items(world_id):
         return render_template('error.html')
 
 
+# Post a new item - if it doesn't already exist
 @app.route(APP_PREFIX + '/web/items/<int:world_id>', methods=['POST'])
 @login_required
 def show_items_p(world_id):
@@ -1530,6 +1583,7 @@ def show_items_p(world_id):
         return render_template('error.html')
 
 
+# Shows information about a specific item
 @app.route(APP_PREFIX + '/web/item/<int:item_id>', methods=['GET'])
 def show_item(item_id):
     form = ItemForm()
@@ -1555,6 +1609,7 @@ def show_item(item_id):
         return render_template('error.html')
 
 
+# Post a change in am item's data
 @app.route(APP_PREFIX + '/web/item/<int:item_id>', methods=['POST'])
 @login_required
 def show_item_p(item_id):
@@ -1573,6 +1628,7 @@ def show_item_p(item_id):
         return render_template('error.html')
 
 
+# Delete a specific item
 @app.route(APP_PREFIX + '/web/deleted_item/<int:item_id>', methods=['GET'])
 @login_required
 def show_deleted_item(item_id):
@@ -1588,6 +1644,7 @@ def show_deleted_item(item_id):
         return render_template('error.html')
 
 
+# Displays all available persons
 @app.route(APP_PREFIX + '/web/persons/<int:world_id>', methods=['GET'])
 def show_persons(world_id):
     form = PersonForm()
@@ -1606,6 +1663,7 @@ def show_persons(world_id):
         return render_template('error.html')
 
 
+# Post a new person - if it doesn't already exist
 @app.route(APP_PREFIX + '/web/persons/<int:world_id>', methods=['POST'])
 @login_required
 def show_persons_p(world_id):
@@ -1629,6 +1687,7 @@ def show_persons_p(world_id):
         return render_template('error.html')
 
 
+# Shows information about a specific person
 @app.route(APP_PREFIX + '/web/person/<int:person_id>', methods=['GET'])
 def show_person(person_id):
     form = PersonForm()
@@ -1654,6 +1713,7 @@ def show_person(person_id):
         return render_template('error.html')
 
 
+# Post a change in a person's data
 @app.route(APP_PREFIX + '/web/person/<int:person_id>', methods=['POST'])
 @login_required
 def show_person_p(person_id):
@@ -1672,6 +1732,7 @@ def show_person_p(person_id):
         return render_template('error.html')
 
 
+# Delete a specific person
 @app.route(APP_PREFIX + '/web/deleted_person/<int:person_id>', methods=['GET'])
 @login_required
 def show_deleted_person(person_id):
@@ -1687,6 +1748,7 @@ def show_deleted_person(person_id):
         return render_template('error.html')
 
 
+# Displays all available objectives
 @app.route(APP_PREFIX + '/web/objectives/<int:world_id>', methods=['GET'])
 def show_objectives(world_id):
     form = ObjectiveForm()
@@ -1710,6 +1772,7 @@ def show_objectives(world_id):
         return render_template('objective.html', objectives=objectives, world=world, creator=creator, form=form)
 
 
+# Post a new objective - if it doesn't already exist
 @app.route(APP_PREFIX + '/web/objectives/<int:world_id>', methods=['POST'])
 @login_required
 def show_objectives_p(world_id):
@@ -1738,6 +1801,7 @@ def show_objectives_p(world_id):
         return render_template('error.html')
 
 
+# Shows information about a specific objective - including its quest and solutions
 @app.route(APP_PREFIX + '/web/objective/<int:objective_id>', methods=['GET'])
 def show_objective(objective_id):
     form = ObjectiveForm()
@@ -1792,6 +1856,7 @@ def show_objective(objective_id):
         return render_template('error.html')
 
 
+# Post a change in an objective's data
 @app.route(APP_PREFIX + '/web/objective/<int:objective_id>', methods=['POST'])
 @login_required
 def show_objective_p(objective_id):
@@ -1814,6 +1879,7 @@ def show_objective_p(objective_id):
         return render_template('error.html')
 
 
+# Delete a specific objective - and all included elements!!!
 @app.route(APP_PREFIX + '/web/deleted_objective/<int:objective_id>', methods=['GET'])
 @login_required
 def show_deleted_objective(objective_id):
@@ -1829,6 +1895,7 @@ def show_deleted_objective(objective_id):
         return render_template('error.html')
 
 
+# Displays all available junctions
 @app.route(APP_PREFIX + '/web/junctions/<int:world_id>', methods=['GET'])
 def show_junctions(world_id):
     form = JunctionForm()
@@ -1848,6 +1915,7 @@ def show_junctions(world_id):
         return render_template('error.html')
 
 
+# Post a new junction - if it doesn't already exist
 @app.route(APP_PREFIX + '/web/junctions/<int:world_id>', methods=['POST'])
 @login_required
 def show_junctions_p(world_id):
@@ -1873,6 +1941,7 @@ def show_junctions_p(world_id):
         return render_template('error.html')
 
 
+# Shows information about a specific junction
 @app.route(APP_PREFIX + '/web/junction/<int:junction_id>', methods=['GET'])
 def show_junction(junction_id):
     form = JunctionForm()
@@ -1900,6 +1969,7 @@ def show_junction(junction_id):
         return render_template('error.html')
 
 
+# Post a change in an junction's data
 @app.route(APP_PREFIX + '/web/junction/<int:junction_id>', methods=['POST'])
 @login_required
 def show_junction_p(junction_id):
@@ -1917,6 +1987,7 @@ def show_junction_p(junction_id):
         return render_template('error.html')
 
 
+# Delete a specific junction
 @app.route(APP_PREFIX + '/web/deleted_junction/<int:junction_id>', methods=['GET'])
 @login_required
 def show_deleted_junction(junction_id):
@@ -1932,6 +2003,7 @@ def show_deleted_junction(junction_id):
         return render_template('error.html')
 
 
+# Shows or posts an objective's challenge to be solved (aka quest)
 @app.route(APP_PREFIX + '/web/quest/<int:objective_id>', methods=['GET', 'POST'])
 @login_required
 def show_quest(objective_id):
@@ -1968,6 +2040,7 @@ def show_quest(objective_id):
             return render_template('error.html')
 
 
+# Shows other users' solutions - if the solution and world is open/public
 @app.route(APP_PREFIX + '/web/solution/<int:solution_id>', methods=['GET'])
 def show_solution(solution_id):
     solution = Solution.query.filter_by(solution_id=solution_id).first()
@@ -1992,6 +2065,7 @@ def show_solution(solution_id):
         return render_template('error.html')
 
 
+# Like/Unlike other users' solutions and return to its objective page afterwards
 @app.route(APP_PREFIX + '/web/liked_solution/<int:solution_id>', methods=['GET'])
 @login_required
 def show_liked_solution(solution_id):
@@ -2018,6 +2092,7 @@ def show_liked_solution(solution_id):
         return render_template('error.html')
 
 
+# Shows or posts an objective's solution
 @app.route(APP_PREFIX + '/web/my_solution/<int:objective_id>', methods=['GET', 'POST'])
 @login_required
 def show_my_solution(objective_id):
@@ -2068,6 +2143,7 @@ def show_my_solution(objective_id):
             return render_template('error.html')
 
 
+# Delete a specific solution
 @app.route(APP_PREFIX + '/web/my_deleted_solution/<int:objective_id>', methods=['GET'])
 @login_required
 def show_deleted_solution(objective_id):
@@ -2084,6 +2160,7 @@ def show_deleted_solution(objective_id):
         return render_template('error.html')
 
 
+# Shows a full report containing information about the world, its objectives and solutions in different formats
 @app.route(APP_PREFIX + '/web/report/<string:format_type>/<int:world_id>', methods=['GET'])
 @login_required
 def show_report(world_id, format_type):
@@ -2136,6 +2213,7 @@ def show_report(world_id, format_type):
         return render_template('report.html', md_report=md_report)
 
 
+# Show a report containing information about a specific objective and its solution in different formats
 @app.route(APP_PREFIX + '/web/report_single/<string:format_type>/<int:objective_id>', methods=['GET'])
 @login_required
 def show_report_single(objective_id, format_type):
