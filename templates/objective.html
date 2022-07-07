@@ -14,7 +14,7 @@
             No entries found.<br>
         {% else %}
             <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: {{ solved_percentage }}%" aria-valuenow="{{ solved_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar" role="progressbar" style="width: {{ solved_percentage }}%" aria-valuenow="{{ solved_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ solved_percentage }}% solved</div>
             </div>
             <div class="list-group">
                 {% for objective in objectives %}

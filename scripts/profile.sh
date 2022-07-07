@@ -7,6 +7,7 @@ export SECRET_KEY=secret_key
 export FLASK_ENV=production
 export FLASK_DEBUG=0
 export S3_ENDPOINT=https://eu2.contabostorage.com
+export S3_QUOTA=100
 export BUCKET_PUBLIC=kringle-public
 export BUCKET_PRIVATE=kringle-private
 export MAIL_ENABLE=1

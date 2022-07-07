@@ -117,6 +117,15 @@
         Click on the options to download or delete them.<br>
         If you click on <i>copy markdown link</i> the link to that image which you can use in your markdown snippets will be copied to your clipboard<br><br>
 
+        {%  if space_used > 100 %}
+            <div class="alert alert-danger" role="alert">
+                Quota exceed. No more files can be uploaded!
+            </div>
+        {%  endif %}
+
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: {{ space_used }}%" aria-valuenow="{{ space_used }}" aria-valuemin="0" aria-valuemax="100">{{ space_used_in_mb }} MB used ({{ space_used }}% of quota )</div>
+        </div>
         <ul class="list-group">
             {% for item in contents %}
                 <li class="list-group-item">

@@ -35,6 +35,7 @@ MAIL_SENDER = os.environ['MAIL_SENDER']
 MAIL_ADMIN = os.environ['MAIL_ADMIN']
 MAIL_ENABLE = int(os.environ['MAIL_ENABLE'])
 S3_ENDPOINT = os.environ['S3_ENDPOINT']             # where S3 buckets are located
+S3_QUOTA = os.environ['S3_QUOTA']
 BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
 BUCKET_PRIVATE = os.environ['BUCKET_PRIVATE']
 UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"     # directory for game data
@@ -1049,10 +1050,13 @@ def show_logout():
 @login_required
 def show_storage():
     form = UploadForm()
+    space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"{current_user.creator_name}/") / 1024 / 1024), 2)
+    space_used = int(space_used_in_mb / int(S3_QUOTA) * 100)
+
     if request.method == 'POST' and form.validate_on_submit():
         filename = secure_filename(form.file.data.filename)
 
-        if allowed_file(filename):
+        if allowed_file(filename) and space_used < 100:
             folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
             local_file = os.path.join(folder_name, filename)
             remote_file = f"{current_user.creator_name}/{filename}"
@@ -1063,7 +1067,8 @@ def show_storage():
         return redirect(url_for('show_storage'))
     else:
         contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
-        return render_template('storage.html', contents=contents, creator_name=current_user.creator_name, form=form)
+        return render_template('storage.html', contents=contents, creator_name=current_user.creator_name,
+                               space_used_in_mb=space_used_in_mb, space_used=space_used, form=form)
 
 
 # Download a specific file from S3 storage

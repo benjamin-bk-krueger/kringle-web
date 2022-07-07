@@ -12,6 +12,7 @@ services:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - S3_ENDPOINT=https://eu2.contabostorage.com
+      - S3_QUOTA=100
       - BUCKET_PUBLIC=kringle-public
       - BUCKET_PRIVATE=kringle-private
       - MAIL_ENABLE=0
