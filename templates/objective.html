@@ -13,9 +13,12 @@
         {% if objectives.count() == 0 %}
             No entries found.<br>
         {% else %}
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ solved_percentage }}%" aria-valuenow="{{ solved_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
             <div class="list-group">
                 {% for objective in objectives %}
-                    <a href="{{ url_for('show_objective', objective_id=objective.objective_id)}}" class="list-group-item">{{ objective.objective_title }} ({{ objective.objective_name }})</a>
+                    <a href="{{ url_for('show_objective', objective_id=objective.objective_id)}}" class="list-group-item">{% if solved_solutions[objective.objective_id] == 1 %}<i class="bi bi-star-fill"></i> {% else %}<i class="bi bi-star"></i> {% endif %} {{ objective.objective_title }} ({{ objective.objective_name }})</a>
                 {% endfor %}
             </div>
         {% endif %}

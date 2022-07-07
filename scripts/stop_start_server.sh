@@ -18,7 +18,7 @@ cp -v *.py *.sh *.yml /home/kringle/
 cp -v templates/* /home/kringle/templates/
 cp -v static/* /home/kringle/static/
 cp -vr docs/* /home/kringle/docs/
-git log -1 > /home/kringle/static/gitlog.txt
+git log -1 > /home/kringle/gitlog.txt
 
 # Update mkdocs files
 cd /home/kringle/

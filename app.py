@@ -22,7 +22,7 @@ from logging.handlers import SMTPHandler    # get crashes via mail
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
     UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm, PersonForm, \
-    JunctionForm    # Flask/Jinja template forms
+    JunctionForm, QuestSolForm    # Flask/Jinja template forms
 
 # the app configuration is done via environmental variables
 POSTGRES_URL = os.environ['POSTGRES_URL']           # DB connection data
@@ -1761,6 +1761,18 @@ def show_objectives(world_id):
         objectives = Objective.query.filter_by(world_id=world_id).order_by(Objective.objective_title.asc())
         items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
 
+        solved_solutions = dict()
+        solved_percentage = "0"
+        if current_user.is_authenticated:
+            solutions = Solution.query.filter_by(creator_id=current_user.creator_id).order_by(Solution.solution_id.asc())
+            counter_solved = 0
+            for objective in objectives:
+                for solution in solutions:
+                    if objective.objective_id == solution.objective_id:
+                        solved_solutions[objective.objective_id] = 1
+                        counter_solved = counter_solved + 1
+            solved_percentage = str(int((counter_solved / objectives.count()) * 100))
+
         form.room.choices = get_rooms_choices(rooms)
         if world.reduced == 0:
             form.supported.choices = get_objectives_choices(objectives)
@@ -1769,7 +1781,8 @@ def show_objectives(world_id):
             form.supported.choices = ["none"]
             form.requires.choices = ["none"]
 
-        return render_template('objective.html', objectives=objectives, world=world, creator=creator, form=form)
+        return render_template('objective.html', objectives=objectives, world=world, creator=creator,
+                               solved_solutions=solved_solutions, solved_percentage=solved_percentage, form=form)
 
 
 # Post a new objective - if it doesn't already exist
@@ -1819,6 +1832,13 @@ def show_objective(objective_id):
         objectives = Objective.query.filter_by(world_id=world.world_id).order_by(Objective.objective_title.asc())
         items = Item.query.filter_by(world_id=world.world_id).order_by(Item.item_name.asc())
 
+        solved_solution = 0
+        if current_user.is_authenticated:
+            my_solutions = Solution.query.filter_by(creator_id=current_user.creator_id).order_by(Solution.solution_id.asc())
+            for my_solution in my_solutions:
+                if objective.objective_id == my_solution.objective_id:
+                    solved_solution = 1
+
         voting_all = dict()
         creator_all = dict()
         for solution in solutions:
@@ -1851,7 +1871,7 @@ def show_objective(objective_id):
 
         return render_template('objective_detail.html', objective=objective, md_quest=md_quest, solutions=solutions,
                                world=world, voting_all=voting_all, creator_all=creator_all, room=room, creator=creator,
-                               form=form)
+                               solved_solution=solved_solution, form=form)
     else:
         return render_template('error.html')
 
@@ -1969,7 +1989,7 @@ def show_junction(junction_id):
         return render_template('error.html')
 
 
-# Post a change in an junction's data
+# Post a change in a junction's data
 @app.route(APP_PREFIX + '/web/junction/<int:junction_id>', methods=['POST'])
 @login_required
 def show_junction_p(junction_id):
@@ -2007,6 +2027,7 @@ def show_deleted_junction(junction_id):
 @app.route(APP_PREFIX + '/web/quest/<int:objective_id>', methods=['GET', 'POST'])
 @login_required
 def show_quest(objective_id):
+    form = QuestSolForm()
     if request.method == 'POST':
         objective = Objective.query.filter_by(objective_id=objective_id).first()
         if objective:
@@ -2030,10 +2051,11 @@ def show_quest(objective_id):
             if world.creator_id == current_user.creator_id:
                 if objective.quest is not None:
                     return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'),
-                                           objective_id=objective_id, world_id=objective.world_id, contents=contents)
+                                           objective_id=objective_id, world_id=objective.world_id, contents=contents,
+                                           form=form)
                 else:
                     return render_template('quest_detail.html', quest="", objective_id=objective_id,
-                                           world_id=objective.world_id, contents=contents)
+                                           world_id=objective.world_id, contents=contents, form=form)
             else:
                 return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
@@ -2096,6 +2118,7 @@ def show_liked_solution(solution_id):
 @app.route(APP_PREFIX + '/web/my_solution/<int:objective_id>', methods=['GET', 'POST'])
 @login_required
 def show_my_solution(objective_id):
+    form = QuestSolForm()
     if request.method == 'POST':
         objective = Objective.query.filter_by(objective_id=objective_id).first()
         if objective:
@@ -2134,11 +2157,11 @@ def show_my_solution(objective_id):
             if solution is not None:
                 return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'),
                                        visible=solution.visible, md_quest=md_quest, objective_id=objective_id,
-                                       world_id=objective.world_id, creator=creator, contents=contents)
+                                       world_id=objective.world_id, creator=creator, contents=contents, form=form)
             else:
                 return render_template('solution_my_detail.html', solution="", visible=0, md_quest=md_quest,
                                        objective_id=objective_id, world_id=objective.world_id, creator=creator,
-                                       contents=contents)
+                                       contents=contents, form=form)
         else:
             return render_template('error.html')
 

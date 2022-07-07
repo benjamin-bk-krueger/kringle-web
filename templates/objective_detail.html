@@ -3,7 +3,7 @@
 {% block content %}
     {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
-        <h2>{% block title %} {{ objective.objective_title }} {% endblock %}</h2>
+        <h2>{% block title %} {{ objective.objective_title }} {% endblock %} ({% if solved_solution == 1 %}<i class="bi bi-star-fill"></i> Solved{% else %}<i class="bi bi-star"></i> Unsolved{% endif %})</h2>
     </div>
 
     {#  Page content #}

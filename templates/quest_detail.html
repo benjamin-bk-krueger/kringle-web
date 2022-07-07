@@ -31,6 +31,7 @@
 
         {# Display Markdown editor form - edit an objective's quest #}
         <form action="{{ url_for('show_quest', objective_id=objective_id)}}" id="quest" method="POST">
+            {{ form.csrf_token }}
             <div class="mb-3">
                 <label for="quest">Edit Content:</label>
                 <textarea name="quest" rows="10" id="quest" class="form-control">{{ quest }}</textarea>

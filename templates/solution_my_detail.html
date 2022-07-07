@@ -57,6 +57,7 @@
 
         {# Display Markdown editor form - edit an objective's solution #}
         <form action="{{ url_for('show_my_solution', objective_id=objective_id)}}" id="solution" method="POST">
+            {{ form.csrf_token }}
             <div class="mb-3">
                 <label for="solution">Edit Solution:</label>
                 <textarea name="solution" rows="10" id="solution" class="form-control">{{ solution }}</textarea>

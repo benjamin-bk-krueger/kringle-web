@@ -96,3 +96,7 @@ class ContactForm(FlaskForm):
     check_captcha = HiddenField(default='0')
     captcha = StringField('Captcha', validators=[InputRequired(), EqualTo('check_captcha', message='Captcha does not '
                                                                                                    'match')])
+
+
+class QuestSolForm(FlaskForm):
+    operation = HiddenField(default='quest')
