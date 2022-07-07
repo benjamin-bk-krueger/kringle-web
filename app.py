@@ -22,7 +22,7 @@ from logging.handlers import SMTPHandler    # get crashes via mail
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
     UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm, PersonForm, \
-    JunctionForm, QuestSolForm    # Flask/Jinja template forms
+    JunctionForm, QuestSolForm, FileForm    # Flask/Jinja template forms
 
 # the app configuration is done via environmental variables
 POSTGRES_URL = os.environ['POSTGRES_URL']           # DB connection data
@@ -780,6 +780,12 @@ def delete_file(bucket, object_name):
     s3.Object(bucket, object_name).delete()
 
 
+def rename_file(bucket, object_name_new, object_name_old):
+    s3 = boto3.resource('s3', endpoint_url=S3_ENDPOINT)
+    s3.Object(bucket, object_name_new).copy_from(CopySource=f"{bucket}/{object_name_old}")
+    s3.Object(bucket, object_name_old).delete()
+
+
 def list_files(bucket, creator_name):
     s3 = boto3.client('s3', endpoint_url=S3_ENDPOINT)
     contents = []
@@ -1050,6 +1056,7 @@ def show_logout():
 @login_required
 def show_storage():
     form = UploadForm()
+    form2 = FileForm()
     space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"{current_user.creator_name}/") / 1024 / 1024), 2)
     space_used = int(space_used_in_mb / int(S3_QUOTA) * 100)
 
@@ -1068,7 +1075,24 @@ def show_storage():
     else:
         contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
         return render_template('storage.html', contents=contents, creator_name=current_user.creator_name,
-                               space_used_in_mb=space_used_in_mb, space_used=space_used, form=form)
+                               space_used_in_mb=space_used_in_mb, space_used=space_used, form=form, form2=form2)
+
+
+# Change a filename
+@app.route(APP_PREFIX + "/web/rename", methods=['POST'])
+@login_required
+def do_rename():
+    form = FileForm()
+    filename_new = escape(request.form["filename_new"])
+    filename_old = escape(request.form["filename_old"])
+
+    remote_file_new = f"{current_user.creator_name}/{secure_filename(filename_new)}"
+    remote_file_old = f"{current_user.creator_name}/{secure_filename(filename_old)}"
+
+    if remote_file_new != remote_file_old and allowed_file(remote_file_new):
+        rename_file(BUCKET_PUBLIC, remote_file_new, remote_file_old)
+
+    return redirect(url_for('show_storage'))
 
 
 # Download a specific file from S3 storage

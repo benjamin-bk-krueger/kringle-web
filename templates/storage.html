@@ -81,6 +81,28 @@
         }
     </script>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+
+    {#  More Javascript magic: enable list group filter #}
+    <script>
+        $(document).ready(function(){
+            $("#myInput").on("keyup", function() {
+                let value = $(this).val().toLowerCase();
+                $("#myList li").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+
+    {#  change the form fields - rename file #}
+    <script>
+        function set_filename_field(filename) {
+            document.forms['filename_change']['filename_new'].value = filename;
+            document.forms['filename_change']['filename_old'].value = filename;
+        }
+    </script>
+
     {#  Page content #}
     <div class="container-fluid pb-3 mt-2 mb-2">
 
@@ -123,13 +145,41 @@
             </div>
         {%  endif %}
 
+        {# Modal dialog window - edit currently selected file #}
+        <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit File Name</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('do_rename') }}" id="filename_change" method="POST">
+                            {{ form2.csrf_token }}
+                            <div class="form-group mt-2 mb-2">
+                                <label for="{{ form2.filename_new.name }}">{{ form2.filename_new.label }}</label>
+                                {{ form2.filename_new(size=20, class="form-control") }}
+                            </div>
+                            {{ form2.filename_old }}
+                            <button type="submit" class="btn btn-primary mt-4 mb-4">Update</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <input class="form-control mb-3" id="myInput" type="text" placeholder="Search..">
+
         <div class="progress">
             <div class="progress-bar" role="progressbar" style="width: {{ space_used }}%" aria-valuenow="{{ space_used }}" aria-valuemin="0" aria-valuemax="100">{{ space_used_in_mb }} MB used ({{ space_used }}% of quota )</div>
         </div>
-        <ul class="list-group">
+        <ul class="list-group" id="myList">
             {% for item in contents %}
                 <li class="list-group-item">
-                    <a href="{{ url_for('show_image', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-eye"></i></a> - <a href="{{ url_for('do_download', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-download"></i></a> - <a href="{{ url_for('do_delete', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-trash"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-html');return false;"><i class="bi bi-link"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-md');return false;"><i class="bi bi-markdown"></i></a> {{ item.Key }}
+                    <a href="{{ url_for('show_image', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-eye"></i></a> - <a href="{{ url_for('do_download', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-download"></i></a> - <a href="#" onclick="set_filename_field('{{ item.Key | replace(creator_name + "/", "") }}');" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a> - <a href="{{ url_for('do_delete', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-trash"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-html');return false;"><i class="bi bi-link"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-md');return false;"><i class="bi bi-markdown"></i></a> {{ item.Key }}
                 </li>
             {% endfor %}
         </ul>

@@ -100,3 +100,8 @@ class ContactForm(FlaskForm):
 
 class QuestSolForm(FlaskForm):
     operation = HiddenField(default='quest')
+
+
+class FileForm(FlaskForm):
+    filename_new = StringField('File Name', validators=[InputRequired()])
+    filename_old = HiddenField(default='filename')
