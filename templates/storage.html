@@ -161,10 +161,10 @@
                                 {{ form2.filename_new(size=20, class="form-control") }}
                             </div>
                             {{ form2.filename_old }}
-                            <button type="submit" class="btn btn-primary mt-4 mb-4">Update</button>
                         </form>
                     </div>
                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary mt-4 mb-4" form="filename_change">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -185,7 +185,12 @@
         <ul class="list-group" id="myList">
             {% for item in contents %}
                 <li class="list-group-item">
-                    <a href="{{ url_for('show_image', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-eye"></i></a> - <a href="{{ url_for('do_download', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-download"></i></a> - <a href="#" onclick="set_filename_field('{{ item.Key | replace(creator_name + "/", "") }}');" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a> - <a href="{{ url_for('do_delete', filename=(item.Key | replace(creator_name + "/", ""))) }}"><i class="bi bi-trash"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-html');return false;"><i class="bi bi-link"></i></a> - <a href="#" onclick="CopyToClipboard('{{ item.Key }}-md');return false;"><i class="bi bi-markdown"></i></a> {{ item.Key }}
+                    <a href="{{ url_for('show_image', filename=(item.Key | replace(creator_name + "/", ""))) }}" data-toggle="tooltip" title="View image"><i class="bi bi-eye"></i></a> -
+                    <a href="{{ url_for('do_download', filename=(item.Key | replace(creator_name + "/", ""))) }}" data-toggle="tooltip" title="Download image"><i class="bi bi-download"></i></a> -
+                    <a href="#" onclick="set_filename_field('{{ item.Key | replace(creator_name + "/", "") }}');" data-toggle="tooltip" title="Rename image" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a> -
+                    <a href="{{ url_for('do_delete', filename=(item.Key | replace(creator_name + "/", ""))) }}" data-toggle="tooltip" title="Delete image"><i class="bi bi-trash"></i></a> -
+                    <a href="#" onclick="CopyToClipboard('{{ item.Key }}-html');return false;" data-toggle="tooltip" title="Copy HTML link"><i class="bi bi-link"></i></a> -
+                    <a href="#" onclick="CopyToClipboard('{{ item.Key }}-md');return false;" data-toggle="tooltip" title="Create Markdown link"><i class="bi bi-markdown"></i></a> {{ item.Key }}
                 </li>
             {% endfor %}
         </ul>

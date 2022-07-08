@@ -125,7 +125,7 @@
                     <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to open junction</a></li>
                     <li><hr class="dropdown-divider"></li>
                     {% for junction in junctions %}
-                        <li><a class="dropdown-item" href="{{ url_for('show_junction', junction_id=junction.junction_id)}}">{{ junction.junction_id }}</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('show_junction', junction_id=junction.junction_id)}}">{{ junction.junction_id }} to {{ room_names[junction.dest_id] }}</a></li>
                     {% endfor %}
                 </ul>
             {% endif %}
@@ -152,16 +152,16 @@
 
             {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
-                <a href="{{ url_for('show_rooms', world_id=room.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+                <a href="{{ url_for('show_rooms', world_id=room.world_id) }}" data-toggle="tooltip" title="All Rooms" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
             </div>
             <div class="btn-group me-2" role="group" aria-label="Third group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-                    <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal" ><i class="bi bi-pencil"></i></a>
+                    <a href="#" class="btn btn-primary mt-4 mb-4" data-toggle="tooltip" title="Edit Room" data-bs-toggle="modal" data-bs-target="#myModal" ><i class="bi bi-pencil"></i></a>
                 {% endif %}
             </div>
             <div class="btn-group me-2" role="group" aria-label="Fourth group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-                    <a href="#" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
+                    <a href="#" class="btn btn-danger mt-4 mb-4" data-toggle="tooltip" title="Delete Room" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
                 {% endif %}
             </div>
         </div>

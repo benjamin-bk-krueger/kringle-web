@@ -103,16 +103,16 @@
 
             {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
-                <a href="{{ url_for('show_persons', world_id=person.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+                <a href="{{ url_for('show_persons', world_id=person.world_id) }}" data-toggle="tooltip" title="All Persons" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
             </div>
             <div class="btn-group me-2" role="group" aria-label="Third group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-                    <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal" ><i class="bi bi-pencil"></i></a>
+                    <a href="#" class="btn btn-primary mt-4 mb-4" data-toggle="tooltip" title="Edit Person" data-bs-toggle="modal" data-bs-target="#myModal" ><i class="bi bi-pencil"></i></a>
                 {% endif %}
             </div>
             <div class="btn-group me-2" role="group" aria-label="Fourth group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-                    <a href="#" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
+                    <a href="#" class="btn btn-danger mt-4 mb-4" data-toggle="tooltip" title="Delete Person" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
                 {% endif %}
             </div>
         </div>

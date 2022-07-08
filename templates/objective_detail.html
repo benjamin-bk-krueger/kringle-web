@@ -142,22 +142,22 @@
 
             {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
-                <a href="{{ url_for('show_objectives', world_id=objective.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+                <a href="{{ url_for('show_objectives', world_id=objective.world_id) }}" data-toggle="tooltip" title="All Objectives" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
             </div>
             <div class="btn-group me-2" role="group" aria-label="Third group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-                    <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a>
-                    <a href="{{ url_for('show_quest', objective_id=objective.objective_id)}}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-question-square"></i></a>
+                    <a href="#" class="btn btn-primary mt-4 mb-4" data-toggle="tooltip" title="Edit Objective" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a>
+                    <a href="{{ url_for('show_quest', objective_id=objective.objective_id)}}" data-toggle="tooltip" title="Edit Quest" class="btn btn-primary mt-4 mb-4"><i class="bi bi-question-square"></i></a>
                 {% endif %}
                 {% if current_user.creator_role == "creator" or current_user.creator_role == "user" %}
-                    <a href="{{ url_for('show_my_solution', objective_id=objective.objective_id)}}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-exclamation-square"></i></a>
-                    <a href="{{ url_for('show_report_single', objective_id=objective.objective_id, format_type='markdown') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-filetype-md"></i></a>
-                    <a href="{{ url_for('show_report_single', objective_id=objective.objective_id, format_type='pdf') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-filetype-html"></i></a>
+                    <a href="{{ url_for('show_my_solution', objective_id=objective.objective_id)}}" data-toggle="tooltip" title="Edit my Solution" class="btn btn-primary mt-4 mb-4"><i class="bi bi-exclamation-square"></i></a>
+                    <a href="{{ url_for('show_report_single', objective_id=objective.objective_id, format_type='markdown') }}" data-toggle="tooltip" title="Create Report (Markdown)" class="btn btn-primary mt-4 mb-4"><i class="bi bi-filetype-md"></i></a>
+                    <a href="{{ url_for('show_report_single', objective_id=objective.objective_id, format_type='pdf') }}" data-toggle="tooltip" title="Create Report (HTML)" class="btn btn-primary mt-4 mb-4"><i class="bi bi-filetype-html"></i></a>
                 {% endif %}
             </div>
             <div class="btn-group me-2" role="group" aria-label="Fourth group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
-                    <a href="#" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
+                    <a href="#" class="btn btn-danger mt-4 mb-4" data-toggle="tooltip" title="Delete Objective" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
                 {% endif %}
             </div>
         </div>

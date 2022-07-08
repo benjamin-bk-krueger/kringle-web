@@ -1238,43 +1238,49 @@ def show_new_creator():
         code = request.form["invitation"]
         invitation = Invitation.query.filter_by(invitation_code=code).first()
 
-        if invitation and (invitation.invitation_forever == 1 or invitation.invitation_taken == 0):
-            creator = Creator()
-            creator.creator_name = escape(request.form["creator"])
-            creator.creator_mail = escape(request.form["email"])
-            creator.creator_desc = ""
-            creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
-                                                          salt_length=16)
-            creator.creator_role = invitation.invitation_role
-            creator.creator_img = ""
-            creator.active = 1
-            db.session.add(creator)
-            db.session.commit()
+        existing_creator_1 = Creator.query.filter_by(creator_mail=escape(request.form["email"])).first()
+        existing_creator_2 = Creator.query.filter_by(creator_name=escape(request.form["creator"])).first()
 
-            invitation.invitation_taken = 1
-            db.session.commit()
+        if existing_creator_1 is None and existing_creator_2 is None:
+            if invitation and (invitation.invitation_forever == 1 or invitation.invitation_taken == 0):
+                creator = Creator()
+                creator.creator_name = escape(request.form["creator"])
+                creator.creator_mail = escape(request.form["email"])
+                creator.creator_desc = ""
+                creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
+                                                              salt_length=16)
+                creator.creator_role = invitation.invitation_role
+                creator.creator_img = ""
+                creator.active = 1
+                db.session.add(creator)
+                db.session.commit()
 
-            send_mail([MAIL_ADMIN], f"{creator.creator_name} - Registration complete",
-                      "A new user has registered using an invitation code. No action necessary.")
+                invitation.invitation_taken = 1
+                db.session.commit()
+
+                send_mail([MAIL_ADMIN], f"{creator.creator_name} - Registration complete",
+                          "A new user has registered using an invitation code. No action necessary.")
+            else:
+                creator = Creator()
+                creator.creator_name = escape(request.form["creator"])
+                creator.creator_mail = escape(request.form["email"])
+                creator.creator_desc = ""
+                creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
+                                                              salt_length=16)
+                creator.creator_role = "user"
+                creator.creator_img = ""
+                creator.active = 0
+                db.session.add(creator)
+                db.session.commit()
+
+                send_mail([MAIL_ADMIN], f"{creator.creator_name} - Approval required",
+                          "A new user has registered, please approve registration.")
+
+                send_mail([creator.creator_mail], f"{creator.creator_name} - Registration pending",
+                          "Your registration needs to be approved. This should not take too long.")
+            return redirect(url_for('show_creators'))
         else:
-            creator = Creator()
-            creator.creator_name = escape(request.form["creator"])
-            creator.creator_mail = escape(request.form["email"])
-            creator.creator_desc = ""
-            creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
-                                                          salt_length=16)
-            creator.creator_role = "user"
-            creator.creator_img = ""
-            creator.active = 0
-            db.session.add(creator)
-            db.session.commit()
-
-            send_mail([MAIL_ADMIN], f"{creator.creator_name} - Approval required",
-                      "A new user has registered, please approve registration.")
-
-            send_mail([creator.creator_mail], f"{creator.creator_name} - Registration pending",
-                      "Your registration needs to be approved. This should not take too long.")
-        return redirect(url_for('show_creators'))
+            return render_template('account.html', form=form)
     else:
         return render_template('account.html', form=form)
 
@@ -1581,12 +1587,19 @@ def show_room(room_id):
         junctions = Junction.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
                 Junction.junction_id.asc())
 
+        room_names = dict()
+        rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
+        for junction in junctions:
+            for single_room in rooms:
+                if junction.dest_id == single_room.room_id:
+                    room_names[junction.dest_id] = single_room.room_name
+
         form.name.default = room.room_name
         form.description.default = room.room_desc
         form.image.default = room.room_img
         form.process()
         return render_template('room_detail.html', room=room, world=world, creator=creator, objectives=objectives,
-                               items=items, persons=persons, junctions=junctions, form=form)
+                               items=items, persons=persons, junctions=junctions, room_names=room_names, form=form)
     else:
         return render_template('error.html')
 
