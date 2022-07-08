@@ -998,6 +998,10 @@ def update_session(world):
     session['reduced'] = world.reduced
 
 
+def update_style(style):
+    session['style'] = style
+
+
 # --------------------------------------------------------------
 # Flask entry pages
 # --------------------------------------------------------------
@@ -1035,6 +1039,11 @@ def show_login():
         if not creator or not check_password_hash(creator.creator_pass, creator_pass):
             return redirect(url_for('show_login'))
         else:
+            if creator.creator_role == "admin":
+                update_style("main_admin.css")
+            else:
+                update_style("main.css")
+
             login_user(creator, remember=remember)
             return redirect(url_for('show_index'))
     else:
@@ -1044,6 +1053,7 @@ def show_login():
 # Log out user and return to the site index afterwards
 @app.route(APP_PREFIX + '/web/logout', methods=['GET'])
 def show_logout():
+    update_style("main.css")
     logout_user()
     return redirect(url_for('show_index'))
 

@@ -30,7 +30,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                       <form action="{{ url_for('show_worlds_p') }}" method="POST">
+                       <form action="{{ url_for('show_worlds_p') }}" method="POST" id="form_new">
                             {{ form.csrf_token }}
                             <div class="form-group mt-2 mb-2">
                                 <label for="{{ form.name.name }}">{{ form.name.label }}</label>
@@ -48,10 +48,10 @@
                                 <label for="{{ form.image.name }}">{{ form.image.label }}</label>
                                 {{ form.image(size=20, class="form-control") }}
                             </div>
-                            <button type="submit" class="btn btn-primary mt-4 mb-4">Create</button>
                         </form>
                     </div>
                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space" form="form_new">Create</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>

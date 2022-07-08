@@ -21,7 +21,12 @@
 
         <!-- Own functions and stylesheets, overrides -->
         <script src="{{ prefix }}/static/helper_func.js"></script>
-        <link rel="stylesheet" type="text/css" href="{{ prefix }}/static/main.css">
+        {% if session['style'] %}
+            <link rel="stylesheet" type="text/css" href="{{ prefix }}/static/{{ session['style'] }}">
+        {% else %}
+            <link rel="stylesheet" type="text/css" href="{{ prefix }}/static/main.css">
+        {% endif %}
+
 
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="{{ prefix }}/static/kringle_logo_s.png">

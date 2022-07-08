@@ -44,7 +44,9 @@
             {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
                 <a href="{{ url_for('show_creators') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
-                {%  if current_user.creator_role == "admin" %}
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Third group">
+                {%  if current_user.creator_role == "admin" and creator.active == 0 %}
                     <a href="{{ url_for('show_approve_creator', creator_id=creator.creator_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-person-check"></i></a>
                 {%  endif %}
             </div>

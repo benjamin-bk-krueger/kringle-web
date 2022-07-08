@@ -173,9 +173,15 @@
 
         <input class="form-control mb-3" id="myInput" type="text" placeholder="Search..">
 
-        <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: {{ space_used }}%" aria-valuenow="{{ space_used }}" aria-valuemin="0" aria-valuemax="100">{{ space_used_in_mb }} MB used ({{ space_used }}% of quota )</div>
+        <div class="card">
+            <div class="card-body">
+                You can upload image files as long as the quota doesn't get exceed.
+            </div>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ space_used }}%" aria-valuenow="{{ space_used }}" aria-valuemin="0" aria-valuemax="100">{{ space_used_in_mb }} MB used ({{ space_used }}% of quota )</div>
+            </div>
         </div>
+
         <ul class="list-group" id="myList">
             {% for item in contents %}
                 <li class="list-group-item">

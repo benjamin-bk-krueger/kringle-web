@@ -18,12 +18,13 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('show_my_del_creator') }}" method="POST">
+                        <form action="{{ url_for('show_my_del_creator') }}" method="POST" id="form_deletion">
                             {{ form3.csrf_token }}
-                            <button type="submit" class="btn btn-danger mt-4 mb-4">Confirm</button>
+                            Are you sure?
                         </form>
                     </div>
                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger mt-4 mb-4 btn-space" form="form_deletion">Confirm</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>

@@ -34,11 +34,12 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('show_deleted_junction', junction_id=junction.junction_id) }}">
-                            <button type="submit" class="btn btn-danger mt-4 mb-4">Confirm</button>
+                        <form action="{{ url_for('show_deleted_junction', junction_id=junction.junction_id) }}" id="form_deletion">
+                            Are you sure?
                         </form>
                     </div>
                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger mt-4 mb-4 btn-space" form="form_deletion">Confirm</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -54,7 +55,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('show_junction_p', junction_id=junction.junction_id) }}" method="POST">
+                        <form action="{{ url_for('show_junction_p', junction_id=junction.junction_id) }}" method="POST" id="form_edit">
                             {{ form.csrf_token }}
                             <div class="form-group mt-2 mb-2">
                                 <label for="{{ form.description.name }}">{{ form.description.label }}</label>
@@ -68,10 +69,10 @@
                                 <label for="{{ form.room_dest.name }}">{{ form.room_dest.label }}</label>
                                 {{ form.room_dest(class="form-select") }}
                             </div>
-                            <button type="submit" class="btn btn-primary mt-4 mb-4">Update</button>
                         </form>
                     </div>
                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space" form="form_edit">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -100,11 +101,13 @@
             {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
                 <a href="{{ url_for('show_junctions', world_id=junction.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Third group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
                     <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal" ><i class="bi bi-pencil"></i></a>
                 {% endif %}
             </div>
-            <div class="btn-group me-2" role="group" aria-label="Third group">
+            <div class="btn-group me-2" role="group" aria-label="Fourth group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
                     <a href="#" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
                 {% endif %}

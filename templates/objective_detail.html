@@ -44,11 +44,12 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('show_deleted_objective', objective_id=objective.objective_id) }}">
-                            <button type="submit" class="btn btn-danger mt-4 mb-4">Confirm</button>
+                        <form action="{{ url_for('show_deleted_objective', objective_id=objective.objective_id) }}" id="form_deletion">
+                            Are you sure?
                         </form>
                     </div>
                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger mt-4 mb-4 btn-space" form="form_deletion">Confirm</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -64,7 +65,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('show_objective_p', objective_id=objective.objective_id) }}" method="POST">
+                        <form action="{{ url_for('show_objective_p', objective_id=objective.objective_id) }}" method="POST" id="form_edit">
                             {{ form.csrf_token }}
                             <div class="form-group mt-2 mb-2">
                                 <label for="{{ form.name.name }}">{{ form.name.label }}</label>
@@ -102,10 +103,10 @@
                                 <label for="{{ form.room.name }}">{{ form.room.label }}</label>
                                 {{ form.room(class="form-select") }}
                             </div>
-                            <button type="submit" class="btn btn-primary mt-4 mb-4">Update</button>
                         </form>
                     </div>
                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary mt-4 mb-4 btn-space" form="form_edit">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -142,6 +143,8 @@
             {#  Same links implemented using small buttons #}
             <div class="btn-group me-2" role="group" aria-label="Second group">
                 <a href="{{ url_for('show_objectives', world_id=objective.world_id) }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-list-ul"></i></a>
+            </div>
+            <div class="btn-group me-2" role="group" aria-label="Third group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
                     <a href="#" class="btn btn-primary mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a>
                     <a href="{{ url_for('show_quest', objective_id=objective.objective_id)}}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-question-square"></i></a>
@@ -152,7 +155,7 @@
                     <a href="{{ url_for('show_report_single', objective_id=objective.objective_id, format_type='pdf') }}" class="btn btn-primary mt-4 mb-4"><i class="bi bi-filetype-html"></i></a>
                 {% endif %}
             </div>
-            <div class="btn-group me-2" role="group" aria-label="Third group">
+            <div class="btn-group me-2" role="group" aria-label="Fourth group">
                 {% if current_user.creator_role == "creator" and  current_user.creator_id == creator.creator_id %}
                     <a href="#" class="btn btn-danger mt-4 mb-4" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
                 {% endif %}
