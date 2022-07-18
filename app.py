@@ -1364,7 +1364,7 @@ def show_my_mail_creator():
             old_mail = creator.creator_mail
             creator.creator_mail = escape(request.form["email"])
             creator.creator_desc = escape(request.form["description"])
-            creator.creator_img = clean_url(request.form["image"])
+            creator.creator_img = escape(request.form["image"])
             db.session.commit()
 
             send_mail([creator.creator_mail], "Notification: E-Mail changed",

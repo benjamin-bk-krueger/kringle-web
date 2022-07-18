@@ -25,7 +25,7 @@ class AccountForm(FlaskForm):
 class MailCreatorForm(FlaskForm):
     email = StringField('E-Mail', validators=[InputRequired(), Email()])
     description = TextAreaField('Description', validators=[Length(max=1024)])
-    image = SelectField('Image URL', choices=["none"])
+    image = SelectField('Image', choices=["none"], validate_choice=False)
 
 
 class PassCreatorForm(FlaskForm):
@@ -47,19 +47,19 @@ class WorldForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     url = StringField('URL')
     description = TextAreaField('Description')
-    image = SelectField('Image URL', choices=["none"])
+    image = SelectField('Image', choices=["none"])
 
 
 class RoomForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     description = TextAreaField('Description')
-    image = SelectField('Image URL', choices=["none"])
+    image = SelectField('Image', choices=["none"])
 
 
 class ItemForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     description = TextAreaField('Description')
-    image = SelectField('Image URL', choices=["none"])
+    image = SelectField('Image', choices=["none"])
     room = SelectField('Select Room', choices=["none"])
 
 
