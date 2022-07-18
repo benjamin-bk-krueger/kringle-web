@@ -47,27 +47,27 @@ class WorldForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     url = StringField('URL')
     description = TextAreaField('Description')
-    image = SelectField('Image', choices=["none"])
+    image = SelectField('Image', choices=["none"], validate_choice=False)
 
 
 class RoomForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     description = TextAreaField('Description')
-    image = SelectField('Image', choices=["none"])
+    image = SelectField('Image', choices=["none"], validate_choice=False)
 
 
 class ItemForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     description = TextAreaField('Description')
-    image = SelectField('Image', choices=["none"])
-    room = SelectField('Select Room', choices=["none"])
+    image = SelectField('Image', choices=["none"], validate_choice=False)
+    room = SelectField('Select Room', choices=["none"], validate_choice=False)
 
 
 class PersonForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     description = TextAreaField('Description')
-    image = StringField('Image URL')
-    room = SelectField('Select Room', choices=["none"])
+    image = SelectField('Image', choices=["none"], validate_choice=False)
+    room = SelectField('Select Room', choices=["none"], validate_choice=False)
 
 
 class ObjectiveForm(FlaskForm):
@@ -75,17 +75,17 @@ class ObjectiveForm(FlaskForm):
     title = StringField('Title', validators=[InputRequired()])
     difficulty = SelectField('Difficulty', choices=[1, 2, 3, 4, 5])
     url = StringField('URL')
-    supported = SelectField('Supported by', choices=["none"])
-    requires = SelectField('Requires', choices=["none"])
+    supported = SelectField('Supported by', choices=["none"], validate_choice=False)
+    requires = SelectField('Requires', choices=["none"], validate_choice=False)
     description = TextAreaField('Description')
-    image = StringField('Image URL')
-    room = SelectField('Select Room', choices=["none"])
+    image = SelectField('Image', choices=["none"], validate_choice=False)
+    room = SelectField('Select Room', choices=["none"], validate_choice=False)
 
 
 class JunctionForm(FlaskForm):
     description = TextAreaField('Description')
-    room = SelectField('Select Room', choices=["none"])
-    room_dest = SelectField('Select Destination Room', choices=["none"])
+    room = SelectField('Select Room', choices=["none"], validate_choice=False)
+    room_dest = SelectField('Select Destination Room', choices=["none"], validate_choice=False)
 
 
 class ContactForm(FlaskForm):

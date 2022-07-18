@@ -1937,7 +1937,7 @@ def show_objectives(world_id):
                     if objective.objective_id == solution.objective_id:
                         solved_solutions[objective.objective_id] = 1
                         counter_solved = counter_solved + 1
-            solved_percentage = str(int((counter_solved / objectives.count()) * 100))
+            solved_percentage = str(int((counter_solved / objectives.count()) * 100)) if counter_solved > 0 else "0"
 
         form.room.choices = get_rooms_choices(rooms)
         if world.reduced == 0:
@@ -1946,6 +1946,9 @@ def show_objectives(world_id):
         else:
             form.supported.choices = ["none"]
             form.requires.choices = ["none"]
+        form.image.choices = get_files_choices(world)
+        form.image.default = "No Image"
+        form.process()
 
         return render_template('objective.html', objectives=objectives, world=world, creator=creator,
                                solved_solutions=solved_solutions, solved_percentage=solved_percentage, form=form)
@@ -2031,6 +2034,7 @@ def show_objective(objective_id):
         form.requires.default = objective.requires
         form.requires.default = objective.requires
         form.description.default = objective.objective_desc
+        form.image.choices = get_files_choices(world)
         form.image.default = objective.objective_img
         form.room.choices = get_rooms_choices(rooms)
         form.room.default = objective.room_id
