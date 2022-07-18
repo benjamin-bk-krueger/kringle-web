@@ -993,8 +993,13 @@ def get_items_choices(items):
 
 
 def get_files_choices(world):
-    s3_prefix = f"{S3_FOLDER}/world/{world.world_name}"
     image_choices = list_files(BUCKET_PUBLIC, "world", world.world_name)
+    image_choices.insert(0, "No Image")
+    return image_choices
+
+
+def get_profile_choices(creator):
+    image_choices = list_files(BUCKET_PUBLIC, "user", creator.creator_name)
     image_choices.insert(0, "No Image")
     return image_choices
 
@@ -1266,7 +1271,9 @@ def show_creator(creator_id):
         creator = Creator.query.filter_by(active=1).filter_by(creator_id=creator_id).first()
 
     if creator:
-        return render_template('creator_detail.html', creator=creator)
+        s3_prefix = f"{S3_FOLDER}/user/{creator.creator_name}"
+
+        return render_template('creator_detail.html', creator=creator, s3_prefix=s3_prefix)
     else:
         return render_template('error.html')
 
@@ -1337,7 +1344,8 @@ def show_my_creator():
 
     form1.email.default = creator.creator_mail
     form1.description.default = creator.creator_desc
-    form1.url.default = creator.creator_img
+    form1.image.choices = get_profile_choices(creator)
+    form1.image.default = creator.creator_img
     form1.process()
     return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
 
@@ -1356,7 +1364,7 @@ def show_my_mail_creator():
             old_mail = creator.creator_mail
             creator.creator_mail = escape(request.form["email"])
             creator.creator_desc = escape(request.form["description"])
-            creator.creator_img = clean_url(request.form["url"])
+            creator.creator_img = clean_url(request.form["image"])
             db.session.commit()
 
             send_mail([creator.creator_mail], "Notification: E-Mail changed",
@@ -1366,7 +1374,8 @@ def show_my_mail_creator():
         else:
             form1.email.default = creator.creator_mail
             form1.description.default = creator.creator_desc
-            form1.url.default = creator.creator_img
+            form1.image.choices = get_profile_choices(creator)
+            form1.image.default = creator.creator_img
             form1.process()
             return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
     else:
@@ -1391,7 +1400,8 @@ def show_my_pass_creator():
         else:
             form1.email.default = creator.creator_mail
             form1.description.default = creator.creator_desc
-            form1.url.default = creator.creator_img
+            form1.image.choices = get_profile_choices(creator)
+            form1.image.default = creator.creator_img
             form1.process()
             return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
     else:
@@ -1416,7 +1426,8 @@ def show_my_del_creator():
         else:
             form1.email.default = creator.creator_mail
             form1.description.default = creator.creator_desc
-            form1.url.default = creator.creator_img
+            form1.image.choices = get_profile_choices(creator)
+            form1.image.default = creator.creator_img
             form1.process()
             return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
     else:
@@ -1444,6 +1455,11 @@ def show_approve_creator(creator_id):
 @app.route(APP_PREFIX + '/web/worlds', methods=['GET'])
 def show_worlds():
     form = WorldForm()
+
+    form.image.choices = ["No Image"]
+    form.image.default = "No Image"
+    form.process()
+
     worlds_active = World.query.filter_by(archived=0).order_by(World.world_name.asc())
     worlds_archived = World.query.filter_by(archived=1).order_by(World.world_name.asc())
     return render_template('world.html', worlds_active=worlds_active, worlds_archived=worlds_archived, form=form)
@@ -1484,6 +1500,7 @@ def show_world(world_id):
         form.name.default = world.world_name
         form.url.default = world.world_url
         form.description.default = world.world_desc
+        form.image.choices = get_files_choices(world)
         form.image.default = world.world_img
         form.process()
         return render_template('world_detail.html', world=world, creator=creator, rooms=rooms, form=form)

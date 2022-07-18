@@ -13,7 +13,7 @@
         <div class="card mb-3" style="max-width: 720px;">
             <div class="row g-0">
                 <div class="col-md-4">
-                    <img src="{{ world.world_img if (world.world_img!='') else '/static/not_found.jpg' }}" class="img-fluid rounded-start" alt="World Image">
+                    <img src="{{ session['s3_prefix'] + "/" + world.world_img if (world.world_img!='NoImage') else '/static/not_found.jpg' }}" class="img-fluid rounded-start" alt="World Image">
                 </div>
                 <div class="col-md-8">
                     <div class="card-body">
@@ -71,7 +71,7 @@
                             </div>
                             <div class="form-group mt-2 mb-2">
                                 <label for="{{ form.image.name }}">{{ form.image.label }}</label>
-                                {{ form.image(size=20, class="form-control") }}
+                                {{ form.image(class="form-select") }}
                             </div>
                         </form>
                     </div>
