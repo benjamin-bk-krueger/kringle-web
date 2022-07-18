@@ -41,7 +41,7 @@ BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
 BUCKET_PRIVATE = os.environ['BUCKET_PRIVATE']
 UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"     # directory for game data
 DOWNLOAD_FOLDER = os.environ['HOME'] + "/downloads"
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
 APP_VERSION = os.environ['APP_VERSION']
 APP_PREFIX = os.environ['APP_PREFIX']
 
@@ -1822,6 +1822,9 @@ def show_persons(world_id):
         persons = Person.query.filter_by(world_id=world_id).order_by(Person.person_name.asc())
 
         form.room.choices = get_rooms_choices(rooms)
+        form.image.choices = get_files_choices(world)
+        form.image.default = "No Image"
+        form.process()
 
         return render_template('person.html', persons=persons, world=world, creator=creator, form=form)
     else:
@@ -1868,6 +1871,7 @@ def show_person(person_id):
 
         form.name.default = person.person_name
         form.description.default = person.person_desc
+        form.image.choices = get_files_choices(world)
         form.image.default = person.person_img
         form.room.choices = get_rooms_choices(rooms)
         form.room.default = person.room_id
