@@ -37,15 +37,15 @@
             {{ form1.csrf_token }}
             <div class="form-group mt-2 mb-2">
                 <label for="email">{{ form1.email.label }}</label>
-                {{ form1.email(size=20, class="form-control", onkeypress="return event.charCode != 32") }}
+                {{ form1.email(size=20, class="form-control", style="max-width: 720px;", onkeypress="return event.charCode != 32") }}
             </div>
             <div class="form-group mt-2 mb-2">
                 <label for="description">{{ form1.description.label }}</label>
-                {{ form1.description(size=40, class="form-control") }}
+                {{ form1.description(size=40, class="form-control", style="max-width: 720px;") }}
             </div>
             <div class="form-group mt-2 mb-2">
                 <label for="image">{{ form1.image.label }}</label>
-                {{ form1.image(class="form-select") }}
+                {{ form1.image(class="form-select", style="max-width: 720px;") }}
             </div>
             {% for error in form1.email.errors %}
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
@@ -64,11 +64,11 @@
             {{ form2.csrf_token }}
             <div class="form-group mt-2 mb-2">
                 <label for="password">{{ form2.password.label }}</label>
-                {{ form2.password(size=20, class="form-control") }}
+                {{ form2.password(size=20, class="form-control", style="max-width: 720px;") }}
             </div>
             <div class="form-group mt-2 mb-2">
                 <label for="password2">{{ form2.password2.label }}</label>
-                {{ form2.password2(size=20, class="form-control") }}
+                {{ form2.password2(size=20, class="form-control", style="max-width: 720px;") }}
             </div>
             {% for error in form2.password.errors %}
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
