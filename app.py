@@ -787,12 +787,12 @@ def rename_file(bucket, object_name_new, object_name_old):
     s3.Object(bucket, object_name_old).delete()
 
 
-def list_files(bucket, creator_name):
+def list_files(bucket, section_name, folder_name):
     s3 = boto3.client('s3', endpoint_url=S3_ENDPOINT)
     contents = []
     for item in s3.list_objects(Bucket=bucket)['Contents']:
-        if item['Key'].startswith(creator_name):
-            contents.append(item)
+        if item['Key'].startswith(f"{section_name}/{folder_name}") and item['Key'] != f"{section_name}/{folder_name}/":
+            contents.append(item['Key'].replace(f"{section_name}/{folder_name}/", ""))
     return contents
 
 
@@ -1068,65 +1068,84 @@ def show_logout():
 def show_storage():
     form = UploadForm()
     form2 = FileForm()
-    space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"{current_user.creator_name}/") / 1024 / 1024), 2)
+    space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"user/{current_user.creator_name}/") / 1024 / 1024), 2)
     space_used = int(space_used_in_mb / int(S3_QUOTA) * 100)
 
     if request.method == 'POST' and form.validate_on_submit():
         filename = secure_filename(form.file.data.filename)
 
         if allowed_file(filename) and space_used < 100:
-            folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
-            local_file = os.path.join(folder_name, filename)
-            remote_file = f"{current_user.creator_name}/{filename}"
-            if not os.path.exists(folder_name):
-                os.makedirs(folder_name)
+            local_folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
+            local_file = os.path.join(local_folder_name, filename)
+            remote_file = f"user/{current_user.creator_name}/{filename}"
+            if not os.path.exists(local_folder_name):
+                os.makedirs(local_folder_name)
             form.file.data.save(local_file)
             upload_file(BUCKET_PUBLIC, remote_file, local_file)
         return redirect(url_for('show_storage'))
     else:
-        contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
-        return render_template('storage.html', contents=contents, creator_name=current_user.creator_name,
-                               space_used_in_mb=space_used_in_mb, space_used=space_used, form=form, form2=form2)
+        contents = list_files(BUCKET_PUBLIC, "user", current_user.creator_name)
+        return render_template('storage.html', section_name="user", folder_name=current_user.creator_name,
+                               contents=contents, space_used_in_mb=space_used_in_mb, space_used=space_used,
+                               form=form, form2=form2)
 
 
 # Change a filename
-@app.route(APP_PREFIX + "/web/rename", methods=['POST'])
+@app.route(APP_PREFIX + "/web/rename/<string:section_name>/<string:folder_name>", methods=['POST'])
 @login_required
-def do_rename():
-    filename_new = escape(request.form["filename_new"])
-    filename_old = escape(request.form["filename_old"])
+def do_rename(section_name, folder_name):
+    if section_name == "user":
+        if current_user.is_authenticated and current_user.creator_name == folder_name:
+            filename_new = escape(request.form["filename_new"])
+            filename_old = escape(request.form["filename_old"])
 
-    remote_file_new = f"{current_user.creator_name}/{secure_filename(filename_new)}"
-    remote_file_old = f"{current_user.creator_name}/{secure_filename(filename_old)}"
+            remote_file_new = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename_new)}"
+            remote_file_old = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename_old)}"
 
-    if remote_file_new != remote_file_old and allowed_file(remote_file_new):
-        rename_file(BUCKET_PUBLIC, remote_file_new, remote_file_old)
+            if remote_file_new != remote_file_old and allowed_file(remote_file_new):
+                rename_file(BUCKET_PUBLIC, remote_file_new, remote_file_old)
 
-    return redirect(url_for('show_storage'))
+            return redirect(url_for('show_storage'))
+        else:
+            return render_template('error.html')
+    else:
+        return render_template('error.html')
 
 
 # Download a specific file from S3 storage
-@app.route(APP_PREFIX + "/web/download/<string:filename>", methods=['GET'])
+@app.route(APP_PREFIX + "/web/download/<string:section_name>/<string:folder_name>/<string:filename>", methods=['GET'])
 @login_required
-def do_download(filename):
-    folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
-    local_file = os.path.join(folder_name, secure_filename(filename))
-    remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
+def do_download(section_name, folder_name, filename):
+    if section_name == "user":
+        if current_user.is_authenticated and current_user.creator_name == folder_name:
+            local_folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
+            local_filename = os.path.join(local_folder_name, secure_filename(filename))
+            remote_file = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename)}"
 
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
-    output = download_file(BUCKET_PUBLIC, remote_file, local_file)
-    # return send_from_directory(app.config["UPLOAD_FOLDER"], name)
-    return send_file(output, as_attachment=True)
+            if not os.path.exists(local_folder_name):
+                os.makedirs(local_folder_name)
+            output = download_file(BUCKET_PUBLIC, remote_file, local_filename)
+            # return send_from_directory(app.config["UPLOAD_FOLDER"], name)
+            return send_file(output, as_attachment=True)
+        else:
+            return render_template('error.html')
+    else:
+        return render_template('error.html')
 
 
 # Remove a specific file from S3 storage
-@app.route(APP_PREFIX + "/web/delete/<string:filename>", methods=['GET'])
+@app.route(APP_PREFIX + "/web/delete/<string:section_name>/<string:folder_name>/<string:filename>", methods=['GET'])
 @login_required
-def do_delete(filename):
-    remote_file = f"{current_user.creator_name}/{secure_filename(filename)}"
-    delete_file(BUCKET_PUBLIC, remote_file)
-    return redirect(url_for('show_storage'))
+def do_delete(section_name, folder_name, filename):
+    if section_name == "user":
+        if current_user.is_authenticated and current_user.creator_name == folder_name:
+            remote_file = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename)}"
+            delete_file(BUCKET_PUBLIC, remote_file)
+            return redirect(url_for('show_storage'))
+        else:
+            return render_template('error.html')
+    else:
+        return render_template('error.html')
 
 
 # --------------------------------------------------------------
@@ -1161,10 +1180,17 @@ def show_release():
 
 
 # Displays an image file stored on S3 storage
-@app.route(APP_PREFIX + '/web/image/<string:filename>', methods=['GET'])
+@app.route(APP_PREFIX + '/web/image/<string:section_name>/<string:folder_name>/<string:filename>', methods=['GET'])
 @login_required
-def show_image(filename):
-    return render_template('image.html', creator_name=current_user.creator_name, filename=filename)
+def show_image(section_name, folder_name, filename):
+    if section_name == "user":
+        if current_user.is_authenticated and current_user.creator_name == folder_name:
+            return render_template('image.html', section_name=secure_filename(section_name),
+                                   folder_name=secure_filename(folder_name), filename=secure_filename(filename))
+        else:
+            return render_template('error.html')
+    else:
+        return render_template('error.html')
 
 
 # Displays a form to send a message to the site admin - implements a simple captcha as well
@@ -2142,7 +2168,7 @@ def show_quest(objective_id):
             return render_template('error.html')
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
-        contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
+        contents = list_files(BUCKET_PUBLIC, "user", current_user.creator_name)
         if objective:
             room = Room.query.filter_by(room_id=objective.room_id).first()
             world = World.query.filter_by(world_id=room.world_id).first()
@@ -2150,11 +2176,12 @@ def show_quest(objective_id):
             if world.creator_id == current_user.creator_id:
                 if objective.quest is not None:
                     return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'),
-                                           objective_id=objective_id, world_id=objective.world_id, contents=contents,
-                                           form=form)
+                                           objective_id=objective_id, world_id=objective.world_id, section_name="user",
+                                           folder_name=current_user.creator_name, contents=contents, form=form)
                 else:
                     return render_template('quest_detail.html', quest="", objective_id=objective_id,
-                                           world_id=objective.world_id, contents=contents, form=form)
+                                           world_id=objective.world_id, section_name="user",
+                                           folder_name=current_user.creator_name, contents=contents, form=form)
             else:
                 return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
@@ -2241,7 +2268,7 @@ def show_my_solution(objective_id):
             return render_template('error.html')
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
-        contents = list_files(BUCKET_PUBLIC, current_user.creator_name)
+        contents = list_files(BUCKET_PUBLIC, "user", current_user.creator_name)
         if objective:
             world = World.query.filter_by(world_id=objective.world_id).first()
             creator = Creator.query.filter_by(creator_id=world.creator_id).first()
@@ -2256,11 +2283,13 @@ def show_my_solution(objective_id):
             if solution is not None:
                 return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'),
                                        visible=solution.visible, md_quest=md_quest, objective_id=objective_id,
-                                       world_id=objective.world_id, creator=creator, contents=contents, form=form)
+                                       world_id=objective.world_id, creator=creator, section_name="user",
+                                       folder_name=current_user.creator_name, contents=contents, form=form)
             else:
                 return render_template('solution_my_detail.html', solution="", visible=0, md_quest=md_quest,
                                        objective_id=objective_id, world_id=objective.world_id, creator=creator,
-                                       contents=contents, form=form)
+                                       section_name="user", folder_name=current_user.creator_name, contents=contents,
+                                       form=form)
         else:
             return render_template('error.html')
 

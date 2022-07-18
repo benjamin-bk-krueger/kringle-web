@@ -45,12 +45,12 @@
                 <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Click on an item to copy Markdown links to clipboard</a></li>
                 <li><hr class="dropdown-divider"></li>
                 {% for item in contents %}
-                    <li><a class="dropdown-item" href="#" onclick="CopyToClipboard('{{ item.Key }}');return false;">{{ item.Key }}</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="CopyToClipboard('{{ item }}');return false;">{{ item }}</a></li>
                 {% endfor %}
             </ul>
         </div>
         {% for item in contents %}
-            <div id="{{ item.Key }}" style="font-size:0;">![{{ item.Key }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }})</div>
+            <div id="{{ item }}" style="font-size:0;">![{{ item }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ section_name }}/{{ folder_name }}/{{ item }})</div>
         {% endfor %}
 
         <hr class="little mt-4 mb-4">

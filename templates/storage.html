@@ -154,7 +154,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('do_rename') }}" id="filename_change" method="POST">
+                        <form action="{{ url_for('do_rename', section_name=section_name, folder_name=folder_name) }}" id="filename_change" method="POST">
                             {{ form2.csrf_token }}
                             <div class="form-group mt-2 mb-2">
                                 <label for="{{ form2.filename_new.name }}">{{ form2.filename_new.label }}</label>
@@ -185,20 +185,20 @@
         <ul class="list-group" id="myList">
             {% for item in contents %}
                 <li class="list-group-item">
-                    <a href="{{ url_for('show_image', filename=(item.Key | replace(creator_name + "/", ""))) }}" data-toggle="tooltip" title="View image"><i class="bi bi-eye"></i></a> -
-                    <a href="{{ url_for('do_download', filename=(item.Key | replace(creator_name + "/", ""))) }}" data-toggle="tooltip" title="Download image"><i class="bi bi-download"></i></a> -
-                    <a href="#" onclick="set_filename_field('{{ item.Key | replace(creator_name + "/", "") }}');" data-toggle="tooltip" title="Rename image" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a> -
-                    <a href="{{ url_for('do_delete', filename=(item.Key | replace(creator_name + "/", ""))) }}" data-toggle="tooltip" title="Delete image"><i class="bi bi-trash"></i></a> -
-                    <a href="#" onclick="CopyToClipboard('{{ item.Key }}-html');return false;" data-toggle="tooltip" title="Copy HTML link"><i class="bi bi-link"></i></a> -
-                    <a href="#" onclick="CopyToClipboard('{{ item.Key }}-md');return false;" data-toggle="tooltip" title="Create Markdown link"><i class="bi bi-markdown"></i></a> {{ item.Key }}
+                    <a href="{{ url_for('show_image', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="View image"><i class="bi bi-eye"></i></a> -
+                    <a href="{{ url_for('do_download', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="Download image"><i class="bi bi-download"></i></a> -
+                    <a href="#" onclick="set_filename_field('{{ item }}');" data-toggle="tooltip" title="Rename image" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a> -
+                    <a href="{{ url_for('do_delete', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="Delete image"><i class="bi bi-trash"></i></a> -
+                    <a href="#" onclick="CopyToClipboard('{{ item }}-html');return false;" data-toggle="tooltip" title="Copy HTML link"><i class="bi bi-link"></i></a> -
+                    <a href="#" onclick="CopyToClipboard('{{ item }}-md');return false;" data-toggle="tooltip" title="Create Markdown link"><i class="bi bi-markdown"></i></a> {{ item }}
                 </li>
             {% endfor %}
         </ul>
         {% for item in contents %}
-            <div id="{{ item.Key }}-html" style="font-size:0;">https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }}</div>
+            <div id="{{ item }}-html" style="font-size:0;">https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ section_name }}/{{ folder_name }}/{{ item }}</div>
         {% endfor %}
         {% for item in contents %}
-            <div id="{{ item.Key }}-md" style="font-size:0;">![{{ item.Key }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ item.Key }})</div>
+            <div id="{{ item }}-md" style="font-size:0;">![{{ item }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ section_name }}/{{ folder_name }}/{{ item }})</div>
         {% endfor %}
     </div>
 {% endblock %}
