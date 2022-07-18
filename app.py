@@ -1024,7 +1024,9 @@ def update_style(style):
 @app.route(APP_PREFIX + '/web/', methods=['GET'])
 def show_index():
     worlds = World.query.filter_by(archived=0).order_by(World.world_name.asc())
-    return render_template('index.html', worlds=worlds)
+    s3_prefix = f"{S3_FOLDER}/world"
+
+    return render_template('index.html', worlds=worlds, s3_prefix=s3_prefix)
 
 
 # Show error page  - for all "hard" crashes a mail is sent to the site admin
