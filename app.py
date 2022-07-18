@@ -1063,31 +1063,37 @@ def show_logout():
 # --------------------------------------------------------------
 
 # Show list of all uploaded filed and upload form
-@app.route(APP_PREFIX + "/web/storage", methods=['GET', 'POST'])
+@app.route(APP_PREFIX + "/web/storage/<string:section_name>/<string:folder_name>", methods=['GET', 'POST'])
 @login_required
-def show_storage():
+def show_storage(section_name, folder_name):
     form = UploadForm()
     form2 = FileForm()
-    space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"user/{current_user.creator_name}/") / 1024 / 1024), 2)
-    space_used = int(space_used_in_mb / int(S3_QUOTA) * 100)
 
-    if request.method == 'POST' and form.validate_on_submit():
-        filename = secure_filename(form.file.data.filename)
+    world = World.query.filter_by(world_name=escape(folder_name)).first()
 
-        if allowed_file(filename) and space_used < 100:
-            local_folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
-            local_file = os.path.join(local_folder_name, filename)
-            remote_file = f"user/{current_user.creator_name}/{filename}"
-            if not os.path.exists(local_folder_name):
-                os.makedirs(local_folder_name)
-            form.file.data.save(local_file)
-            upload_file(BUCKET_PUBLIC, remote_file, local_file)
-        return redirect(url_for('show_storage'))
+    if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or (section_name == "world" and world and current_user.is_authenticated and current_user.creator_id == world.creator_id):
+        space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"{section_name}/{folder_name}/") / 1024 / 1024), 2)
+        space_used = int(space_used_in_mb / int(S3_QUOTA) * 100)
+
+        if request.method == 'POST' and form.validate_on_submit():
+            filename = secure_filename(form.file.data.filename)
+
+            if allowed_file(filename) and space_used < 100:
+                local_folder_name = f"{UPLOAD_FOLDER}/{current_user.creator_name}"
+                local_file = os.path.join(local_folder_name, filename)
+                remote_file = f"{section_name}/{folder_name}/{filename}"
+                if not os.path.exists(local_folder_name):
+                    os.makedirs(local_folder_name)
+                form.file.data.save(local_file)
+                upload_file(BUCKET_PUBLIC, remote_file, local_file)
+            return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name))
+        else:
+            contents = list_files(BUCKET_PUBLIC, section_name, folder_name)
+            return render_template('storage.html', section_name=section_name, folder_name=folder_name,
+                                   contents=contents, space_used_in_mb=space_used_in_mb, space_used=space_used,
+                                   form=form, form2=form2)
     else:
-        contents = list_files(BUCKET_PUBLIC, "user", current_user.creator_name)
-        return render_template('storage.html', section_name="user", folder_name=current_user.creator_name,
-                               contents=contents, space_used_in_mb=space_used_in_mb, space_used=space_used,
-                               form=form, form2=form2)
+        return render_template('error.html')
 
 
 # Change a filename
@@ -1105,7 +1111,7 @@ def do_rename(section_name, folder_name):
             if remote_file_new != remote_file_old and allowed_file(remote_file_new):
                 rename_file(BUCKET_PUBLIC, remote_file_new, remote_file_old)
 
-            return redirect(url_for('show_storage'))
+            return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name))
         else:
             return render_template('error.html')
     else:
@@ -1141,7 +1147,7 @@ def do_delete(section_name, folder_name, filename):
         if current_user.is_authenticated and current_user.creator_name == folder_name:
             remote_file = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename)}"
             delete_file(BUCKET_PUBLIC, remote_file)
-            return redirect(url_for('show_storage'))
+            return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name ))
         else:
             return render_template('error.html')
     else:
@@ -1183,12 +1189,12 @@ def show_release():
 @app.route(APP_PREFIX + '/web/image/<string:section_name>/<string:folder_name>/<string:filename>', methods=['GET'])
 @login_required
 def show_image(section_name, folder_name, filename):
-    if section_name == "user":
-        if current_user.is_authenticated and current_user.creator_name == folder_name:
-            return render_template('image.html', section_name=secure_filename(section_name),
+    world = World.query.filter_by(world_name=escape(folder_name)).first()
+
+    if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or (
+            section_name == "world" and world and current_user.is_authenticated and current_user.creator_id == world.creator_id):
+        return render_template('image.html', section_name=secure_filename(section_name),
                                    folder_name=secure_filename(folder_name), filename=secure_filename(filename))
-        else:
-            return render_template('error.html')
     else:
         return render_template('error.html')
 

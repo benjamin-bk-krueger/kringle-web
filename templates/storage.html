@@ -60,7 +60,7 @@
             upload_progress.ariaValueNow = "20";
 
             let xhr = new XMLHttpRequest();
-            xhr.open('POST', '{{ url_for('show_storage') }}');
+            xhr.open('POST', '{{ url_for('show_storage', section_name=section_name, folder_name=folder_name) }}');
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     console.log('all done: ');
@@ -77,7 +77,7 @@
             upload_progress.style.width = "100%";
             upload_progress.ariaValueNow = "100";
             await sleep(1)
-            window.location.assign("{{ url_for('show_storage') }}");
+            window.location.assign("{{ url_for('show_storage', section_name=section_name, folder_name=folder_name) }}");
         }
     </script>
 
@@ -121,7 +121,7 @@
 
         {#  Traditional upload via file selection form #}
         <h4 class="mb-3">Upload your file here</h4>
-        <form action="{{ url_for('show_storage') }}" method="POST" enctype=multipart/form-data>
+        <form action="{{ url_for('show_storage', section_name=section_name, folder_name=folder_name) }}" method="POST" enctype=multipart/form-data>
             {{ form.csrf_token }}
             <div class="form-group mt-2 mb-2">
                 {{ form.file }}
