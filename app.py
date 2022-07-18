@@ -181,7 +181,7 @@ class WorldListResource(Resource):
                 new_world = World(
                     creator_id=creator.creator_id,
                     world_name=escape(request.json['world_name']),
-                    world_desc=escape(request.json['world_desc']),
+                    world_desc=request.json['world_desc'],
                     world_img=clean_url(request.json['world_img'])
                 )
                 db.session.add(new_world)
@@ -205,7 +205,7 @@ class WorldResource(Resource):
         if all(s in request.json for s in ('world_name', 'world_desc', 'world_img')):
             if AuthChecker().check(request.authorization, world.world_id):
                 world.world_name = escape(request.json['world_name'])
-                world.world_desc = escape(request.json['world_desc'])
+                world.world_desc = request.json['world_desc']
                 world.world_img = clean_url(request.json['world_img'])
                 db.session.commit()
                 return world_schema.dump(world)
@@ -234,7 +234,7 @@ class WorldFullListResource(Resource):
             creator = Creator.query.filter_by(creator_name=request.authorization['username']).first()
             if creator.creator_role == 'creator':
                 world_name = escape(request.args.get('world_name'))
-                world_desc = escape(request.args.get('world_desc'))
+                world_desc = request.args.get('world_desc')
                 world_url = clean_url(request.args.get('world_url'))
                 world_img = escape(request.args.get('world_img'))
 
@@ -306,7 +306,7 @@ class RoomListResource(Resource):
                 new_room = Room(
                     world_id=escape(request.json['world_id']),
                     room_name=escape(request.json['room_name']),
-                    room_desc=escape(request.json['room_desc']),
+                    room_desc=request.json['room_desc'],
                     room_img=clean_url(request.json['room_img'])
                 )
                 db.session.add(new_room)
@@ -331,7 +331,7 @@ class RoomResource(Resource):
             if AuthChecker().check(request.authorization, room.world_id):
                 room.world_id = escape(request.json['world_id'])
                 room.room_name = escape(request.json['room_name'])
-                room.room_desc = escape(request.json['room_desc'])
+                room.room_desc = request.json['room_desc']
                 room.room_img = clean_url(request.json['room_img'])
                 db.session.commit()
                 return room_schema.dump(room)
@@ -392,7 +392,7 @@ class ItemListResource(Resource):
                     room_id=escape(request.json['room_id']),
                     world_id=escape(request.json['world_id']),
                     item_name=escape(request.json['item_name']),
-                    item_desc=escape(request.json['item_desc']),
+                    item_desc=request.json['item_desc'],
                     item_img=clean_url(request.json['item_img'])
                 )
                 db.session.add(new_item)
@@ -418,7 +418,7 @@ class ItemResource(Resource):
                 item.room_id = escape(request.json['room_id'])
                 item.world_id = escape(request.json['world_id'])
                 item.item_name = escape(request.json['item_name'])
-                item.item_desc = escape(request.json['item_desc'])
+                item.item_desc = request.json['item_desc']
                 item.item_img = clean_url(request.json['item_img'])
                 db.session.commit()
                 return item_schema.dump(item)
@@ -491,7 +491,7 @@ class ObjectiveListResource(Resource):
                     world_id=escape(request.json['world_id']),
                     objective_name=escape(request.json['objective_name']),
                     objective_title=escape(request.json['objective_title']),
-                    objective_desc=escape(request.json['objective_desc']),
+                    objective_desc=request.json['objective_desc'],
                     difficulty=escape(request.json['difficulty']),
                     objective_url=clean_url(request.json['objective_url']),
                     supported_by=escape(request.json['supported_by']),
@@ -525,7 +525,7 @@ class ObjectiveResource(Resource):
                 objective.world_id = escape(request.json['world_id']),
                 objective.objective_name = escape(request.json['objective_name']),
                 objective.objective_title = escape(request.json['objective_title']),
-                objective.objective_desc = escape(request.json['objective_desc']),
+                objective.objective_desc = request.json['objective_desc'],
                 objective.difficulty = escape(request.json['difficulty']),
                 objective.objective_url = clean_url(request.json['objective_url']),
                 objective.supported_by = escape(request.json['supported_by']),
@@ -590,7 +590,7 @@ class PersonListResource(Resource):
                     room_id=escape(request.json['room_id']),
                     world_id=escape(request.json['world_id']),
                     person_name=escape(request.json['person_name']),
-                    person_desc=escape(request.json['person_desc']),
+                    person_desc=request.json['person_desc'],
                     person_img=clean_url(request.json['person_img'])
                 )
                 db.session.add(new_person)
@@ -616,7 +616,7 @@ class PersonResource(Resource):
                 person.room_id = escape(request.json['room_id'])
                 person.world_id = escape(request.json['world_id'])
                 person.person_name = escape(request.json['person_name'])
-                person.person_desc = escape(request.json['person_desc'])
+                person.person_desc = request.json['person_desc']
                 person.person_img = clean_url(request.json['person_img'])
                 db.session.commit()
                 return person_schema.dump(person)
@@ -676,7 +676,7 @@ class JunctionListResource(Resource):
                     room_id=escape(request.json['room_id']),
                     world_id=escape(request.json['world_id']),
                     dest_id=escape(request.json['dest_id']),
-                    junction_desc=escape(request.json['junction_desc'])
+                    junction_desc=request.json['junction_desc']
                 )
                 db.session.add(new_junction)
                 db.session.commit()
@@ -701,7 +701,7 @@ class JunctionResource(Resource):
                 junction.room_id = escape(request.json['room_id'])
                 junction.world_id = escape(request.json['world_id'])
                 junction.dest_id = escape(request.json['dest_id'])
-                junction.junction_desc = escape(request.json['junction_desc'])
+                junction.junction_desc = request.json['junction_desc']
                 db.session.commit()
                 return junction_schema.dump(junction)
             else:
@@ -731,6 +731,7 @@ class Solution(db.Model):
     creator_id = db.Column(db.INTEGER, db.ForeignKey("creator.creator_id"))
     solution_text = db.Column(db.LargeBinary)
     visible = db.Column(db.INTEGER, default=0)
+    completed = db.Column(db.INTEGER, default=0)
 
     def __repr__(self):
         return '<Solution %s>' % self.solution_id
@@ -849,7 +850,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
         room = Room()
         room.world_id = world.world_id
         room.room_name = escape(i["name"])
-        room.room_desc = escape(i["description"])
+        room.room_desc = i["description"]
         room.room_img = clean_url(i["image"])
         db.session.add(room)
         db.session.commit()
@@ -867,7 +868,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 item.room_id = room.room_id
                 item.world_id = world.world_id
                 item.item_name = escape(j["name"])
-                item.item_desc = escape(j["description"])
+                item.item_desc = j["description"]
                 item.item_img = clean_url(j["image"])
                 db.session.add(item)
                 db.session.commit()
@@ -880,7 +881,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 person.room_id = room.room_id
                 person.world_id = world.world_id
                 person.person_name = escape(j["name"])
-                person.person_desc = escape(j["description"])
+                person.person_desc = j["description"]
                 person.person_img = clean_url(j["image"])
                 db.session.add(person)
                 db.session.commit()
@@ -894,7 +895,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
                 objective.world_id = world.world_id
                 objective.objective_name = escape(j["name"])
                 objective.objective_title = escape(j["title"])
-                objective.objective_desc = escape(j["description"])
+                objective.objective_desc = j["description"]
                 objective.difficulty = escape(j["difficulty"])
                 objective.objective_url = clean_url(j["url"])
                 objective.supported_by = escape(j["supported_by"])
@@ -913,7 +914,7 @@ def init_world(world_file, creator_name, world_name, world_desc, world_url, worl
 
                 dest_room = Room.query.filter_by(world_id=world.world_id).filter_by(room_name=j["destination"]).first()
                 junction.dest_id = dest_room.room_id
-                junction.junction_desc = escape(j["description"])
+                junction.junction_desc = j["description"]
                 db.session.add(junction)
                 db.session.commit()
                 counter_loaded = counter_loaded + 1
@@ -960,6 +961,20 @@ def index():
 # Send an e-mail
 def send_mail(recipients, mail_header, mail_body):
     if MAIL_ENABLE == 1:
+        msg = Message(mail_header,
+                      sender=MAIL_SENDER,
+                      recipients=recipients)
+        msg.body = mail_body
+        mail.send(msg)
+
+
+def send_massmail(mail_header, mail_body):
+    if MAIL_ENABLE == 1:
+        creators = Creator.query.filter_by(active=1).order_by(Creator.creator_name.asc())
+        recipients = list()
+        for creator in creators:
+            recipients.append(creator.creator_mail
+                              )
         msg = Message(mail_header,
                       sender=MAIL_SENDER,
                       recipients=recipients)
@@ -1117,22 +1132,18 @@ def show_storage(section_name, folder_name):
 @app.route(APP_PREFIX + "/web/rename/<string:section_name>/<string:folder_name>", methods=['POST'])
 @login_required
 def do_rename(section_name, folder_name):
-    if section_name == "user":
-        if current_user.is_authenticated and current_user.creator_name == folder_name:
-            filename_new = escape(request.form["filename_new"])
-            filename_old = escape(request.form["filename_old"])
+    world = World.query.filter_by(world_name=escape(folder_name)).first()
 
-            remote_file_new = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/\
-                {secure_filename(filename_new)}"
-            remote_file_old = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/\
-                {secure_filename(filename_old)}"
+    if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or \
+            (section_name == "world" and world and current_user.is_authenticated and
+             current_user.creator_id == world.creator_id):
+        remote_file_new = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(request.form['filename_new'])}"
+        remote_file_old = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(request.form['filename_old'])}"
 
-            if remote_file_new != remote_file_old and allowed_file(remote_file_new):
-                rename_file(BUCKET_PUBLIC, remote_file_new, remote_file_old)
+        if remote_file_new != remote_file_old and allowed_file(remote_file_new):
+            rename_file(BUCKET_PUBLIC, remote_file_new, remote_file_old)
 
-            return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name))
-        else:
-            return render_template('error.html')
+        return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name))
     else:
         return render_template('error.html')
 
@@ -1141,19 +1152,20 @@ def do_rename(section_name, folder_name):
 @app.route(APP_PREFIX + "/web/download/<string:section_name>/<string:folder_name>/<string:filename>", methods=['GET'])
 @login_required
 def do_download(section_name, folder_name, filename):
-    if section_name == "user":
-        if current_user.is_authenticated and current_user.creator_name == folder_name:
-            local_folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
-            local_filename = os.path.join(local_folder_name, secure_filename(filename))
-            remote_file = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename)}"
+    world = World.query.filter_by(world_name=escape(folder_name)).first()
 
-            if not os.path.exists(local_folder_name):
-                os.makedirs(local_folder_name)
-            output = download_file(BUCKET_PUBLIC, remote_file, local_filename)
-            # return send_from_directory(app.config["UPLOAD_FOLDER"], name)
-            return send_file(output, as_attachment=True)
-        else:
-            return render_template('error.html')
+    if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or \
+            (section_name == "world" and world and current_user.is_authenticated and
+             current_user.creator_id == world.creator_id):
+        local_folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
+        local_filename = os.path.join(local_folder_name, secure_filename(filename))
+        remote_file = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename)}"
+
+        if not os.path.exists(local_folder_name):
+            os.makedirs(local_folder_name)
+        output = download_file(BUCKET_PUBLIC, remote_file, local_filename)
+        # return send_from_directory(app.config["UPLOAD_FOLDER"], name)
+        return send_file(output, as_attachment=True)
     else:
         return render_template('error.html')
 
@@ -1162,13 +1174,14 @@ def do_download(section_name, folder_name, filename):
 @app.route(APP_PREFIX + "/web/delete/<string:section_name>/<string:folder_name>/<string:filename>", methods=['GET'])
 @login_required
 def do_delete(section_name, folder_name, filename):
-    if section_name == "user":
-        if current_user.is_authenticated and current_user.creator_name == folder_name:
-            remote_file = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename)}"
-            delete_file(BUCKET_PUBLIC, remote_file)
-            return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name))
-        else:
-            return render_template('error.html')
+    world = World.query.filter_by(world_name=escape(folder_name)).first()
+
+    if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or \
+        (section_name == "world" and world and current_user.is_authenticated and
+         current_user.creator_id == world.creator_id):
+        remote_file = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename)}"
+        delete_file(BUCKET_PUBLIC, remote_file)
+        return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name))
     else:
         return render_template('error.html')
 
@@ -1281,7 +1294,7 @@ def show_creator(creator_id):
 
         return render_template('creator_detail.html', creator=creator, s3_prefix=s3_prefix)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That creator does not exist.")
 
 
 # Displays a form to create a new user (aka creator)
@@ -1369,7 +1382,7 @@ def show_my_mail_creator():
         if form1.validate_on_submit():
             old_mail = creator.creator_mail
             creator.creator_mail = escape(request.form["email"])
-            creator.creator_desc = escape(request.form["description"])
+            creator.creator_desc = request.form["description"]
             creator.creator_img = escape(request.form["image"])
             db.session.commit()
 
@@ -1385,7 +1398,7 @@ def show_my_mail_creator():
             form1.process()
             return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That creator does not exist.")
 
 
 # Post a user's password change or display error message if some data was not entered correctly
@@ -1411,7 +1424,7 @@ def show_my_pass_creator():
             form1.process()
             return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That creator does not exist.")
 
 
 # Delete a user and return to the site index afterwards
@@ -1437,7 +1450,7 @@ def show_my_del_creator():
             form1.process()
             return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That creator does not exist.")
 
 
 # Approve a user's registration
@@ -1483,7 +1496,7 @@ def show_worlds_p():
             world = World()
             world.world_name = world_name
             world.world_url = clean_url(request.form["url"])
-            world.world_desc = escape(request.form["description"])
+            world.world_desc = request.form["description"]
             world.world_img = clean_url(request.form["image"])
             world.creator_id = current_user.creator_id
             db.session.add(world)
@@ -1511,7 +1524,7 @@ def show_world(world_id):
         form.process()
         return render_template('world_detail.html', world=world, creator=creator, rooms=rooms, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Post a change in a world's data
@@ -1523,7 +1536,7 @@ def show_world_p(world_id):
     if world and current_user.creator_id and current_user.creator_id == world.creator_id:
         world.world_name = clean_url(request.form["name"])
         world.world_url = clean_url(request.form["url"])
-        world.world_desc = escape(request.form["description"])
+        world.world_desc = request.form["description"]
         world.world_img = clean_url(request.form["image"])
         db.session.commit()
         return redirect(url_for('show_world', world_id=world.world_id))
@@ -1550,11 +1563,14 @@ def show_switched_world(world_id):
             world.visible = 0
         else:
             world.visible = 1
+
+            send_massmail("Notification: A world is public now",
+                          f"The world {world.world_name} is public now. All submitted public solutions can be reviewed now.")
         db.session.commit()
 
         return redirect(url_for('show_world', world_id=world.world_id))
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Archive a specific world - archived worlds are not shown on the site index page
@@ -1571,7 +1587,7 @@ def show_archived_world(world_id):
 
         return redirect(url_for('show_world', world_id=world.world_id))
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Switch the world's mode - it may be Kringle (containing additional elements) or Standard (missing items, persons, etc)
@@ -1591,7 +1607,7 @@ def show_reduced_world(world_id):
 
         return redirect(url_for('show_world', world_id=world.world_id))
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Displays all available rooms
@@ -1611,7 +1627,7 @@ def show_rooms(world_id):
 
         return render_template('room.html', rooms=rooms, world=world, creator=creator, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Post a new room - if it doesn't already exist
@@ -1627,7 +1643,7 @@ def show_rooms_p(world_id):
         if not room:
             room = Room()
             room.room_name = room_name
-            room.room_desc = escape(request.form["description"])
+            room.room_desc = request.form["description"]
             room.room_img = clean_url(request.form["image"])
             room.world_id = world_id
             db.session.add(room)
@@ -1671,7 +1687,7 @@ def show_room(room_id):
         return render_template('room_detail.html', room=room, world=world, creator=creator, objectives=objectives,
                                items=items, persons=persons, junctions=junctions, room_names=room_names, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That room does not exist.")
 
 
 # Post a change in a room's data
@@ -1683,7 +1699,7 @@ def show_room_p(room_id):
 
     if room and current_user.creator_id and current_user.creator_id == world.creator_id:
         room.room_name = escape(request.form["name"])
-        room.room_desc = escape(request.form["description"])
+        room.room_desc = request.form["description"]
         room.room_img = clean_url(request.form["image"])
         db.session.commit()
         return redirect(url_for('show_room', room_id=room.room_id))
@@ -1726,7 +1742,7 @@ def show_items(world_id):
 
         return render_template('item.html', items=items, world=world, creator=creator, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That room does not exist.")
 
 
 # Post a new item - if it doesn't already exist
@@ -1742,7 +1758,7 @@ def show_items_p(world_id):
         if not item:
             item = Item()
             item.item_name = item_name
-            item.item_desc = escape(request.form["description"])
+            item.item_desc = request.form["description"]
             item.item_img = clean_url(request.form["image"])
             item.world_id = world_id
             item.room_id = escape(request.form["room"])
@@ -1777,7 +1793,7 @@ def show_item(item_id):
 
         return render_template('item_detail.html', item=item, room=room, world=world, creator=creator, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That item does not exist.")
 
 
 # Post a change in am item's data
@@ -1789,7 +1805,7 @@ def show_item_p(item_id):
 
     if item and current_user.creator_id and current_user.creator_id == world.creator_id:
         item.item_name = escape(request.form["name"])
-        item.item_desc = escape(request.form["description"])
+        item.item_desc = request.form["description"]
         item.item_img = clean_url(request.form["image"])
         item.room_id = escape(request.form["room"])
         db.session.commit()
@@ -1834,7 +1850,7 @@ def show_persons(world_id):
 
         return render_template('person.html', persons=persons, world=world, creator=creator, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Post a new person - if it doesn't already exist
@@ -1850,7 +1866,7 @@ def show_persons_p(world_id):
         if not person:
             person = Person()
             person.person_name = person_name
-            person.person_desc = escape(request.form["description"])
+            person.person_desc = request.form["description"]
             person.person_img = clean_url(request.form["image"])
             person.world_id = world_id
             person.room_id = escape(request.form["room"])
@@ -1885,7 +1901,7 @@ def show_person(person_id):
 
         return render_template('person_detail.html', person=person, room=room, world=world, creator=creator, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That person does not exist.")
 
 
 # Post a change in a person's data
@@ -1897,7 +1913,7 @@ def show_person_p(person_id):
 
     if person and current_user.creator_id and current_user.creator_id == world.creator_id:
         person.person_name = escape(request.form["name"])
-        person.person_desc = escape(request.form["description"])
+        person.person_desc = request.form["description"]
         person.person_img = clean_url(request.form["image"])
         person.room_id = escape(request.form["room"])
         db.session.commit()
@@ -1944,7 +1960,7 @@ def show_objectives(world_id):
             counter_solved = 0
             for objective in objectives:
                 for solution in solutions:
-                    if objective.objective_id == solution.objective_id:
+                    if objective.objective_id == solution.objective_id and solution.completed == 1:
                         solved_solutions[objective.objective_id] = 1
                         counter_solved = counter_solved + 1
             solved_percentage = str(int((counter_solved / objectives.count()) * 100)) if counter_solved > 0 else "0"
@@ -1982,7 +1998,7 @@ def show_objectives_p(world_id):
             objective.objective_url = clean_url(request.form["url"])
             objective.supported_by = escape(request.form["supported"])
             objective.requires = escape(request.form["requires"])
-            objective.objective_desc = escape(request.form["description"])
+            objective.objective_desc = request.form["description"]
             objective.objective_img = clean_url(request.form["image"])
             objective.world_id = world_id
             objective.room_id = escape(request.form["room"])
@@ -2016,7 +2032,7 @@ def show_objective(objective_id):
             my_solutions = Solution.query.filter_by(creator_id=current_user.creator_id).order_by(
                 Solution.solution_id.asc())
             for my_solution in my_solutions:
-                if objective.objective_id == my_solution.objective_id:
+                if objective.objective_id == my_solution.objective_id and my_solution.completed == 1:
                     solved_solution = 1
 
         voting_all = dict()
@@ -2054,7 +2070,7 @@ def show_objective(objective_id):
                                world=world, voting_all=voting_all, creator_all=creator_all, room=room, creator=creator,
                                solved_solution=solved_solution, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That objective does not exist.")
 
 
 # Post a change in an objective's data
@@ -2071,7 +2087,7 @@ def show_objective_p(objective_id):
         objective.objective_url = clean_url(request.form["url"])
         objective.supported_by = escape(request.form["supported"])
         objective.requires = escape(request.form["requires"])
-        objective.objective_desc = escape(request.form["description"])
+        objective.objective_desc = request.form["description"]
         objective.objective_img = clean_url(request.form["image"])
         objective.room_id = escape(request.form["room"])
         db.session.commit()
@@ -2113,7 +2129,7 @@ def show_junctions(world_id):
 
         return render_template('junction.html', junctions=junctions, world=world, creator=creator, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Post a new junction - if it doesn't already exist
@@ -2131,7 +2147,7 @@ def show_junctions_p(world_id):
 
         if not junction:
             junction = Junction()
-            junction.junction_desc = escape(request.form["description"])
+            junction.junction_desc = request.form["description"]
             junction.world_id = world_id
             junction.room_id = escape(request.form["room"])
             junction.dest_id = escape(request.form["room_dest"])
@@ -2167,7 +2183,7 @@ def show_junction(junction_id):
         return render_template('junction_detail.html', junction=junction, room=room, room_dest=room_dest, world=world,
                                creator=creator, form=form)
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That junction does not exist.")
 
 
 # Post a change in a junction's data
@@ -2178,7 +2194,7 @@ def show_junction_p(junction_id):
     world = World.query.filter_by(world_id=junction.world_id).first()
 
     if junction and current_user.creator_id and current_user.creator_id == world.creator_id:
-        junction.junction_desc = escape(request.form["description"])
+        junction.junction_desc = request.form["description"]
         junction.room_id = escape(request.form["room"])
         junction.dest_id = escape(request.form["room_dest"])
         db.session.commit()
@@ -2221,7 +2237,7 @@ def show_quest(objective_id):
                 db.session.commit()
             return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
-            return render_template('error.html')
+            return render_template('error.html', error_message="That objective does not exist.")
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
         if objective:
@@ -2242,7 +2258,7 @@ def show_quest(objective_id):
             else:
                 return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
-            return render_template('error.html')
+            return render_template('error.html', error_message="That objective does not exist.")
 
 
 # Shows other users' solutions - if the solution and world is open/public
@@ -2267,7 +2283,7 @@ def show_solution(solution_id):
         else:
             return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That solution does not exist.")
 
 
 # Like/Unlike other users' solutions and return to its objective page afterwards
@@ -2294,7 +2310,7 @@ def show_liked_solution(solution_id):
 
         return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That solution does not exist.")
 
 
 # Shows or posts an objective's solution
@@ -2317,12 +2333,14 @@ def show_my_solution(objective_id):
             solution_new.solution_text = request.form["solution"].encode()
             if 'visible' in request.form:
                 solution_new.visible = 1
+            if 'completed' in request.form:
+                solution_new.completed = 1
             db.session.add(solution_new)
             db.session.commit()
 
             return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
-            return render_template('error.html')
+            return render_template('error.html', error_message="That objective does not exist.")
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
         if objective:
@@ -2341,16 +2359,16 @@ def show_my_solution(objective_id):
                 creator_id=current_user.creator_id).first()
             if solution is not None:
                 return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'),
-                                       visible=solution.visible, md_quest=md_quest, objective_id=objective_id,
+                                       visible=solution.visible, completed=solution.completed, md_quest=md_quest, objective_id=objective_id,
                                        world_id=objective.world_id, creator=creator, section_name="user",
                                        folder_name=current_user.creator_name, contents=contents, form=form)
             else:
                 return render_template('solution_my_detail.html', solution="", visible=0, md_quest=md_quest,
-                                       objective_id=objective_id, world_id=objective.world_id, creator=creator,
+                                       objective_id=objective_id, completed=0, world_id=objective.world_id, creator=creator,
                                        section_name="user", folder_name=current_user.creator_name, contents=contents,
                                        form=form)
         else:
-            return render_template('error.html')
+            return render_template('error.html', error_message="That objective does not exist.")
 
 
 # Delete a specific solution
@@ -2367,7 +2385,7 @@ def show_deleted_solution(objective_id):
 
         return redirect(url_for('show_objective', objective_id=objective_id))
     else:
-        return render_template('error.html')
+        return render_template('error.html', error_message="That objective does not exist.")
 
 
 # Shows a full report containing information about the world, its objectives and solutions in different formats

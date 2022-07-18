@@ -15,7 +15,7 @@
             {{ form.csrf_token }}
             <div class="form-group mt-2 mb-2">
                 <label for="creator">{{ form.creator.label }}</label>
-                {{ form.creator(size=20, class="form-control") }}
+                {{ form.creator(size=20, class="form-control", onkeypress="return event.charCode != 32") }}
             </div>
             {% for error in form.creator.errors %}
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>

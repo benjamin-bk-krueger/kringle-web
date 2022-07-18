@@ -37,7 +37,7 @@
             {{ form1.csrf_token }}
             <div class="form-group mt-2 mb-2">
                 <label for="email">{{ form1.email.label }}</label>
-                {{ form1.email(size=20, class="form-control") }}
+                {{ form1.email(size=20, class="form-control", onkeypress="return event.charCode != 32") }}
             </div>
             <div class="form-group mt-2 mb-2">
                 <label for="description">{{ form1.description.label }}</label>

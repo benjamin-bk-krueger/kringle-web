@@ -21,7 +21,7 @@
             {% endfor %}
             <div class="form-group mt-2 mb-2">
                 <label for="email">{{ form.email.label }}</label>
-                {{ form.email(size=20, class="form-control") }}
+                {{ form.email(size=20, class="form-control", onkeypress="return event.charCode != 32") }}
             </div>
             {% for error in form.email.errors %}
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
@@ -35,7 +35,7 @@
             {% endfor %}
             <div class="form-group mt-2 mb-2">
                 <label for="captcha">{{ form.captcha.label }} (What is {{ random1  }} + {{ random2 }} ?)</label>
-                {{ form.captcha(size=20, class="form-control") }}
+                {{ form.captcha(size=20, class="form-control", onkeypress="return event.charCode != 32") }}
             </div>
             {{ form.check_captcha }}
             {% for error in form.captcha.errors %}

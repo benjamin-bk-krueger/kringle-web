@@ -158,7 +158,7 @@
                             {{ form2.csrf_token }}
                             <div class="form-group mt-2 mb-2">
                                 <label for="{{ form2.filename_new.name }}">{{ form2.filename_new.label }}</label>
-                                {{ form2.filename_new(size=20, class="form-control") }}
+                                {{ form2.filename_new(size=20, class="form-control", onkeypress="return event.charCode != 32") }}
                             </div>
                             {{ form2.filename_old }}
                         </form>
@@ -185,12 +185,12 @@
         <ul class="list-group" id="myList">
             {% for item in contents %}
                 <li class="list-group-item">
-                    <a href="{{ url_for('show_image', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="View image"><i class="bi bi-eye"></i></a> -
-                    <a href="{{ url_for('do_download', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="Download image"><i class="bi bi-download"></i></a> -
-                    <a href="#" onclick="set_filename_field('{{ item }}');" data-toggle="tooltip" title="Rename image" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil"></i></a> -
-                    <a href="{{ url_for('do_delete', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="Delete image"><i class="bi bi-trash"></i></a> -
-                    <a href="#" onclick="CopyToClipboard('{{ item }}-html');return false;" data-toggle="tooltip" title="Copy HTML link"><i class="bi bi-link"></i></a> -
-                    <a href="#" onclick="CopyToClipboard('{{ item }}-md');return false;" data-toggle="tooltip" title="Create Markdown link"><i class="bi bi-markdown"></i></a> {{ item }}
+                    <a href="{{ url_for('show_image', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="View image"><i class="bi bi-eye me-2"></i></a>
+                    <a href="{{ url_for('do_download', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="Download image"><i class="bi bi-download me-2 "></i></a>
+                    <a href="#" onclick="set_filename_field('{{ item }}');" data-toggle="tooltip" title="Rename image" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-pencil me-2"></i></a>
+                    <a href="{{ url_for('do_delete', section_name=section_name, folder_name=folder_name, filename=item) }}" data-toggle="tooltip" title="Delete image"><i class="bi bi-trash me-2 "></i></a>
+                    <a href="#" onclick="CopyToClipboard('{{ item }}-html');return false;" data-toggle="tooltip" title="Copy HTML link"><i class="bi bi-link me-2"></i></a>
+                    <a href="#" onclick="CopyToClipboard('{{ item }}-md');return false;" data-toggle="tooltip" title="Create Markdown link"><i class="bi bi-markdown me-2"></i></a> {{ item }}
                 </li>
             {% endfor %}
         </ul>
