@@ -41,7 +41,7 @@ BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
 BUCKET_PRIVATE = os.environ['BUCKET_PRIVATE']
 UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"     # directory for game data
 DOWNLOAD_FOLDER = os.environ['HOME'] + "/downloads"
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 APP_VERSION = os.environ['APP_VERSION']
 APP_PREFIX = os.environ['APP_PREFIX']
 
