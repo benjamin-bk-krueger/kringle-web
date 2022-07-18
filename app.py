@@ -992,11 +992,19 @@ def get_items_choices(items):
     return items_choices
 
 
+def get_files_choices(world):
+    s3_prefix = f"{S3_FOLDER}/world/{world.world_name}"
+    image_choices = list_files(BUCKET_PUBLIC, "world", world.world_name)
+    image_choices.insert(0, "No Image")
+    return image_choices
+
+
 # Internal helpers - persist selected world in the session to improve navigation and remember selected world
 def update_session(world):
     session['world_id'] = world.world_id
     session['world_name'] = world.world_name
     session['reduced'] = world.reduced
+    session['s3_prefix'] = f"{S3_FOLDER}/world/{world.world_name}"
 
 
 def update_style(style):
@@ -1076,8 +1084,6 @@ def show_storage(section_name, folder_name):
         space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"{section_name}/{folder_name}/") / 1024 / 1024), 2)
         space_used = int(space_used_in_mb / int(S3_QUOTA) * 100)
 
-        s3_prefix = f"{S3_FOLDER}/{section_name}/{folder_name}"
-
         if request.method == 'POST' and form.validate_on_submit():
             filename = secure_filename(form.file.data.filename)
 
@@ -1094,7 +1100,7 @@ def show_storage(section_name, folder_name):
             contents = list_files(BUCKET_PUBLIC, section_name, folder_name)
             return render_template('storage.html', section_name=section_name, folder_name=folder_name,
                                    contents=contents, space_used_in_mb=space_used_in_mb, space_used=space_used,
-                                   s3_prefix=s3_prefix, form=form, form2=form2)
+                                   form=form, form2=form2)
     else:
         return render_template('error.html')
 
@@ -1575,6 +1581,11 @@ def show_rooms(world_id):
         update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_name.asc())
+
+        form.image.choices = get_files_choices(world)
+        form.image.default = "No Image"
+        form.process()
+
         return render_template('room.html', rooms=rooms, world=world, creator=creator, form=form)
     else:
         return render_template('error.html')
@@ -1631,6 +1642,7 @@ def show_room(room_id):
 
         form.name.default = room.room_name
         form.description.default = room.room_desc
+        form.image.choices = get_files_choices(world)
         form.image.default = room.room_img
         form.process()
         return render_template('room_detail.html', room=room, world=world, creator=creator, objectives=objectives,
@@ -1684,16 +1696,12 @@ def show_items(world_id):
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
 
-        s3_prefix = f"{S3_FOLDER}/world/{world.world_name}"
-        image_files = list_files(BUCKET_PUBLIC, "world", world.world_name)
-        image_files.insert(0, "No Image")
-
-        form.image.choices = image_files
-        form.image.default = "none"
+        form.image.choices = get_files_choices(world)
+        form.image.default = "No Image"
         form.room.choices = get_rooms_choices(rooms)
         form.process()
 
-        return render_template('item.html', items=items, world=world, creator=creator, form=form, s3_prefix=s3_prefix)
+        return render_template('item.html', items=items, world=world, creator=creator, form=form)
     else:
         return render_template('error.html')
 
@@ -1735,19 +1743,16 @@ def show_item(item_id):
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
 
         rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
-        s3_prefix = f"{S3_FOLDER}/world/{world.world_name}"
-        image_files = list_files(BUCKET_PUBLIC, "world", world.world_name)
-        image_files.insert(0, "No Image")
 
         form.name.default = item.item_name
         form.description.default = item.item_desc
-        form.image.choices = image_files
+        form.image.choices = get_files_choices(world)
         form.image.default = item.item_img
         form.room.choices = get_rooms_choices(rooms)
         form.room.default = item.room_id
         form.process()
 
-        return render_template('item_detail.html', item=item, room=room, world=world, creator=creator, form=form, s3_prefix=s3_prefix)
+        return render_template('item_detail.html', item=item, room=room, world=world, creator=creator, form=form)
     else:
         return render_template('error.html')
 
