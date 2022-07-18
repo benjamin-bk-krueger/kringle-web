@@ -1,45 +1,45 @@
-import json     # for JSON file handling and parsing
-import os       # for direct file system and environment access
-import re       # for regular expressions
-import random   # for captcha random numbers
+import json  # for JSON file handling and parsing
+import os  # for direct file system and environment access
+import re  # for regular expressions
+import random  # for captcha random numbers
 import logging  # enable logging
 
-import boto3            # for S3 storage
-import markdown2        # for markdown parsing
+import boto3  # for S3 storage
+import markdown2  # for markdown parsing
 from flask import Flask, request, render_template, jsonify, send_file, escape, redirect, url_for, \
-    session             # most important Flask modules
+    session  # most important Flask modules
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, \
-    current_user        # to manage user sessions
-from flask_mail import Mail, Message        # to send mails
-from flask_marshmallow import Marshmallow   # to marshall our objects
-from flask_restx import Resource, Api       # to enable the REST API
-from flask_sitemap import Sitemap           # to generate sitemap.xml
-from flask_sqlalchemy import SQLAlchemy     # object-relational mapper (ORM)
-from flask_wtf.csrf import CSRFProtect      # CSRF protection
+    current_user  # to manage user sessions
+from flask_mail import Mail, Message  # to send mails
+from flask_marshmallow import Marshmallow  # to marshall our objects
+from flask_restx import Resource, Api  # to enable the REST API
+from flask_sitemap import Sitemap  # to generate sitemap.xml
+from flask_sqlalchemy import SQLAlchemy  # object-relational mapper (ORM)
+from flask_wtf.csrf import CSRFProtect  # CSRF protection
 from werkzeug.security import generate_password_hash, check_password_hash  # for password hashing
 from werkzeug.utils import secure_filename  # to prevent path traversal attacks
-from logging.handlers import SMTPHandler    # get crashes via mail
+from logging.handlers import SMTPHandler  # get crashes via mail
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
     UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm, PersonForm, \
-    JunctionForm, QuestSolForm, FileForm    # Flask/Jinja template forms
+    JunctionForm, QuestSolForm, FileForm  # Flask/Jinja template forms
 
 # the app configuration is done via environmental variables
-POSTGRES_URL = os.environ['POSTGRES_URL']           # DB connection data
+POSTGRES_URL = os.environ['POSTGRES_URL']  # DB connection data
 POSTGRES_USER = os.environ['POSTGRES_USER']
 POSTGRES_PW = os.environ['POSTGRES_PW']
 POSTGRES_DB = os.environ['POSTGRES_DB']
 SECRET_KEY = os.environ['SECRET_KEY']
-MAIL_SERVER = os.environ['MAIL_SERVER']             # mail host
+MAIL_SERVER = os.environ['MAIL_SERVER']  # mail host
 MAIL_SENDER = os.environ['MAIL_SENDER']
 MAIL_ADMIN = os.environ['MAIL_ADMIN']
 MAIL_ENABLE = int(os.environ['MAIL_ENABLE'])
-S3_ENDPOINT = os.environ['S3_ENDPOINT']             # where S3 buckets are located
+S3_ENDPOINT = os.environ['S3_ENDPOINT']  # where S3 buckets are located
 S3_FOLDER = os.environ['S3_FOLDER']
 S3_QUOTA = os.environ['S3_QUOTA']
 BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
 BUCKET_PRIVATE = os.environ['BUCKET_PRIVATE']
-UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"     # directory for game data
+UPLOAD_FOLDER = os.environ['HOME'] + "/uploads"  # directory for game data
 DOWNLOAD_FOLDER = os.environ['HOME'] + "/downloads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 APP_VERSION = os.environ['APP_VERSION']
@@ -73,7 +73,6 @@ if MAIL_ENABLE == 1:
 
     if not app.debug:
         app.logger.addHandler(mail_handler)
-
 
 # Enable CSRF protection for the app
 csrf = CSRFProtect(app)
@@ -1087,7 +1086,9 @@ def show_storage(section_name, folder_name):
 
     world = World.query.filter_by(world_name=escape(folder_name)).first()
 
-    if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or (section_name == "world" and world and current_user.is_authenticated and current_user.creator_id == world.creator_id):
+    if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or \
+            (section_name == "world" and world and current_user.is_authenticated and
+             current_user.creator_id == world.creator_id):
         space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"{section_name}/{folder_name}/") / 1024 / 1024), 2)
         space_used = int(space_used_in_mb / int(S3_QUOTA) * 100)
 
@@ -1121,8 +1122,10 @@ def do_rename(section_name, folder_name):
             filename_new = escape(request.form["filename_new"])
             filename_old = escape(request.form["filename_old"])
 
-            remote_file_new = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename_new)}"
-            remote_file_old = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename_old)}"
+            remote_file_new = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/\
+                {secure_filename(filename_new)}"
+            remote_file_old = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/\
+                {secure_filename(filename_old)}"
 
             if remote_file_new != remote_file_old and allowed_file(remote_file_new):
                 rename_file(BUCKET_PUBLIC, remote_file_new, remote_file_old)
@@ -1163,7 +1166,7 @@ def do_delete(section_name, folder_name, filename):
         if current_user.is_authenticated and current_user.creator_name == folder_name:
             remote_file = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(filename)}"
             delete_file(BUCKET_PUBLIC, remote_file)
-            return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name ))
+            return redirect(url_for('show_storage', section_name=section_name, folder_name=folder_name))
         else:
             return render_template('error.html')
     else:
@@ -1208,9 +1211,10 @@ def show_image(section_name, folder_name, filename):
     world = World.query.filter_by(world_name=escape(folder_name)).first()
 
     if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or (
-            section_name == "world" and world and current_user.is_authenticated and current_user.creator_id == world.creator_id):
+            section_name == "world" and world and current_user.is_authenticated and current_user.creator_id ==
+            world.creator_id):
         return render_template('image.html', section_name=secure_filename(section_name),
-                                   folder_name=secure_filename(folder_name), filename=secure_filename(filename))
+                               folder_name=secure_filename(folder_name), filename=secure_filename(filename))
     else:
         return render_template('error.html')
 
@@ -1644,13 +1648,13 @@ def show_room(room_id):
         update_session(world)
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
         objectives = Objective.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
-                Objective.objective_title.asc())
+            Objective.objective_title.asc())
         items = Item.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
-                Item.item_name.asc())
+            Item.item_name.asc())
         persons = Person.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
-                Person.person_name.asc())
+            Person.person_name.asc())
         junctions = Junction.query.filter_by(world_id=world.world_id).filter_by(room_id=room.room_id).order_by(
-                Junction.junction_id.asc())
+            Junction.junction_id.asc())
 
         room_names = dict()
         rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
@@ -2123,7 +2127,7 @@ def show_junctions_p(world_id):
         junction_room_dest = escape(request.form["room_dest"])
 
         junction = Junction.query.filter_by(room_id=junction_room).filter_by(dest_id=junction_room_dest).filter_by(
-                world_id=world_id).first()
+            world_id=world_id).first()
 
         if not junction:
             junction = Junction()
