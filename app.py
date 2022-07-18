@@ -956,6 +956,7 @@ def index():
     yield 'show_index', {}
     yield 'show_creators', {}
     yield 'show_worlds', {}
+    yield 'show_release', {}
 
 
 # Send an e-mail
@@ -1202,9 +1203,6 @@ def show_stats():
     counts['objective'] = Objective.query.count()
     counts['junction'] = Junction.query.count()
     counts['solution'] = Solution.query.count()
-
-    # bucket = dict()
-    # bucket['world'] = round((get_size(BUCKET_PUBLIC, "world/") / 1024 / 1024), 2)
 
     bucket_all = get_all_size(BUCKET_PUBLIC)
 
@@ -2324,19 +2322,23 @@ def show_my_solution(objective_id):
             solution = Solution.query.filter_by(objective_id=objective_id).filter_by(
                 creator_id=current_user.creator_id).first()
             if solution is not None:
-                db.session.delete(solution)
+                solution.solution_text = request.form["solution"].encode()
+                if 'visible' in request.form:
+                    solution.visible = 1
+                if 'completed' in request.form:
+                    solution.completed = 1
                 db.session.commit()
-
-            solution_new = Solution()
-            solution_new.objective_id = objective_id
-            solution_new.creator_id = current_user.creator_id
-            solution_new.solution_text = request.form["solution"].encode()
-            if 'visible' in request.form:
-                solution_new.visible = 1
-            if 'completed' in request.form:
-                solution_new.completed = 1
-            db.session.add(solution_new)
-            db.session.commit()
+            else:
+                solution = Solution()
+                solution.objective_id = objective_id
+                solution.creator_id = current_user.creator_id
+                solution.solution_text = request.form["solution"].encode()
+                if 'visible' in request.form:
+                    solution.visible = 1
+                if 'completed' in request.form:
+                    solution.completed = 1
+                db.session.add(solution)
+                db.session.commit()
 
             return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
@@ -2359,14 +2361,15 @@ def show_my_solution(objective_id):
                 creator_id=current_user.creator_id).first()
             if solution is not None:
                 return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'),
-                                       visible=solution.visible, completed=solution.completed, md_quest=md_quest, objective_id=objective_id,
-                                       world_id=objective.world_id, creator=creator, section_name="user",
-                                       folder_name=current_user.creator_name, contents=contents, form=form)
-            else:
-                return render_template('solution_my_detail.html', solution="", visible=0, md_quest=md_quest,
-                                       objective_id=objective_id, completed=0, world_id=objective.world_id, creator=creator,
+                                       visible=solution.visible, completed=solution.completed, md_quest=md_quest,
+                                       objective_id=objective_id, world_id=objective.world_id, creator=creator,
                                        section_name="user", folder_name=current_user.creator_name, contents=contents,
                                        form=form)
+            else:
+                return render_template('solution_my_detail.html', solution="", visible=0, md_quest=md_quest,
+                                       objective_id=objective_id, completed=0, world_id=objective.world_id,
+                                       creator=creator, section_name="user", folder_name=current_user.creator_name,
+                                       contents=contents, form=form)
         else:
             return render_template('error.html', error_message="That objective does not exist.")
 

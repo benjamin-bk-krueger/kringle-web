@@ -105,6 +105,7 @@ CREATE TABLE solution (
     creator_id INT REFERENCES creator ( creator_id ) ON DELETE CASCADE,
     solution_text BYTEA,
     visible INT default 0,
+    completed INT default 0,
     created timestamp default current_timestamp,
     modified timestamp default current_timestamp
 );
