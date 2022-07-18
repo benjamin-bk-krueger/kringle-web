@@ -3,7 +3,7 @@
 {% block content %}
     {#  Page header #}
     <div class="container-fluid pb-2 mt-4 mb-2">
-        <h2>{% block title %} S3 Storage {% endblock %}</h2>
+        <h2>{% block title %} S3 Storage ({{ section_name }} area for {{ folder_name }}){% endblock %}</h2>
     </div>
 
     {#  Javascript magic: paste clipboard's image data by pressing ctrl-v and upload it to S3 storage #}
@@ -195,10 +195,10 @@
             {% endfor %}
         </ul>
         {% for item in contents %}
-            <div id="{{ item }}-html" style="font-size:0;">https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ section_name }}/{{ folder_name }}/{{ item }}</div>
+            <div id="{{ item }}-html" style="font-size:0;">{{ s3_prefix }}/{{ item }}</div>
         {% endfor %}
         {% for item in contents %}
-            <div id="{{ item }}-md" style="font-size:0;">![{{ item }}](https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public/{{ section_name }}/{{ folder_name }}/{{ item }})</div>
+            <div id="{{ item }}-md" style="font-size:0;">![{{ item }}]({{ s3_prefix }}/{{ item }})</div>
         {% endfor %}
     </div>
 {% endblock %}

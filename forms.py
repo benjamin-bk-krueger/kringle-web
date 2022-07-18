@@ -60,7 +60,7 @@ class RoomForm(FlaskForm):
 class ItemForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     description = TextAreaField('Description')
-    image = StringField('Image URL')
+    image = SelectField('Image URL', choices=["none"])
     room = SelectField('Select Room', choices=["none"])
 
 

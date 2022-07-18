@@ -121,6 +121,7 @@
                             <li><a class="dropdown-item" href="{{ url_for('show_report', world_id=world.world_id, format_type='pdf') }}">Create Report (HTML)</a></li>
                         {% endif %}
                         {% if current_user.creator_id == world.creator_id %}
+                            <li><a class="dropdown-item" href="{{ url_for('show_storage', section_name='world', folder_name=world.world_name) }}">World Storage Area</a></li>
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#myModal_del">Delete World</a></li>
                         {% endif %}
                     </ul>
@@ -143,7 +144,12 @@
                     <a href="{{ url_for('show_report', world_id=world.world_id, format_type='pdf') }}" data-toggle="tooltip" title="Create Report (HTML)" class="btn btn-primary mt-4 mb-4"><i class="bi bi-filetype-html"></i></a>
                 {% endif %}
             </div>
-            <div class="btn-group" role="group" aria-label="Forth group">
+            <div class="btn-group me-2" role="group" aria-label="Forth group">
+                {% if current_user.creator_id == world.creator_id %}
+                    <a href="{{ url_for('show_storage', section_name='world', folder_name=world.world_name) }}" data-toggle="tooltip" title="World Storage Area" class="btn btn-light mt-4 mb-4"><i class="bi bi-hdd"></i></a>
+                {% endif %}
+            </div>
+            <div class="btn-group" role="group" aria-label="Fifth group">
                 {% if current_user.creator_id == world.creator_id %}
                     <a href="#" class="btn btn-danger mt-4 mb-4" data-toggle="tooltip" title="Delete World" data-bs-toggle="modal" data-bs-target="#myModal_del"><i class="bi bi-trash"></i></a>
                 {% endif %}

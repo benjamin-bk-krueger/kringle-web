@@ -35,6 +35,7 @@ MAIL_SENDER = os.environ['MAIL_SENDER']
 MAIL_ADMIN = os.environ['MAIL_ADMIN']
 MAIL_ENABLE = int(os.environ['MAIL_ENABLE'])
 S3_ENDPOINT = os.environ['S3_ENDPOINT']             # where S3 buckets are located
+S3_FOLDER = os.environ['S3_FOLDER']
 S3_QUOTA = os.environ['S3_QUOTA']
 BUCKET_PUBLIC = os.environ['BUCKET_PUBLIC']
 BUCKET_PRIVATE = os.environ['BUCKET_PRIVATE']
@@ -1075,6 +1076,8 @@ def show_storage(section_name, folder_name):
         space_used_in_mb = round((get_size(BUCKET_PUBLIC, f"{section_name}/{folder_name}/") / 1024 / 1024), 2)
         space_used = int(space_used_in_mb / int(S3_QUOTA) * 100)
 
+        s3_prefix = f"{S3_FOLDER}/{section_name}/{folder_name}"
+
         if request.method == 'POST' and form.validate_on_submit():
             filename = secure_filename(form.file.data.filename)
 
@@ -1091,7 +1094,7 @@ def show_storage(section_name, folder_name):
             contents = list_files(BUCKET_PUBLIC, section_name, folder_name)
             return render_template('storage.html', section_name=section_name, folder_name=folder_name,
                                    contents=contents, space_used_in_mb=space_used_in_mb, space_used=space_used,
-                                   form=form, form2=form2)
+                                   s3_prefix=s3_prefix, form=form, form2=form2)
     else:
         return render_template('error.html')
 
@@ -1681,9 +1684,16 @@ def show_items(world_id):
         rooms = Room.query.filter_by(world_id=world_id).order_by(Room.room_id.asc())
         items = Item.query.filter_by(world_id=world_id).order_by(Item.item_name.asc())
 
-        form.room.choices = get_rooms_choices(rooms)
+        s3_prefix = f"{S3_FOLDER}/world/{world.world_name}"
+        image_files = list_files(BUCKET_PUBLIC, "world", world.world_name)
+        image_files.insert(0, "No Image")
 
-        return render_template('item.html', items=items, world=world, creator=creator, form=form)
+        form.image.choices = image_files
+        form.image.default = "none"
+        form.room.choices = get_rooms_choices(rooms)
+        form.process()
+
+        return render_template('item.html', items=items, world=world, creator=creator, form=form, s3_prefix=s3_prefix)
     else:
         return render_template('error.html')
 
@@ -1725,15 +1735,19 @@ def show_item(item_id):
         creator = Creator.query.filter_by(creator_id=world.creator_id).first()
 
         rooms = Room.query.filter_by(world_id=world.world_id).order_by(Room.room_id.asc())
+        s3_prefix = f"{S3_FOLDER}/world/{world.world_name}"
+        image_files = list_files(BUCKET_PUBLIC, "world", world.world_name)
+        image_files.insert(0, "No Image")
 
         form.name.default = item.item_name
         form.description.default = item.item_desc
+        form.image.choices = image_files
         form.image.default = item.item_img
         form.room.choices = get_rooms_choices(rooms)
         form.room.default = item.room_id
         form.process()
 
-        return render_template('item_detail.html', item=item, room=room, world=world, creator=creator, form=form)
+        return render_template('item_detail.html', item=item, room=room, world=world, creator=creator, form=form, s3_prefix=s3_prefix)
     else:
         return render_template('error.html')
 
@@ -2174,20 +2188,21 @@ def show_quest(objective_id):
             return render_template('error.html')
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
-        contents = list_files(BUCKET_PUBLIC, "user", current_user.creator_name)
         if objective:
             room = Room.query.filter_by(room_id=objective.room_id).first()
             world = World.query.filter_by(world_id=room.world_id).first()
 
+            contents = list_files(BUCKET_PUBLIC, "world", world.world_name)
+
             if world.creator_id == current_user.creator_id:
                 if objective.quest is not None:
                     return render_template('quest_detail.html', quest=str(bytes(objective.quest), 'utf-8'),
-                                           objective_id=objective_id, world_id=objective.world_id, section_name="user",
-                                           folder_name=current_user.creator_name, contents=contents, form=form)
+                                           objective_id=objective_id, world_id=objective.world_id, section_name="world",
+                                           folder_name=world.world_name, contents=contents, form=form)
                 else:
                     return render_template('quest_detail.html', quest="", objective_id=objective_id,
-                                           world_id=objective.world_id, section_name="user",
-                                           folder_name=current_user.creator_name, contents=contents, form=form)
+                                           world_id=objective.world_id, section_name="world",
+                                           folder_name=world.world_name, contents=contents, form=form)
             else:
                 return redirect(url_for('show_objective', objective_id=objective.objective_id))
         else:
@@ -2274,10 +2289,12 @@ def show_my_solution(objective_id):
             return render_template('error.html')
     else:
         objective = Objective.query.filter_by(objective_id=objective_id).first()
-        contents = list_files(BUCKET_PUBLIC, "user", current_user.creator_name)
         if objective:
             world = World.query.filter_by(world_id=objective.world_id).first()
             creator = Creator.query.filter_by(creator_id=world.creator_id).first()
+
+            contents = list_files(BUCKET_PUBLIC, "user", current_user.creator_name)
+
             if objective.quest is not None:
                 md_quest = markdown2.markdown(str(bytes(objective.quest), 'utf-8'), extras=['fenced-code-blocks'])
                 md_quest = md_quest.replace("<img src=", "<img class=\"img-fluid\" src=")
