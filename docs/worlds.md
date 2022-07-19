@@ -36,14 +36,14 @@ In the section below, you can access following actions:
 - The *list* symbol leads back to the worlds overview
 - The *pencil* symbol allows you to edit the world description and the linked image (`creator` role necessary, and world ownership)
 - The *world* symbol sets the world visibility (`creator` role necessary, and world ownership)
-  - Open: Everyone is able to see public solutions
-  - Closed: No one is able to see solutions (public or not)
+    - Open: Everyone is able to see public solutions
+    - Closed: No one is able to see solutions (public or not)
 - The *box* symbol archives the world (`creator` role necessary, and world ownership)
-  - Active: The world is visible on the page index and the worlds overview
-  - Archived: The world is only visible on the world archive
+    - Active: The world is visible on the page index and the worlds overview
+    - Archived: The world is only visible on the world archive
 - The *|<* symbol marks the world as Kringle or Standard (`creator` role necessary, and world ownership)
-  - Kringle: The navigation shows all elements like items, persons and junctions
-  - Standard: The navigation shows only the basic set like rooms and objectives
+    - Kringle: The navigation shows all elements like items, persons and junctions
+    - Standard: The navigation shows only the basic set like rooms and objectives
 - The *MD* symbol lets you create a markdown report (`user` role necessary)
 - The *HTML* symbol lets you create an HTML report (`user` role necessary)
 - The *disk* symbol leads to the storage area especially for that world (`creator` role necessary, and world ownership)
