@@ -22,17 +22,17 @@ What does it currently offer?
     - An anonymous user can view the challenges and public solutions
     - Submitted solutions can even be "liked"
 - It does support registrations
-    - There are invitation codes for world creators and registered users
-    - I'm paying for the hardware, so I don't want that to be abused
-    - In the future I might find another way more useful
-- It does support publication dates
+    - There is a simple e-mail based registration workflow
+    - There are also invitation codes for world creators and registered users which can be distributed for certain events
+- It does support opening and closing worlds
     - The world creator can flag a world public, before that point of time no one is able to see other solutions (required by the Holiday Hack Challenge rules)
     - The registered user can flag each solution public, before that point of time no one is able to see it
 - It does support S3 storage
     - Sometimes you need to include images in your solutions, you can upload them to a S3 bucket and easily generate Markdown links
+    - Each user has a certain quota
 - It does support mail sending
-    - Currently, you'll get an e-mail if you have changed your password
-    - That might be extended to other use cases, e.g. a world was made public
+    - You'll get an e-mail e.g. if you have changed your password
+    - There are global notifications for events like a world has been opened to the public
 - It does support automatic report generation
     - You can generate a Markdown or HTML report containing all challenges and all your solutions
     - The report even contains clickable links and navigation

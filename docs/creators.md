@@ -3,7 +3,7 @@
 ## All Creators
 
 You can see which creators and users are registered by clicking on *Creators*.  
-Creators have a special badge.  
+World creators have a special badge.  
 
 If you click on an entry, you will be taken to the detailed view.  
 
@@ -15,6 +15,10 @@ In the detailed view you can inform yourself about the respective creator or use
 If the creator has linked an image, it will be displayed here as well.  
 The *description* box below provides brief information about this creator.  
 
-When you click on *All creators* you will get back to the creators overview.  
-
 ![Creator Detail 1](./img/creators_detail.png)
+
+In the section below, you can access following actions:  
+
+- The *list* symbol leads back to the creators overview
+
+Note: The same actions can be accessed via the *Actions* drop-down menu
