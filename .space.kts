@@ -7,9 +7,7 @@
 job("Build and push Docker") {
     docker {
         build {
-            context = "docker"
             file = "./Dockerfile"
-            labels["vendor"] = "benjamin.krueger"
         }
 
         push("krueger.registry.jetbrains.space/p/kringle/containers/kringle-web") {
