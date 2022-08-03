@@ -1218,6 +1218,12 @@ def show_release():
     return render_template('release.html')
 
 
+# Show privacy policy
+@app.route(APP_PREFIX + '/web/privacy', methods=['GET'])
+def show_privacy():
+    return render_template('privacy.html')
+
+
 # Displays an image file stored on S3 storage
 @app.route(APP_PREFIX + '/web/image/<string:section_name>/<string:folder_name>/<string:filename>', methods=['GET'])
 @login_required
