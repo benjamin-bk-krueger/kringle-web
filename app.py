@@ -972,13 +972,16 @@ def send_mail(recipients, mail_header, mail_body):
 def send_massmail(mail_header, mail_body):
     if MAIL_ENABLE == 1:
         creators = Creator.query.filter_by(active=1).order_by(Creator.creator_name.asc())
+        recipients = list()
         bcc = list()
+        recipients.append(MAIL_SENDER)
         for creator in creators:
             # recipients.append(creator.creator_mail
             #                  )
             bcc.append("ben@blk8.de")
         msg = Message(mail_header,
                       sender=MAIL_SENDER,
+                      recipients=recipients,
                       bcc=bcc)
         msg.body = mail_body
         mail.send(msg)
