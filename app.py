@@ -976,9 +976,7 @@ def send_massmail(mail_header, mail_body):
         bcc = list()
         recipients.append(MAIL_SENDER)
         for creator in creators:
-            # recipients.append(creator.creator_mail
-            #                  )
-            bcc.append("ben@blk8.de")
+            bcc.append(creator.creator_mail)
         msg = Message(mail_header,
                       sender=MAIL_SENDER,
                       recipients=recipients,
