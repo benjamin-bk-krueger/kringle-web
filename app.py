@@ -1024,6 +1024,7 @@ def update_session(world):
     session['world_id'] = world.world_id
     session['world_name'] = world.world_name
     session['reduced'] = world.reduced
+    session['s3_folder'] = S3_FOLDER
     session['s3_prefix'] = f"{S3_FOLDER}/world/{world.world_name}"
 
 
