@@ -1749,7 +1749,7 @@ def show_items(world_id):
 
         return render_template('item.html', items=items, world=world, creator=creator, form=form)
     else:
-        return render_template('error.html', error_message="That room does not exist.")
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Post a new item - if it doesn't already exist
@@ -1985,6 +1985,8 @@ def show_objectives(world_id):
 
         return render_template('objective.html', objectives=objectives, world=world, creator=creator,
                                solved_solutions=solved_solutions, solved_percentage=solved_percentage, form=form)
+    else:
+        return render_template('error.html', error_message="That world does not exist.")
 
 
 # Post a new objective - if it doesn't already exist
