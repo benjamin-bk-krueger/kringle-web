@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:kinetic-20220830
 
 LABEL version="0.9"
 LABEL maintainer="Ben Krueger <sayhello@blk8.de>"
