@@ -22,7 +22,7 @@ services:
       - MAIL_ADMIN=admin@kringle.info
       - APP_VERSION=0.96_alpha
       - APP_PREFIX=
-    command: /home/kringle/flask.sh
+    command: sh /home/kringle/flask.sh
     user: kringle
     ports:
       - "127.0.0.1:5010:5010"
