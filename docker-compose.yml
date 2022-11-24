@@ -11,8 +11,8 @@ services:
       - SECRET_KEY=secret-key-goes-here
       - FLASK_ENV=development
       - FLASK_DEBUG=1
-      - S3_ENDPOINT=https://eu2.contabostorage.com
-      - S3_FOLDER=https://eu2.contabostorage.com/6c12e0aef74840bf9c331581d3f4d52c:kringle-public
+      - S3_ENDPOINT=https://s3.kringle.info:9000
+      - S3_FOLDER=https://s3.kringle.info:9000/kringle-public
       - S3_QUOTA=100
       - BUCKET_PUBLIC=kringle-public
       - BUCKET_PRIVATE=kringle-private
