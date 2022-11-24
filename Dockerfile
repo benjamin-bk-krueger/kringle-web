@@ -26,4 +26,4 @@ COPY docs/ /home/kringle/docs/
 
 RUN cd /home/kringle && mkdocs build
 
-CMD ["sh /home/kringle/flask.sh"]
+CMD ["/home/kringle/flask.sh"]
