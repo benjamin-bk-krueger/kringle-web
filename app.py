@@ -132,6 +132,7 @@ class Creator(UserMixin, db.Model):
     creator_img = db.Column(db.VARCHAR(384))
     creator_role = db.Column(db.VARCHAR(20))
     active = db.Column(db.INTEGER, default=0)
+    notification = db.Column(db.INTEGER, default=0)
 
     # match the correct row for the Login Manager ID
     def get_id(self):
@@ -976,7 +977,8 @@ def send_massmail(mail_header, mail_body):
         bcc = list()
         recipients.append(MAIL_SENDER)
         for creator in creators:
-            bcc.append(creator.creator_mail)
+            if creator.notification == 1:
+                bcc.append(creator.creator_mail)
         msg = Message(mail_header,
                       sender=MAIL_SENDER,
                       recipients=recipients,
@@ -1372,6 +1374,7 @@ def show_my_creator():
     form1.description.default = creator.creator_desc
     form1.image.choices = get_profile_choices(creator)
     form1.image.default = creator.creator_img
+    form1.notification.default = creator.notification
     form1.process()
     return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
 
@@ -1391,6 +1394,7 @@ def show_my_mail_creator():
             creator.creator_mail = escape(request.form["email"])
             creator.creator_desc = request.form["description"]
             creator.creator_img = escape(request.form["image"])
+            creator.notification = 1 if request.form.get('notification') else 0
             db.session.commit()
 
             send_mail([creator.creator_mail], "Notification: E-Mail changed",
@@ -1402,6 +1406,7 @@ def show_my_mail_creator():
             form1.description.default = creator.creator_desc
             form1.image.choices = get_profile_choices(creator)
             form1.image.default = creator.creator_img
+            form1.notification.default = creator.notification
             form1.process()
             return render_template('account_detail.html', creator=creator, form1=form1, form2=form2, form3=form3)
     else:

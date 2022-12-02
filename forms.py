@@ -26,6 +26,7 @@ class MailCreatorForm(FlaskForm):
     email = StringField('E-Mail', validators=[InputRequired(), Email()])
     description = TextAreaField('Description', validators=[Length(max=1024)])
     image = SelectField('Image', choices=["none"], validate_choice=False)
+    notification = BooleanField('Send notifications', default='checked')
 
 
 class PassCreatorForm(FlaskForm):

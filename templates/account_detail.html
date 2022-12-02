@@ -47,10 +47,17 @@
                 <label for="image">{{ form1.image.label }}</label>
                 {{ form1.image(class="form-select", style="max-width: 720px;") }}
             </div>
+            <div class="form-check mt-2 mb-2">
+                <label class="form-check-label" for="notification">{{ form1.notification.label }}</label>
+                {{ form1.notification(class="form-check-input") }}
+            </div>
             {% for error in form1.email.errors %}
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
             {% endfor %}
             {% for error in form1.image.errors %}
+                <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
+            {% endfor %}
+            {% for error in form1.notification.errors %}
                 <div class="alert alert-warning"><strong>Warning!</strong> {{ error }}</div>
             {% endfor %}
             <button type="submit" class="btn btn-primary mt-4 mb-4">Update</button>
