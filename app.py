@@ -2496,7 +2496,7 @@ def show_report(world_id, format_type):
         with open(local_file, 'w') as f:
             f.write(render_template(template_file, world=world, rooms=rooms, objectives=objectives, items=items,
                                     md_quests=md_quests, md_solutions=md_solutions, creator=creator))
-        return send_file(local_file, attachment_filename=template_file, as_attachment=True)
+        return send_file(local_file, download_name=template_file, as_attachment=True)
     else:
         md_report = markdown2.markdown(
             render_template(template_file, world=world, rooms=rooms, objectives=objectives, items=items,
@@ -2540,7 +2540,7 @@ def show_report_single(objective_id, format_type):
             with open(local_file, 'w') as f:
                 f.write(render_template(template_file, objective=objective, md_quest=md_quest,
                                         md_solution=md_solution))
-            return send_file(local_file, attachment_filename=template_file, as_attachment=True)
+            return send_file(local_file, download_name=template_file, as_attachment=True)
         else:
             md_report = markdown2.markdown(
                 render_template(template_file, objective=objective, md_quest=md_quest,
