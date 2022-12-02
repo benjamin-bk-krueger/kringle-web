@@ -4,7 +4,7 @@
 
 Kringle.info is an online CTF solution editor and report generator inspired by SANS Holiday Hack Challenge & KringleCon. The SANS Holiday Hack Challenge happens each year and offers a lot of challenges, knowledge and fun. You can even submit a report containing your solutions and win prizes.  
 In 2021 I have submitted a report in Markdown format (the ideal format in my opinion as it's easy and simple and offers code highlighting).  
-I have invested some time to create a beautiful and well-structured report, so I thought it would be a good idea to automate that. Next I had the idea that even other people might find such an automation useful. I started creating a small Python script which resulted in a self-hosted full web application based on Flask, Bootstrap and PostgreSQL.  
+I have invested some time to create a beautiful and well-structured report, so I thought it would be a good idea to automate that. Next I had the idea that even other people might find such an automation useful. I started creating a small Python script which resulted in a self-hosted full web application based on Flask, Bootstrap and Postgresql.  
 It's not limited to the Kringle theme but supports any CTF based on challenges and solutions.
 
 ![Items Detail](./img/index_all.png)

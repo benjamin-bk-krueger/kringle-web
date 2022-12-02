@@ -1193,7 +1193,7 @@ def do_rename(section_name, folder_name):
     if (section_name == "user" and current_user.is_authenticated and current_user.creator_name == folder_name) or \
             (section_name == "world" and world and current_user.is_authenticated and
              current_user.creator_id == world.creator_id):
-        remote_file_new = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(request.form['filename_new'])}"
+        remote_file_new = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(request.form['filename_new'])} "
         remote_file_old = f"{secure_filename(section_name)}/{secure_filename(folder_name)}/{secure_filename(request.form['filename_old'])}"
 
         if remote_file_new != remote_file_old and allowed_file(remote_file_new):
