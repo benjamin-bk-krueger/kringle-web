@@ -733,6 +733,7 @@ class Solution(db.Model):
     solution_text = db.Column(db.LargeBinary)
     visible = db.Column(db.INTEGER, default=0)
     completed = db.Column(db.INTEGER, default=0)
+    ctf_flag = db.Column(db.VARCHAR(100))
 
     def __repr__(self):
         return '<Solution %s>' % self.solution_id
@@ -2291,9 +2292,10 @@ def show_solution(solution_id):
                 md_solution = md_solution.replace("<img src=", "<img class=\"img-fluid\" src=")
 
                 return render_template('solution_detail.html', md_solution=md_solution, solution=solution,
-                                       objective=objective)
+                                       objective=objective, ctf_flag=solution.ctf_flag)
             else:
-                return render_template('solution_detail.html', md_solution="", solution=solution, objective=objective)
+                return render_template('solution_detail.html', md_solution="No solution yet", solution=solution,
+                                       objective=objective, ctf_flag="No flag recorded")
         else:
             return redirect(url_for('show_objective', objective_id=objective.objective_id))
     else:
@@ -2339,20 +2341,18 @@ def show_my_solution(objective_id):
                 creator_id=current_user.creator_id).first()
             if solution is not None:
                 solution.solution_text = request.form["solution"].encode()
-                if 'visible' in request.form:
-                    solution.visible = 1
-                if 'completed' in request.form:
-                    solution.completed = 1
+                solution.visible = 1 if 'visible' in request.form else 0
+                solution.completed = 1 if 'completed' in request.form else 0
+                solution.ctf_flag = escape(request.form["ctf_flag"])
                 db.session.commit()
             else:
                 solution = Solution()
                 solution.objective_id = objective_id
                 solution.creator_id = current_user.creator_id
                 solution.solution_text = request.form["solution"].encode()
-                if 'visible' in request.form:
-                    solution.visible = 1
-                if 'completed' in request.form:
-                    solution.completed = 1
+                solution.visible = 1 if 'visible' in request.form else 0
+                solution.completed = 1 if 'completed' in request.form else 0
+                solution.ctf_flag = escape(request.form["ctf_flag"])
                 db.session.add(solution)
                 db.session.commit()
 
@@ -2376,6 +2376,8 @@ def show_my_solution(objective_id):
             solution = Solution.query.filter_by(objective_id=objective_id).filter_by(
                 creator_id=current_user.creator_id).first()
             if solution is not None:
+                form.ctf_flag.default = solution.ctf_flag
+                form.process()
                 return render_template('solution_my_detail.html', solution=str(bytes(solution.solution_text), 'utf-8'),
                                        visible=solution.visible, completed=solution.completed, md_quest=md_quest,
                                        objective_id=objective_id, world_id=objective.world_id, creator=creator,

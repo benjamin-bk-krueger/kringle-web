@@ -107,6 +107,7 @@ CREATE TABLE solution (
     solution_text BYTEA,
     visible INT default 0,
     completed INT default 0,
+    ctf_flag VARCHAR ( 100 ),
     created timestamp default current_timestamp,
     modified timestamp default current_timestamp
 );

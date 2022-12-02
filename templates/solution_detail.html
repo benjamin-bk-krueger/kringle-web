@@ -12,6 +12,19 @@
         {#  Display solution of the selected objective - the markdown has been converted to HTML #}
         {{ md_solution|safe }}
 
+        <hr class="little mt-4 mb-4">
+
+        <p>
+          <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseFlag" role="button" aria-expanded="false" aria-controls="collapseFlag">
+            Show Flag
+          </a>
+        </p>
+        <div class="collapse" id="collapseFlag">
+            <div class="card card-body">
+                {{ ctf_flag }}
+            </div>
+        </div>
+
         {# Display simple buttons - like the solution or go back the the objective's overview #}
         <div class="btn-toolbar" role="toolbar" aria-label="Solution Actions">
             {% if (current_user.creator_id != solution.creator_id) and (current_user.creator_role == "creator" or current_user.creator_role == "user") %}

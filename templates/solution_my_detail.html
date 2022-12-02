@@ -66,6 +66,10 @@
                 const easyMDE = new EasyMDE();
             </script>
 
+            <div class="form-group mt-2 mb-2">
+                <label for="{{ form.ctf_flag.name }}">{{ form.ctf_flag.label }}</label>
+                {{ form.ctf_flag(size=40, class="form-control") }}
+            </div>
             <div class="form-check">
                 <label class="form-check-label" for="visible">Make solution public</label>
                 <input class="form-check-input" type="checkbox" value="" name="visible" id="visible" {{ 'checked' if (visible==1) }}>
