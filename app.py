@@ -1118,7 +1118,7 @@ def show_password():
                                   sender=MAIL_SENDER,
                                   recipients=recipients
                                   )
-                    msg.body = "Reset your password here: " + url_for('show_password_reset', random_hash)
+                    msg.body = "Reset your password here: " + url_for('show_password_reset', random_hash=random_hash)
                     mail.send(msg)
         return redirect(url_for('show_index'))
     else:
@@ -1126,13 +1126,13 @@ def show_password():
 
 
 # Show user password reset page
-@app.route(APP_PREFIX + '/web/reset_password/<string:email_link>', methods=['GET', 'POST'])
-def show_password_reset(email_link):
+@app.route(APP_PREFIX + '/web/reset_password/<string:random_hash>', methods=['GET', 'POST'])
+def show_password_reset(random_hash):
     form = PasswordResetForm()
     if request.method == 'POST' and form.validate_on_submit():
         return redirect(url_for('show_index'))
     else:
-        return render_template('password_reset.html', form=form, email_link=email_link)
+        return render_template('password_reset.html', form=form, random_hash=random_hash)
 
 
 # --------------------------------------------------------------
