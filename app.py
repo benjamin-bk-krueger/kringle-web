@@ -1134,9 +1134,10 @@ def show_password_reset(random_hash):
     if request.method == 'POST' and form.validate_on_submit():
         creators = Creator.query.filter_by(active=1).order_by(Creator.creator_name.asc())
         for creator in creators:
-            if creator.password_reset == random_hash:
+            if creator.password_reset == random_hash and len(random_hash > 30):
                 creator.creator_pass = generate_password_hash(request.form["password"], method='pbkdf2:sha256',
                                                               salt_length=16)
+                creator.password_reset = ""
                 db.session.commit()
         return redirect(url_for('show_index'))
     else:
