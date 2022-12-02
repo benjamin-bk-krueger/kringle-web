@@ -31,6 +31,7 @@ POSTGRES_USER = os.environ['POSTGRES_USER']
 POSTGRES_PW = os.environ['POSTGRES_PW']
 POSTGRES_DB = os.environ['POSTGRES_DB']
 SECRET_KEY = os.environ['SECRET_KEY']
+WWW_SERVER = os.environ['WWW_SERVER']
 MAIL_SERVER = os.environ['MAIL_SERVER']  # mail host
 MAIL_SENDER = os.environ['MAIL_SENDER']
 MAIL_ADMIN = os.environ['MAIL_ADMIN']
@@ -1118,7 +1119,7 @@ def show_password():
                                   sender=MAIL_SENDER,
                                   recipients=recipients
                                   )
-                    msg.body = "Reset your password here: " + url_for('show_password_reset', random_hash=random_hash)
+                    msg.body = "Reset your password here: " + WWW_SERVER + url_for('show_password_reset', random_hash=random_hash)
                     mail.send(msg)
         return redirect(url_for('show_index'))
     else:

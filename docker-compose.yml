@@ -16,6 +16,7 @@ services:
       - S3_QUOTA=100
       - BUCKET_PUBLIC=kringle-public
       - BUCKET_PRIVATE=kringle-private
+      - WWW_SERVER=https://kringle.info
       - MAIL_ENABLE=0
       - MAIL_SERVER=localhost
       - MAIL_SENDER=mail@kringle.info
