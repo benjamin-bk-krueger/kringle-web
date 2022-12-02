@@ -2,6 +2,7 @@ import json  # for JSON file handling and parsing
 import os  # for direct file system and environment access
 import re  # for regular expressions
 import random  # for captcha random numbers
+import string  # for string operations
 import logging  # enable logging
 
 import boto3  # for S3 storage
@@ -22,7 +23,7 @@ from logging.handlers import SMTPHandler  # get crashes via mail
 
 from forms import LoginForm, AccountForm, MailCreatorForm, PassCreatorForm, DelCreatorForm, \
     UploadForm, WorldForm, RoomForm, ItemForm, ObjectiveForm, ContactForm, PersonForm, \
-    JunctionForm, QuestSolForm, FileForm  # Flask/Jinja template forms
+    JunctionForm, QuestSolForm, FileForm, PasswordForm, PasswordResetForm  # Flask/Jinja template forms
 
 # the app configuration is done via environmental variables
 POSTGRES_URL = os.environ['POSTGRES_URL']  # DB connection data
@@ -133,6 +134,7 @@ class Creator(UserMixin, db.Model):
     creator_role = db.Column(db.VARCHAR(20))
     active = db.Column(db.INTEGER, default=0)
     notification = db.Column(db.INTEGER, default=0)
+    password_reset = db.Column(db.VARCHAR(100))
 
     # match the correct row for the Login Manager ID
     def get_id(self):
@@ -1093,6 +1095,44 @@ def show_logout():
     update_style("main.css")
     logout_user()
     return redirect(url_for('show_index'))
+
+
+# Show user password reset page
+@app.route(APP_PREFIX + '/web/password', methods=['GET', 'POST'])
+def show_password():
+    form = PasswordForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        if MAIL_ENABLE == 1:
+            creator_email = request.form["email"]
+
+            creators = Creator.query.filter_by(active=1).order_by(Creator.creator_name.asc())
+            recipients = list()
+            for creator in creators:
+                if creator.creator_mail == creator_email:
+                    random_hash = ''.join(random.sample(string.ascii_letters + string.digits, 32))
+                    creator.password_reset = random_hash
+                    db.session.commit()
+
+                    recipients.append(creator.creator_mail)
+                    msg = Message("Password Reset Link",
+                                  sender=MAIL_SENDER,
+                                  recipients=recipients
+                                  )
+                    msg.body = "Reset your password here: " + url_for('show_password_reset', random_hash)
+                    mail.send(msg)
+        return redirect(url_for('show_index'))
+    else:
+        return render_template('password.html', form=form)
+
+
+# Show user password reset page
+@app.route(APP_PREFIX + '/web/reset_password/<string:email_link>', methods=['GET', 'POST'])
+def show_password_reset(email_link):
+    form = PasswordResetForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        return redirect(url_for('show_index'))
+    else:
+        return render_template('password_reset.html', form=form, email_link=email_link)
 
 
 # --------------------------------------------------------------

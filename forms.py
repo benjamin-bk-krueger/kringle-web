@@ -12,6 +12,16 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember me', default='checked')
 
 
+class PasswordForm(FlaskForm):
+    email = StringField('E-Mail', validators=[InputRequired(), Email()])
+
+
+class PasswordResetForm(FlaskForm):
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=5, max=20),
+                                                     EqualTo('password2', message='Passwords must match')])
+    password2 = PasswordField('Password Verification', validators=[InputRequired(), Length(min=5, max=20)])
+
+
 class AccountForm(FlaskForm):
     creator = StringField('Name', validators=[InputRequired(), Length(min=5, max=20),
                                               NoneOf([' '], message='No spaces allowed')])
