@@ -100,7 +100,7 @@ class ContactForm(FlaskForm):
 
 class QuestSolForm(FlaskForm):
     operation = HiddenField(default='quest')
-    ctf_flag = StringField('CTF Flag', validators=[Length(max=100)])
+    ctf_flag = StringField('Flag', validators=[Length(max=100)])
 
 
 class FileForm(FlaskForm):
