@@ -34,12 +34,12 @@ The challenges are the main tasks you have to achieve. Follow [this link](#Chall
 {% endif %}{% endfor %}
 {% endfor %}
 
-[Go back to Document structure](#Document-structure)
+[Go back to Document structure](#Document structure)
 
 # Challenges
 
 {% for objective in objectives %}
-* [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "-") }}) **{{ objective.objective_name }}** 
+* [{{ objective.objective_title }}](#{{ objective.objective_title }}) **{{ objective.objective_name }}** 
 {% endfor %}
 
 {% for objective in objectives %}
@@ -61,4 +61,4 @@ Challenge:
 
 {% endfor %}
 
-[Go back to Document structure](#Document-structure)
+[Go back to Document structure](#Document structure)

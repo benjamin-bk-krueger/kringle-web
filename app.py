@@ -2485,9 +2485,15 @@ def show_report(world_id, format_type):
     folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
 
     if world.reduced == 0:
-        template_file = "report_kringle.md"
+        if format_type == "markdown":
+            template_file = "report_kringle.md"
+        else:
+            template_file = "report_kringle_html.md"
     else:
-        template_file = "report_standard.md"
+        if format_type == "markdown":
+            template_file = "report_standard.md"
+        else:
+            template_file = "report_standard_html.md"
 
     if format_type == "markdown":
         local_file = os.path.join(folder_name, template_file)
@@ -2516,6 +2522,7 @@ def show_report(world_id, format_type):
 @login_required
 def show_report_single(objective_id, format_type):
     objective = Objective.query.filter_by(objective_id=objective_id).first()
+    world = World.query.filter_by(world_id=objective.world_id).first()
     if objective:
         if objective.quest is not None:
             md_quest = str(bytes(objective.quest), 'utf-8')
@@ -2531,19 +2538,22 @@ def show_report_single(objective_id, format_type):
 
         folder_name = f"{DOWNLOAD_FOLDER}/{current_user.creator_name}"
 
-        template_file = "report_single.md"
+        if format_type == "markdown":
+            template_file = "report_single.md"
+        else:
+            template_file = "report_single_html.md"
 
         if format_type == "markdown":
             local_file = os.path.join(folder_name, template_file)
             if not os.path.exists(folder_name):
                 os.makedirs(folder_name)
             with open(local_file, 'w') as f:
-                f.write(render_template(template_file, objective=objective, md_quest=md_quest,
+                f.write(render_template(template_file, world=world, objective=objective, md_quest=md_quest,
                                         md_solution=md_solution))
             return send_file(local_file, download_name=template_file, as_attachment=True)
         else:
             md_report = markdown2.markdown(
-                render_template(template_file, objective=objective, md_quest=md_quest,
+                render_template(template_file, world=world, objective=objective, md_quest=md_quest,
                                 md_solution=md_solution),
                 extras=['fenced-code-blocks'])
 

@@ -49,12 +49,12 @@ Hint: Not all destinations are reachable when you start your journey. You might 
 {% endif %}{% endfor %}
 {% endfor %}
 
-[Go back to Document structure](#Document-structure)
+[Go back to Document structure](#Document structure)
 
 # Objectives
 
 {% for objective in objectives %}{% if objective.difficulty > 0 %}
-* [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "-") }}) **{{ objective.objective_name }}** 
+* [{{ objective.objective_title }}](#{{ objective.objective_title }}) **{{ objective.objective_name }}** 
 {% endif %}{% endfor %}
 
 {% for objective in objectives %}{% if objective.difficulty > 0 %}
@@ -77,12 +77,12 @@ Challenge:
 
 {% endif %}{% endfor %}
 
-[Go back to Document structure](#Document-structure)
+[Go back to Document structure](#Document structure)
 
 # Hints
 
 {% for objective in objectives %}{% if objective.difficulty == 0 %}
-* [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "-") }}) **{{ objective.objective_name }}** 
+* [{{ objective.objective_title }}](#{{ objective.objective_title }}) **{{ objective.objective_name }}** 
 {% endif %}{% endfor %}
 
 {% for objective in objectives %}{% if objective.difficulty == 0 %}
@@ -104,7 +104,7 @@ Quest:
 
 {% endif %}{% endfor %}
 
-[Go back to Document structure](#Document-structure)
+[Go back to Document structure](#Document structure)
 
 # Items
 
@@ -112,11 +112,11 @@ Quest:
 * **{{ item.item_name }}**, {{ item.item_desc }}
 
 Can be found in {% for room in rooms %}{% if room.room_id == item.room_id %}{{ room.room_name }}{% endif %}{% endfor %}   
-{% for objective in objectives %}{% if objective.requires == item.item_name %}Can be used to solve the objective [{{ objective.objective_title }}](#{{ objective.objective_title.replace(" ", "-") }}){% endif %}{% endfor %}   
+{% for objective in objectives %}{% if objective.requires == item.item_name %}Can be used to solve the objective [{{ objective.objective_title }}](#{{ objective.objective_title }}){% endif %}{% endfor %}   
 {% if item.item_img != "" and item.item_img != "NoImage" %}<img src="{{ session['s3_folder'] }}/world/{{ world.world_name }}/{{ item.item_img }}" alt="{{ item.item_name }}" style="zoom: 33%;" />{% endif %}
 
 [Go back to Item list](#Items)
 
 {% endfor %}
 
-[Go back to Document structure](#Document-structure)
+[Go back to Document structure](#Document structure)
