@@ -4,7 +4,7 @@ This page just displays some statistics. You can reach it by clicking on *Stats*
 
 ## Elements
 
-This section shows the number of stored elements.
+This section shows the number of elements stored inside the Postgres database.
 
 ## S3 Storage
 

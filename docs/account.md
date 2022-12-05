@@ -13,7 +13,7 @@ The following data is required:
 | Password        | Your password (should be as secure as you want it to be)                                |
 | Invitation Code | If you have an invitation code, you can enter it here to skip the registration workflow |
 
-Note: The invitation code also decides your role (creator or registered user only).
+*Note*: The invitation code also decides your role (creator or registered user only).
 
 ![New Account](./img/account_new.png)
 
@@ -32,11 +32,12 @@ If you are already logged in, you can edit your existing account data by clickin
 
 In the first section, you can enter or change the following information:  
 
-| Field       | Description                                                                                                               |
-|-------------|---------------------------------------------------------------------------------------------------------------------------|
-| E-mail      | Your e-mail address (only used to send notifications, not visible anywhere)                                               |
-| Description | Something you want to let others know about you                                                                           |
-| Image       | Your profile picture (This is displayed in the creators overview. You can also use the *storage area* to upload an image) |
+| Field              | Description                                                                                                               |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------|
+| E-mail             | Your e-mail address (only used to send notifications, not visible anywhere)                                               |
+| Description        | Something you want to let others know about you                                                                           |
+| Image              | Your profile picture (This is displayed in the creators overview. You can also use the *storage area* to upload an image) |
+| Send notifications | Receive e-mail notifications in case of certain events (world have been opened for example)                               |
 
 ![Edit Account](./img/account_edit.png)
 
