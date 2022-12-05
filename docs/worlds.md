@@ -58,9 +58,9 @@ In the section below, you can access following actions:
 A report can be in HTML format. This format can be viewed in the browser and does contain clickable links.  
 It also can be exported to other formats like PDF for example or be printed out.
 
-![World Detail 2](./img/worlds_report.png)
+![World Report 1](./img/worlds_report.png)
 
 A report can also be in Markdown format (preferred format). The result is optimized to be viewed in Markdown editors like Typora.  
 Using these tools they can be exported to PDF as well.
 
-![World Detail 2](./img/worlds_report2.png)
+![World Report 2](./img/worlds_report2.png)

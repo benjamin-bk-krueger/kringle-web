@@ -21,7 +21,7 @@ The field *Following character can give hints* lists the objective that needs to
 The entry *Requires following item* indicates the item that is needed before this challenge can be solved.  
 Using the *URL*, you can open the challenge directly (if it's web-based).  
 
-![Objectives Detail](./img/objectives_detail.png)
+![Objective Detail](./img/objectives_detail.png)
 
 In the section below, you can access following actions:  
 
@@ -35,7 +35,7 @@ In the section below, you can access following actions:
 
 *Note*: The same actions can be accessed via the *Actions* drop-down menu
 
-![Objectives Detail 2](./img/objectives_detail2.png)
+![Objective Detail 2](./img/objectives_detail2.png)
 
 The *Quest* section shows the challenge that needs to be solved in order for this *objective* to be completed.  
 
@@ -50,7 +50,7 @@ Here you can save the quest or cancel editing.
 
 - *S3 Storage* shows all files which have been uploaded for that specific world. Selecting one copies a markdown link into the clipboard which can be used in the quest description.
 
-![Objectives Detail 2](./img/objectives_detail4.png)
+![Objective Detail 4](./img/objectives_detail4.png)
 
 ### Solution editor
 
@@ -62,15 +62,15 @@ Here you can save the solution, cancel editing or delete an existing one.
 - You can *Make a solution public*, otherwise no one will be able to see it (even if the world has been opened/unlocked)
 - You can *Mark* a challange *as completed*, your percentage will be shown in the objectives list
 
-![Objectives Detail 2](./img/objectives_detail5.png)
+![Objective Detail 5](./img/objectives_detail5.png)
 
-![Objectives Detail 2](./img/objectives_detail6.png)
+![Objective Detail 6](./img/objectives_detail6.png)
 
 ### Solution viewer
 
 You can view other solutions which are public.  
 You can also like/unlike other solutions.
 
-![Objectives Detail 2](./img/objectives_detail3.png)
+![Objective Detail 3](./img/objectives_detail3.png)
 
 

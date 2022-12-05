@@ -16,7 +16,7 @@ When you click on the *room*, you can jump directly to the detailed view of the 
 If the item has an image linked, it will be displayed here as well.  
 The *description* box provides brief information about this item.  
 
-![Items Detail](./img/items_detail.png)
+![Item Detail 1](./img/items_detail.png)
 
 In the section below, you can access following actions:
 
@@ -26,4 +26,4 @@ In the section below, you can access following actions:
 * 
 *Note*: The same actions can be accessed via the *Actions* drop-down menu
 
-![Room Detail](./img/items_detail2.png)
+![Item Detail 2](./img/items_detail2.png)

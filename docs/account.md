@@ -49,4 +49,4 @@ In the second section, you can change your password.
 
 In the third section, you can delete your user account. Please be aware that all solutions which have been created by this user account will also be deleted!
 
-![Edit Account](./img/account_edit2.png)
+![Edit Account 2](./img/account_edit2.png)

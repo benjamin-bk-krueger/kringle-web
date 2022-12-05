@@ -29,7 +29,7 @@ You can also see the linked elements
 - *Available Persons* shows all persons found there
 - *Available Junctions* shows all junctions found in that room linking it to other rooms
 
-![Room Detail](./img/rooms_detail.png)
+![Room Detail 1](./img/rooms_detail.png)
 
 In the section below, you can access following actions:
 
@@ -39,4 +39,4 @@ In the section below, you can access following actions:
 
 *Note*: The same actions can be accessed via the *Actions* drop-down menu
 
-![Room Detail](./img/rooms_detail2.png)
+![Room Detail 2](./img/rooms_detail2.png)

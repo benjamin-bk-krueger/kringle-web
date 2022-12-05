@@ -11,8 +11,10 @@ nav:
     - Creators: creators.md
     - Worlds: worlds.md
     - Rooms: rooms.md
-    - Items: items.md
     - Objectives: objectives.md
+    - Items: items.md
+    - Persons: persons.md
+    - Junctions: junctions.md
     - REST API: restapi.md
 theme: readthedocs
 markdown_extensions:
