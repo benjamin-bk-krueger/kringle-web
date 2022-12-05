@@ -12,14 +12,18 @@ If you click on an entry, you will be taken to the detailed view.
 ## Detailed View
 
 In the detailed view you can inform yourself about the item.  
-When you click on the *room*, you can jump directly to the detailed view of the respective room of which this item is part.  
+When you click on the *room*, you can jump directly to the detailed view of the respective room which this item is part of.  
 If the item has an image linked, it will be displayed here as well.  
 The *description* box provides brief information about this item.  
 
 ![Items Detail](./img/items_detail.png)
 
-Below are some actions you can perform for this item. Please note that it depends on your role which actions are available.
+In the section below, you can access following actions:
 
-* When you click on *All Items* you will get back to the items overview.  
-* You can edit the name, description or Image URL again by clicking on *Edit Item* 
-* If you click on *Delete Item* this item will be irrevocably deleted. 
+* The *list* symbol leads back to the items overview
+* The *pencil* symbol allows you to edit the item description and the linked image (`creator` role necessary, and world ownership)
+* The *trashcan* symbol will irrevocably delete that item
+* 
+*Note*: The same actions can be accessed via the *Actions* drop-down menu
+
+![Room Detail](./img/items_detail2.png)

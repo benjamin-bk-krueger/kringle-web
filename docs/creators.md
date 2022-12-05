@@ -21,4 +21,4 @@ In the section below, you can access following actions:
 
 - The *list* symbol leads back to the creators overview
 
-Note: The same actions can be accessed via the *Actions* drop-down menu
+*Note*: The same actions can be accessed via the *Actions* drop-down menu
