@@ -3,7 +3,7 @@
 echo "Starting..."
 
 # Stop server
-killall /usr/bin/python3
+killall /home/kringle/venv/bin/python3
 
 # Pull current GIT repo
 cd /home/kringle/git/kringle-web/

@@ -11,16 +11,16 @@ services:
       - SECRET_KEY=secret-key-goes-here
       - FLASK_ENV=development
       - FLASK_DEBUG=1
-      - S3_ENDPOINT=https://s3.kringle.info:9000
-      - S3_FOLDER=https://s3.kringle.info:9000/kringle-public
+      - S3_ENDPOINT=http://minio:9000
+      - S3_FOLDER=http://localhost:9000/kringle-public
       - S3_QUOTA=100
       - BUCKET_PUBLIC=kringle-public
       - BUCKET_PRIVATE=kringle-private
-      - WWW_SERVER=https://kringle.info
+      - WWW_SERVER=http://localhost:5010
       - MAIL_ENABLE=0
       - MAIL_SERVER=localhost
-      - MAIL_SENDER=mail@kringle.info
-      - MAIL_ADMIN=admin@kringle.info
+      - MAIL_SENDER=mail@localhost
+      - MAIL_ADMIN=admin@localhost
       - APP_VERSION=1.1
       - APP_PREFIX=
     command: sh /home/kringle/flask.sh
@@ -42,8 +42,38 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
-#      - ./db/kringle.dump:/tmp/kringle.dump 
+#      - ./db/kringle.dump:/tmp/kringle.dump
+
+  minio:
+    image: minio/minio
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9010:9010"
+    environment:
+      MINIO_ACCESS_KEY: minio_access_key
+      MINIO_SECRET_KEY: minio_secret_key
+    volumes:
+      - s3:/data
+    command: server --address ":9000" --console-address ":9010" /data
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (/usr/bin/mc config host add kringle http://minio:9000 minio_access_key minio_secret_key) do echo '...waiting...' && sleep 1; done;
+      /usr/bin/mc mb kringle/kringle-private/;
+      /usr/bin/mc mb kringle/kringle-public/;
+      /usr/bin/mc anonymous set public kringle/kringle-public;
+      echo EMPTY > empty.txt;
+      /usr/bin/mc cp empty.txt kringle/kringle-public/user/empty.txt;
+      /usr/bin/mc cp empty.txt kringle/kringle-public/world/empty.txt;
+      exit 0;
+      "
 
 volumes:
   db:
+    driver: local
+  s3:
     driver: local
