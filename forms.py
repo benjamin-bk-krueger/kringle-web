@@ -84,7 +84,7 @@ class PersonForm(FlaskForm):
 class ObjectiveForm(FlaskForm):
     name = StringField('Character Name', validators=[InputRequired()])
     title = StringField('Objective Title', validators=[InputRequired()])
-    difficulty = SelectField('Difficulty', choices=[1, 2, 3, 4, 5])
+    difficulty = SelectField('Difficulty', choices=[0, 1, 2, 3, 4, 5])
     url = StringField('URL')
     supported = SelectField('Supported by', choices=["none"], validate_choice=False)
     requires = SelectField('Requires', choices=["none"], validate_choice=False)
