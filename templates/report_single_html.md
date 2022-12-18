@@ -2,7 +2,7 @@
 
 **Overview**   
 Difficulty: ({{ objective.difficulty }})   
-Task Name: {{ objective.objective_title }}   
+Task Name: {{ objective.objective_name }}   
 Challenge:   
 {% if md_quest | length < 5 %}This challenge has no description yet.{% endif %}   
 {{ md_quest | safe }}   
