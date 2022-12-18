@@ -4,7 +4,8 @@
 
 ## About {{ world.world_name }}
 
-{{ world.world_desc }} - Visit {{ world.world_url }} to get more information.
+{{ world.world_desc }}  
+Visit {{ world.world_url }} to get more information.
 
 ![{{ world.world_name }} Logo]({{ session['s3_folder'] }}/world/{{ world.world_name }}/{{ world.world_img }})
 
@@ -15,15 +16,18 @@ It has been generated using [Kringle.info](https://kringle.info).
 
 ## About the author
 
-Document creator: {{ creator.creator_name }} - {{ creator.creator_desc }}.
+Document creator: {{ creator.creator_name }}.  
+{{ creator.creator_desc }}
 
 ## Document structure
 
 **Rooms**   
-Each room contains certain challenges. Follow [this link](#Rooms) to see which rooms are available.
+Each room contains certain challenges.  
+Follow [this link](#Rooms) to see which rooms are available.
 
 **Challenges**   
-The challenges are the main tasks you have to achieve. Follow [this link](#Challenges) to see which challenges are available.
+The challenges are the main tasks you have to achieve.  
+Follow [this link](#Challenges) to see which challenges are available.
 
 # Rooms
 

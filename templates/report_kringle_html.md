@@ -8,7 +8,8 @@ KringleCon relates to SANS' Holiday Hacking Challenge which happens yearly aroun
 
 ## About {{ world.world_name }}
 
-{{ world.world_desc }} - Visit {{ world.world_url }} to get more information.
+{{ world.world_desc }}  
+Visit {{ world.world_url }} to get more information.
 
 ![{{ world.world_name }} Logo]({{ session['s3_folder'] }}/world/{{ world.world_name }}/{{ world.world_img }})
 
@@ -19,21 +20,26 @@ It has been generated using [Kringle.info](https://kringle.info).
 
 ## About the author
 
-Document creator: {{ creator.creator_name }} - {{ creator.creator_desc }}.
+Document creator: {{ creator.creator_name }}.  
+{{ creator.creator_desc }}
 
 ## Document structure
 
 **Rooms**   
-Each room contains certain events (the main objectives and secondary hints). Have a look for the characters and terminals - you can talk and interact with them to get tasks and/or hints. Follow [this link](#Rooms) to see which rooms are available.
+Each room contains certain events (the main objectives and secondary hints). Have a look for the characters and terminals - you can talk and interact with them to get tasks and/or hints.  
+Follow [this link](#Rooms) to see which rooms are available.
 
 **Objectives**   
-The objectives are the main tasks you have to achieve. Each objective has a different difficulty so there's always something for you. Just focus on the objectives which you feel comfortable with and keep the more difficult ones for later. This year there are {{ objectives.count() }} objectives and hints in total, just follow [this link](#Objectives) to get an overview over all objectives.
+The objectives are the main tasks you have to achieve. Each objective has a different difficulty so there's always something for you. Just focus on the objectives which you feel comfortable with and keep the more difficult ones for later.  
+This year there are {{ objectives.count() }} objectives and hints in total, just follow [this link](#Objectives) to get an overview over all objectives.
 
 **Hints**   
-The hints are somewhat secondary/side tasks you may want to achieve. On the one side they are fun and on the other side each character can give you helpful hints for the main objectives by solving his task. Just follow [this link](#Hints) to get an overview over all hints.
+The hints are somewhat secondary/side tasks you may want to achieve. On the one side they are fun and on the other side each character can give you helpful hints for the main objectives by solving his task.  
+Just follow [this link](#Hints) to get an overview over all hints.
 
 **Items**   
-The items can be found by looking around at the Con and eventually by solving other challenges. Items can be used to help you solve further challenges/objectives. This year there are {{ items.count() }} items, just follow [this link](#Items) to get an overview over all items.
+The items can be found by looking around at the Con and eventually by solving other challenges. Items can be used to help you solve further challenges/objectives.  
+This year there are {{ items.count() }} items, just follow [this link](#Items) to get an overview over all items.
 
 # Rooms
 
