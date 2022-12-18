@@ -68,9 +68,9 @@ Hint: Not all destinations are reachable when you start your journey. You might 
 ## {{ objective.objective_title }}
 
 **Overview**   
-Requested by {{ objective.objective_name }}, {{ objective.objective_desc }}, {% for room in rooms %}{% if room.room_id == objective.room_id %}found in {{ room.room_name }}{% endif %}{% endfor %}   
+{{ objective.objective_desc }}  
 Difficulty: ({{ objective.difficulty }}/5)   
-Task Name / Task Giver: {{ objective.objective_name }}   
+Task Name / Task Giver: {{ objective.objective_name }}, {% for room in rooms %}{% if room.room_id == objective.room_id %}found in {{ room.room_name }}{% endif %}{% endfor %}   
 
 **Challenge**   
 {% if md_quests[objective.objective_id] | length < 5 %}This objective has no challenge yet{% endif %}   
@@ -97,8 +97,8 @@ Task Name / Task Giver: {{ objective.objective_name }}
 ## {{ objective.objective_title }}
 
 **Overview**
-Requested by {{ objective.objective_name }}, {{ objective.objective_desc }}, {% for room in rooms %}{% if room.room_id == objective.room_id %}found in {{ room.room_name }}{% endif %}{% endfor %}   
-Task Name / Task Giver: {{ objective.objective_name }}   
+{{ objective.objective_desc }}  
+Task Name / Task Giver: {{ objective.objective_name }}, {% for room in rooms %}{% if room.room_id == objective.room_id %}found in {{ room.room_name }}{% endif %}{% endfor %}   
 
 **Challenge**   
 {% if md_quests[objective.objective_id] | length < 5 %}This objective has no challenge yet{% endif %}   

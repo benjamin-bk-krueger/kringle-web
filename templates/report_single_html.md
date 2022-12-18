@@ -1,6 +1,7 @@
 # {{ objective.objective_title }}
 
 **Overview**   
+{{ objective.objective_desc }}  
 Difficulty: ({{ objective.difficulty }})   
 Task Name / Task Giver: {{ objective.objective_name }}   
 
