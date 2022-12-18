@@ -67,7 +67,7 @@ Hint: Not all destinations are reachable when you start your journey. You might 
 {% for objective in objectives %}{% if objective.difficulty > 0 %}
 ## {{ objective.objective_title }}
 
-**Overview**
+**Overview**  
 {% if objective.objective_img != "" and objective.objective_img != "NoImage" %}<img src="{{ session['s3_folder'] }}/world/{{ world.world_name }}/{{ objective.objective_img }}" alt="{{ objective.objective_name }}" style="zoom: 33%;" />{% endif %}  
 {{ objective.objective_desc }}  
 Difficulty: ({{ objective.difficulty }}/5)   
@@ -96,7 +96,7 @@ Task Name / Task Giver: {{ objective.objective_name }}, {% for room in rooms %}{
 {% for objective in objectives %}{% if objective.difficulty == 0 %}
 ## {{ objective.objective_title }}
 
-**Overview**
+**Overview**  
 {% if objective.objective_img != "" and objective.objective_img != "NoImage" %}<img src="{{ session['s3_folder'] }}/world/{{ world.world_name }}/{{ objective.objective_img }}" alt="{{ objective.objective_name }}" style="zoom: 33%;" />{% endif %}  
 {{ objective.objective_desc }}  
 Task Name / Task Giver: {{ objective.objective_name }}, {% for room in rooms %}{% if room.room_id == objective.room_id %}found in {{ room.room_name }}{% endif %}{% endfor %}   
