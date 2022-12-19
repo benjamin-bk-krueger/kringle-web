@@ -52,6 +52,7 @@ services:
     environment:
       MINIO_ACCESS_KEY: minio_access_key
       MINIO_SECRET_KEY: minio_secret_key
+    container_name: kringle_s3
     volumes:
       - s3:/data
     command: server --address ":9000" --console-address ":9010" /data
@@ -60,6 +61,7 @@ services:
     image: minio/mc
     depends_on:
       - minio
+    container_name: kringle_buckets
     entrypoint: >
       /bin/sh -c "
       until (/usr/bin/mc config host add kringle http://minio:9000 minio_access_key minio_secret_key) do echo '...waiting...' && sleep 1; done;
