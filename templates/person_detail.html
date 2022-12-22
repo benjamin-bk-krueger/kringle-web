@@ -13,7 +13,7 @@
         <div class="card mb-3" style="max-width: 720px;">
             <div class="row g-0">
                 <div class="col-md-4">
-                    <img src="{{ session['s3_prefix'] + "/" + person.person_img if (person.person_img!='') else '/static/not_found.jpg' }}" class="img-fluid rounded-start" alt="Person Image">
+                    <img src="{{ session['s3_prefix'] + "/" + person.person_img if (person.person_img!='NoImage') else '/static/not_found.jpg' }}" class="img-fluid rounded-start" alt="Person Image">
                 </div>
                 <div class="col-md-8">
                     <div class="card-body">
