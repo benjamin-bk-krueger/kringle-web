@@ -5,6 +5,9 @@
 */
 
 job("Build and push Docker") {
+    parameters {
+        secret("private-key", "{{ project:VPS_KEY }}")
+    }
     host("Build and push a Docker image") {
         dockerBuildPush {
             // by default, the step runs not only 'docker build' but also 'docker push'
@@ -31,10 +34,12 @@ job("Build and push Docker") {
             }
         }
         shellScript {
+            fileInput {
+                source = FileSource.Text("{{ private-key }}")
+                localPath = "/root/.ssh/id_rsa"
+            }
             content = """
                 set -e
-                env["VPS_KEY"] = "{{ project:VPS_KEY }}"
-                ssh-add - <<< "${VPS_KEY}"
                 ssh {{ project:VPS_USERNAME }}@{{ project:VPS_HOST }} -p {{ project:VPS_PORT }} {{ project:VPS_CMD }}
             """
         }
