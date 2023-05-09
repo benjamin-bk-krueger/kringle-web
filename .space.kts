@@ -40,7 +40,9 @@ job("Build and push Docker") {
         shellScript {
             content = """
                 set -e
-                ssh -i /root/.ssh/id_rsa {{ project:VPS_USERNAME }}@{{ project:VPS_HOST }} -p {{ project:VPS_PORT }} {{ project:VPS_CMD }}
+                pwd
+                ls -l /root/.ssh/id_rsa
+                ssh -i /root/.ssh/id_rsa -o "StrictHostKeyChecking=no" {{ project:VPS_USERNAME }}@{{ project:VPS_HOST }} -p {{ project:VPS_PORT }} {{ project:VPS_CMD }}
             """
         }
     }
