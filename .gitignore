@@ -1,4 +1,5 @@
 .aws/
-.idea
+.idea/
 site/
+venv/
 db/kringle.dump
