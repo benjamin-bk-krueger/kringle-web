@@ -40,7 +40,7 @@ job("Build and push Docker") {
         shellScript {
             content = """
                 set -e
-                ssh {{ project:VPS_USERNAME }}@{{ project:VPS_HOST }} -p {{ project:VPS_PORT }} {{ project:VPS_CMD }}
+                ssh -i /root/.ssh/id_rsa {{ project:VPS_USERNAME }}@{{ project:VPS_HOST }} -p {{ project:VPS_PORT }} {{ project:VPS_CMD }}
             """
         }
     }
