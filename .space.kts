@@ -19,6 +19,8 @@ job("Build and push Docker") {
                 set -e
                 pwd
                 chmod 0400 /root/.ssh/id_rsa
+                tail -1 /root/.ssh/id_rsa
+                head -1 /root/.ssh/id_rsa
                 ls -l /root/.ssh/id_rsa
                 ssh -i /root/.ssh/id_rsa -o "StrictHostKeyChecking=no" {{ project:VPS_USERNAME }}@{{ project:VPS_HOST }} -p {{ project:VPS_PORT }} {{ project:VPS_CMD }}
             """
