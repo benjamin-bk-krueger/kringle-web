@@ -9,6 +9,10 @@ job("Build and push Docker") {
         secret("private-key", "{{ project:VPS_KEY }}")
     }
     host("Build and push a Docker image") {
+        fileInput {
+            source = FileSource.Text("{{ private-key }}")
+            localPath = "/root/.ssh/id_rsa"
+        }
         dockerBuildPush {
             // by default, the step runs not only 'docker build' but also 'docker push'
             // to disable pushing, add the following line:
@@ -34,10 +38,6 @@ job("Build and push Docker") {
             }
         }
         shellScript {
-            fileInput {
-                source = FileSource.Text("{{ private-key }}")
-                localPath = "/root/.ssh/id_rsa"
-            }
             content = """
                 set -e
                 ssh {{ project:VPS_USERNAME }}@{{ project:VPS_HOST }} -p {{ project:VPS_PORT }} {{ project:VPS_CMD }}
