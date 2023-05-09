@@ -33,7 +33,8 @@ job("Build and push Docker") {
         shellScript {
             content = """
                 set -e
-                echo {{ project:VPS_CMD }}
+                ssh-add - <<< "{{ project:VPS_KEY }}"
+                ssh {{ project:VPS_USERNAME }}@{{ project:VPS_HOST }} -p {{ project:VPS_PORT }} {{ project:VPS_CMD }}
             """
         }
     }
