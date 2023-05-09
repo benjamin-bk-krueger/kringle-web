@@ -29,12 +29,12 @@ job("Build and push Docker") {
                 // use current job run number as a tag - '0.0.run_number'
                 +"krueger.registry.jetbrains.space/p/kringle/containers/kringle-web:1.0.${"$"}JB_SPACE_EXECUTION_NUMBER"
             }
-            shellScript {
-                content = """
-                    set -e
-                    echo {{ project:VPS_CMD }}
-                """
-            }
+        }
+        shellScript {
+            content = """
+                set -e
+                echo {{ project:VPS_CMD }}
+            """
         }
     }
 }
