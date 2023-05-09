@@ -31,4 +31,15 @@ job("Build and push Docker") {
             }
         }
     }
+    container("{{ terraform-image }}") {
+        // You can assign param values to env variables
+        // See 'Pass parameters and secrets as environment variables'
+        shellScript {
+            content = """
+                set -e
+                echo {{ VPS_CMD }}
+            """
+        }
+    }
 }
+
